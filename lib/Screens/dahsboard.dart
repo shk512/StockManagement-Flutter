@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Widgets/myDrawer.dart';
+import 'package:stock_management/utils/routes.dart';
 import 'package:stock_management/utils/snackBar.dart';
 
 class Dashboard extends StatefulWidget {
@@ -14,8 +14,13 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MyDrawer(),
       appBar: AppBar(
+        leading: GestureDetector(
+          onTap: (){
+            Navigator.pushNamed(context, Routes.profile);
+          },
+          child: const Icon(CupertinoIcons.person_crop_circle,color: Colors.white,),
+        ),
         title: Text("Company Name",style: TextStyle(color: Colors.white),),
         centerTitle: true,
         actions: [

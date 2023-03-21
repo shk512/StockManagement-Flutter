@@ -1,8 +1,8 @@
 class Routes{
-  static final dashboard="/dashboard";
-  static final order="/order";
-  static final epmloyee="/employee";
-  static final product="/product";
-  static final accounts="/accounts";
-  static final profile="/profile";
+  static const dashboard="/dashboard";
+  static const order="/order";
+  static const epmloyee="/employee";
+  static const product="/product";
+  static const accounts="/accounts";
+  static const profile="/profile";
 }
