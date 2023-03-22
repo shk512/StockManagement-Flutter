@@ -35,7 +35,6 @@ class _SignupState extends State<Signup> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getCompanyDetails();
   }
