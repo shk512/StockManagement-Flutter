@@ -1,15 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class User{
+class UserModel{
   static String mail="";
   static String phone="";
   static String role="";
-  static String wallet="";
+  static double wallet=0;
   static String companyId="";
   static String salary="";
   static String name="";
 
-  User(String companyId1,String mail1,String phone1,String role1,String salary1,String name1){
+  UserModel(String companyId1,String mail1,String phone1,String role1,String salary1,String name1){
     mail=mail1;
     name=name1;
     phone=phone1;

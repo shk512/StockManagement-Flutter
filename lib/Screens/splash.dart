@@ -1,8 +1,14 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Models/company.dart';
+import 'package:stock_management/Models/user.dart';
+import 'package:stock_management/Services/DB/company_db.dart';
+import 'package:stock_management/Services/DB/user_db.dart';
 import 'dart:math' as math;
-
+import '../Services/shared_preferences/spf.dart';
 import '../utils/routes.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,14 +19,13 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
-  late AnimationController _controller=AnimationController(
-      duration: Duration(seconds: 5),
+  late final AnimationController _controller=AnimationController(
+      duration: const Duration(seconds: 5),
       vsync: this
   )..repeat();
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     Timer(Duration(seconds: 5), () {
       Navigator.pushNamed(context, Routes.login);
@@ -45,10 +50,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             children: [
               AnimatedBuilder(
                   animation: _controller,
-                  child: Container(
+                  child: const SizedBox(
                     height: 200,
                     width: 200,
-                    child: const Center(
+                    child: Center(
                       child: Image(image: AssetImage("image/stock.png"),),
                     ),
                   ),
@@ -59,12 +64,12 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                     );
                   }),
               SizedBox(height: MediaQuery.of(context).size.height*.04,),
-              Image(image: AssetImage("image/pos.png")),
+              const Image(image: AssetImage("image/pos.png")),
               SizedBox(height: MediaQuery.of(context).size.height*.04,),
-              Text(
+              const Text(
                 "Developed By\n360 Tech",
                 textAlign:TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.cyan),)
+                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.cyan,letterSpacing: 2),)
             ],
           ),
         ),

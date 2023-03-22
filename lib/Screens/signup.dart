@@ -47,14 +47,16 @@ class _SignupState extends State<Signup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Company.companyName!=""||!isLoading?SingleChildScrollView(
+      body: Company.companyName==""||isLoading
+          ?const Center(child: CircularProgressIndicator(),)
+          :SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
           child: Form(
             key: formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Image(image: AssetImage("image/signup.png")),
                 Center(child: Text(Company.companyName,style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 25),)),
@@ -85,7 +87,7 @@ class _SignupState extends State<Signup> {
                     icon: const Icon(Icons.password)),
                 const SizedBox(height: 20,),
                 const Text(
-                  "Role:", style: TextStyle(fontWeight: FontWeight.bold),),
+                  "Role:", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
                 radioButtons("Admin", UserRole.admin),
                 radioButtons("Order Taker", UserRole.orderTaker),
                 radioButtons("Supplier", UserRole.supplier),
@@ -101,13 +103,18 @@ class _SignupState extends State<Signup> {
                   }else if(_role==UserRole.orderTaker){
                     role="orderTaker";
                   }
-                  signup();
+                  if(pass.text==cPass.text){
+                    signup();
+                  }else{
+                    showSnackbar(context, Colors.red, "Oops! Password doesn't match");
+                  }
+
                 }, child: const Text("SignUp")),
               ],
             ),
           ),
         ),
-      ):const Center(child: CircularProgressIndicator(),),
+      )
     );
   }
 
@@ -133,11 +140,16 @@ class _SignupState extends State<Signup> {
         isLoading=true;
       });
       await auth.createUser(mail.text, pass.text).then((value)async{
-        if(value!=null){
-          await UserDb(id: value.toString()).saveUser(User(Company.companyId,mail.text,contact.text,role,salary.text,name.text).toJson()).then((value)async{
+        if(value.toString()=="The email address is already in use by another account."){
+          setState(() {
+            isLoading=false;
+          });
+          showSnackbar(context, Colors.red, value.toString());
+        }else if(value!=null){
+          await UserDb(id: value.toString()).saveUser(UserModel(Company.companyId,mail.text,contact.text,role,salary.text,name.text).toJson()).then((value)async{
             if(value){
               setState(() {
-                isLoading=true;
+                isLoading=false;
               });
               await SPF.saveUserLogInStatus(true);
               showSnackbar(context, Colors.cyan, "Registered Successffully!");

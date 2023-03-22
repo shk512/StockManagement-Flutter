@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Screens/account.dart';
-import 'package:stock_management/Screens/dahsboard.dart';
+import 'package:stock_management/Screens/dashboard.dart';
 import 'package:stock_management/Screens/employee.dart';
 import 'package:stock_management/Screens/login.dart';
 import 'package:stock_management/Screens/new_company.dart';
@@ -11,8 +11,6 @@ import 'package:stock_management/Screens/profile.dart';
 import 'package:stock_management/Screens/splash.dart';
 import 'package:stock_management/firebase_options.dart';
 import 'package:stock_management/utils/routes.dart';
-
-import 'Screens/signup.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,8 +33,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         primarySwatch: Colors.cyan,
       ),
-      home: Signup(companyId: "1679404331686000",),
-      //initialRoute: Routes.splash,
+      initialRoute: Routes.splash,
       routes: {
         Routes.newCompany:(context)=>const NewCompany(),
         Routes.splash:(context) => const SplashScreen(),

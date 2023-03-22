@@ -28,6 +28,7 @@ class Auth{
       if (user != null) {
         return user.uid;
       }
+      return null;
     } on FirebaseAuthException catch (e) {
       return e.message;
     }

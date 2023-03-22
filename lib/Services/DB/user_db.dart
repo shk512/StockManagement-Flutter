@@ -9,7 +9,7 @@ class UserDb{
 
   //get UserData
   getData()async{
-    await userCollection.doc(id).get();
+    return await userCollection.doc(id).get();
   }
 
   //save user
