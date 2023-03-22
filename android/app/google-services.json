@@ -1,34 +1,78 @@
 {
   "project_info": {
-    "project_number": "597540165276",
-    "project_id": "stockapp-7250e",
-    "storage_bucket": "stockapp-7250e.appspot.com"
+    "project_number": "1089228164764",
+    "firebase_url": "https://point-of-sales-f74aa-default-rtdb.firebaseio.com",
+    "project_id": "point-of-sales-f74aa",
+    "storage_bucket": "point-of-sales-f74aa.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:597540165276:android:c43cec24c498289ac53f59",
+        "mobilesdk_app_id": "1:1089228164764:android:ed85e96feda8db830ae759",
         "android_client_info": {
-          "package_name": "com.example.stock_management"
+          "package_name": "com.example.stock_admin"
         }
       },
       "oauth_client": [
         {
-          "client_id": "597540165276-9i1ipkqk17ojp4t2euar0tjt67bl24kb.apps.googleusercontent.com",
+          "client_id": "1089228164764-u544s8udbrtl26crcpvd51jsid9ri1gl.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBAslTiBlK0ueJDxUtnhbMAagF71lpyf94"
+          "current_key": "AIzaSyA-VhpX0261Iez90Ar_5hsqJg3nJ4CbJjk"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "597540165276-9i1ipkqk17ojp4t2euar0tjt67bl24kb.apps.googleusercontent.com",
+              "client_id": "1089228164764-u544s8udbrtl26crcpvd51jsid9ri1gl.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1089228164764-65ic9cg2k46apkdp52bshvmlp39vfrqa.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.stockAdmin"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1089228164764:android:272c73b8f942aa470ae759",
+        "android_client_info": {
+          "package_name": "com.example.stock_management"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1089228164764-u544s8udbrtl26crcpvd51jsid9ri1gl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-VhpX0261Iez90Ar_5hsqJg3nJ4CbJjk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1089228164764-u544s8udbrtl26crcpvd51jsid9ri1gl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1089228164764-65ic9cg2k46apkdp52bshvmlp39vfrqa.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.stockAdmin"
+              }
             }
           ]
         }

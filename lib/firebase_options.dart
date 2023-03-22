@@ -47,30 +47,33 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyC7HbDslaT9P5CwWkKmYeW9MrllDkA4BPY',
-    appId: '1:597540165276:web:f35c87a5b2dea018c53f59',
-    messagingSenderId: '597540165276',
-    projectId: 'stockapp-7250e',
-    authDomain: 'stockapp-7250e.firebaseapp.com',
-    storageBucket: 'stockapp-7250e.appspot.com',
-    measurementId: 'G-Q8KPZX1MMQ',
+    apiKey: 'AIzaSyDOp81DxuLB-7evL-7MVY64uASM-mk2wVc',
+    appId: '1:1089228164764:web:bbbaa9debc7e4d1b0ae759',
+    messagingSenderId: '1089228164764',
+    projectId: 'point-of-sales-f74aa',
+    authDomain: 'point-of-sales-f74aa.firebaseapp.com',
+    databaseURL: 'https://point-of-sales-f74aa-default-rtdb.firebaseio.com',
+    storageBucket: 'point-of-sales-f74aa.appspot.com',
+    measurementId: 'G-F9Z656B1XC',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBAslTiBlK0ueJDxUtnhbMAagF71lpyf94',
-    appId: '1:597540165276:android:c43cec24c498289ac53f59',
-    messagingSenderId: '597540165276',
-    projectId: 'stockapp-7250e',
-    storageBucket: 'stockapp-7250e.appspot.com',
+    apiKey: 'AIzaSyA-VhpX0261Iez90Ar_5hsqJg3nJ4CbJjk',
+    appId: '1:1089228164764:android:272c73b8f942aa470ae759',
+    messagingSenderId: '1089228164764',
+    projectId: 'point-of-sales-f74aa',
+    databaseURL: 'https://point-of-sales-f74aa-default-rtdb.firebaseio.com',
+    storageBucket: 'point-of-sales-f74aa.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBiunqUSVXi6l67WCQxVZzMORc9FwqqUQ4',
-    appId: '1:597540165276:ios:edfd1dfdea4cc20bc53f59',
-    messagingSenderId: '597540165276',
-    projectId: 'stockapp-7250e',
-    storageBucket: 'stockapp-7250e.appspot.com',
-    iosClientId: '597540165276-65c5e49koqavoq7nr1ptgfhlavpo25jq.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCG_7TKewm15q6050AUIJwDcwYtcfIxBXU',
+    appId: '1:1089228164764:ios:f44dab62398834940ae759',
+    messagingSenderId: '1089228164764',
+    projectId: 'point-of-sales-f74aa',
+    databaseURL: 'https://point-of-sales-f74aa-default-rtdb.firebaseio.com',
+    storageBucket: 'point-of-sales-f74aa.appspot.com',
+    iosClientId: '1089228164764-mstfmgdeglp9gphuh8t8s3jv8s3j03dj.apps.googleusercontent.com',
     iosBundleId: 'com.example.stockManagement',
   );
 }
