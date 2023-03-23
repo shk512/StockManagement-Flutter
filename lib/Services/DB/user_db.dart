@@ -7,6 +7,11 @@ class UserDb{
   //Reference Collection
   final userCollection=FirebaseFirestore.instance.collection("user");
 
+  //Get ALl users
+  getAllUser(){
+    return userCollection.snapshots();
+  }
+
   //get UserData
   getData()async{
     return await userCollection.doc(id).get();

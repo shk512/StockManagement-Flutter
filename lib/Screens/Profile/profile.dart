@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Models/user.dart';
+import 'package:stock_management/Models/user_model.dart';
 
-import '../Models/company.dart';
+import '../../Models/company_model.dart';
+
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -20,20 +21,20 @@ class _ProfileState extends State<Profile> {
           onTap: (){
             Navigator.pop(context);
           },
-          child: Icon(CupertinoIcons.back,color: Colors.white,),
+          child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
-        title: Expanded(child: Text(UserModel.mail)),
+        title: Text(UserModel.mail,style: TextStyle(color: Colors.white),),
         centerTitle: true,
         actions: [
-          Icon(Icons.account_balance_wallet_outlined,color: Colors.white,),
+          const Icon(Icons.account_balance_wallet_outlined,color: Colors.white,),
           Padding(
-              padding:EdgeInsets.symmetric(horizontal: 10,vertical: 20),
-              child: Text("Rs. ${UserModel.wallet}",style: TextStyle(fontSize: 17,color: Colors.white),textAlign: TextAlign.center,))
+              padding:const EdgeInsets.symmetric(horizontal: 10,vertical: 20),
+              child: Text("Rs. ${UserModel.wallet}",style: const TextStyle(fontSize: 17,color: Colors.white),textAlign: TextAlign.center,))
         ],
       ),
       body: SingleChildScrollView(
         child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,9 +47,9 @@ class _ProfileState extends State<Profile> {
               const SizedBox(height: 10),
               displayFunction("Designation", UserModel.role),
               const SizedBox(height: 10),
-              UserModel.salary!=""?displayFunction("Salary", UserModel.salary):SizedBox(),
+              UserModel.salary!=""?displayFunction("Salary", UserModel.salary):const SizedBox(),
               const SizedBox(height: 10),
-              UserModel.role=="admin"?Container():Text("Area",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+              UserModel.role=="admin"?Container():const Text("Area",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
             ],
         ),
         ),
@@ -60,7 +61,7 @@ class _ProfileState extends State<Profile> {
       children: [
         Expanded(
             flex: 2,
-            child: Text(label,style: TextStyle(fontWeight: FontWeight.w900),)
+            child: Text(label,style: const TextStyle(fontWeight: FontWeight.w900),)
         ),
         Expanded(
             flex: 3,

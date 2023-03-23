@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Models/company.dart';
-import 'package:stock_management/Models/user.dart';
+import 'package:stock_management/Models/company_model.dart';
+import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
@@ -10,7 +10,7 @@ import 'package:stock_management/Services/shared_preferences/spf.dart';
 import 'package:stock_management/Widgets/text_field.dart';
 import 'package:stock_management/utils/snackBar.dart';
 
-import '../utils/routes.dart';
+import '../../utils/routes.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -19,16 +19,16 @@ class Login extends StatefulWidget {
   State<Login> createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> with TickerProviderStateMixin{
-  late final AnimationController _controller=AnimationController(
+class _LoginState extends State<Login> {
+  /*late final AnimationController _controller=AnimationController(
       duration: const Duration(seconds: 5),
       vsync: this
   )..repeat();
   @override
   void dispose() {
+  _controller.dispose();
     super.dispose();
-    _controller.dispose();
-  }
+  }*/
 
   TextEditingController mail=TextEditingController();
   TextEditingController pass=TextEditingController();
@@ -43,14 +43,15 @@ class _LoginState extends State<Login> with TickerProviderStateMixin{
       body: isLoading
           ?const Center(child: CircularProgressIndicator())
       :SingleChildScrollView(
-        child:Center(
+        child:Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20,vertical: 30),
             child: Form(
                 key: formKey,
                 child: Column(
                   
                   children:[
                     const Image(image: AssetImage("image/login.png")),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 40),
                     TxtField(labelTxt: "Email", hintTxt: "Enter your email", ctrl: mail, icon: const Icon(Icons.mail_outline_sharp)),
                     const SizedBox(height: 20,),
                     TxtField(labelTxt: "Password", hintTxt: "Enter Your Password", ctrl: pass, icon: const Icon(Icons.password)),

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Models/company.dart';
-import 'package:stock_management/Models/user.dart';
+import 'package:stock_management/Models/company_model.dart';
+import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
@@ -10,7 +10,7 @@ import 'package:stock_management/Widgets/text_field.dart';
 import 'package:stock_management/utils/enum.dart';
 import 'package:stock_management/utils/snackBar.dart';
 
-import '../utils/routes.dart';
+import '../../utils/routes.dart';
 
 class Signup extends StatefulWidget {
   final String companyId;
@@ -41,13 +41,15 @@ class _SignupState extends State<Signup> {
 
   getCompanyDetails() async {
     DocumentSnapshot snapshot=await CompanyDb(id: widget.companyId).getData();
-    await Company.fromJson(snapshot);
+    setState(() {
+      Company.fromJson(snapshot);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Company.companyName==""||isLoading
+      body: isLoading
           ?const Center(child: CircularProgressIndicator(),)
           :SingleChildScrollView(
         child: Padding(
@@ -109,7 +111,7 @@ class _SignupState extends State<Signup> {
                     showSnackbar(context, Colors.red, "Oops! Password doesn't match");
                   }
 
-                }, child: const Text("SignUp")),
+                }, child: const Text("Register")),
               ],
             ),
           ),
@@ -146,7 +148,7 @@ class _SignupState extends State<Signup> {
           });
           showSnackbar(context, Colors.red, value.toString());
         }else if(value!=null){
-          await UserDb(id: value.toString()).saveUser(UserModel(Company.companyId,mail.text,contact.text,role,salary.text,name.text).toJson()).then((value)async{
+          await UserDb(id: value.toString()).saveUser(UserModel(Company.companyId,mail.text,contact.text,role,salary.text,name.text,value.toString()).toJson()).then((value)async{
             if(value){
               setState(() {
                 isLoading=false;

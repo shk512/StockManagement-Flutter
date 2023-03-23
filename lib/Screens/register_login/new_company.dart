@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:stock_management/Screens/signup.dart';
+import 'package:stock_management/Screens/register_login/signup.dart';
 import 'package:stock_management/Services/DB/auth_db.dart';
 import 'package:stock_management/Widgets/text_field.dart';
 import 'package:stock_management/utils/snackBar.dart';
-
-import '../utils/routes.dart';
 
 class NewCompany extends StatefulWidget {
   const NewCompany({Key? key}) : super(key: key);
@@ -39,7 +37,7 @@ class _NewCompanyState extends State<NewCompany> {
               const SizedBox(height: 30),
               const Text("For any query or assistance,\nPlease contact or whatsApp \n0310-7136172",
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold,fontSize: 10,letterSpacing: 2),
+                style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold,letterSpacing: 2),
               )
             ]
           ),
@@ -52,8 +50,11 @@ class _NewCompanyState extends State<NewCompany> {
         isLoading=true;
       });
       await db.licenseKey(license.text).then((value){
-        if(value==true){
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>Signup(companyId: license.text)), (route) => false);
+        if(value){
+          setState(() {
+            isLoading=false;
+          });
+         Navigator.push(context, MaterialPageRoute(builder: (context)=>Signup(companyId: license.text)));
         }else{
           setState(() {
             isLoading=false;

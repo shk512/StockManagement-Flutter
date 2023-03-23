@@ -1,6 +1,8 @@
 class Routes{
   static const splash="/splash";
   static const login="/login";
+  static const stock="/stock";
+  static const shop="/shop";
   static const dashboard="/dashboard";
   static const order="/order";
   static const epmloyee="/employee";

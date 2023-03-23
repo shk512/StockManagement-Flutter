@@ -1,16 +1,18 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Screens/account.dart';
-import 'package:stock_management/Screens/dashboard.dart';
-import 'package:stock_management/Screens/employee.dart';
-import 'package:stock_management/Screens/login.dart';
-import 'package:stock_management/Screens/new_company.dart';
-import 'package:stock_management/Screens/order.dart';
-import 'package:stock_management/Screens/product.dart';
-import 'package:stock_management/Screens/profile.dart';
+import 'package:stock_management/Screens/register_login/login.dart';
+import 'package:stock_management/Screens/register_login/new_company.dart';
 import 'package:stock_management/Screens/splash.dart';
 import 'package:stock_management/firebase_options.dart';
 import 'package:stock_management/utils/routes.dart';
+import 'Screens/Accounts/account.dart';
+import 'Screens/Dashboard/dashboard.dart';
+import 'Screens/Order/order.dart';
+import 'Screens/Product/product.dart';
+import 'Screens/Profile/profile.dart';
+import 'Screens/Shop/shop.dart';
+import 'Screens/Stock/stock.dart';
+import 'Screens/User/user.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,12 +40,14 @@ class MyApp extends StatelessWidget {
         Routes.newCompany:(context)=>const NewCompany(),
         Routes.splash:(context) => const SplashScreen(),
         Routes.login:(context)=>const Login(),
+        Routes.shop:(context)=>const Shop(),
         Routes.dashboard: (context) => const Dashboard(),
         Routes.accounts: (context) => const Accounts(),
         Routes.epmloyee: (context) => const Employee(),
         Routes.order: (context) => const Order(),
         Routes.product: (context) => const Product(),
         Routes.profile: (context) => const Profile(),
+        Routes.stock:(context)=>const Stock(),
       },
     );
   }
