@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Models/area_model.dart';
+import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Services/DB/area_db.dart';
 import 'package:stock_management/utils/snackBar.dart';
 
@@ -40,42 +41,75 @@ class _AreaState extends State<Area> {
         title: const Text("Area",style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: (){
+            Navigator.pushNamed(context, Routes.addArea );
+          },
+          icon: const Icon(Icons.add,color: Colors.white,),
+          label: const Text("Area",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
+      ),
       body: StreamBuilder(
         stream: area,
         builder: (context,AsyncSnapshot snapshot){
+          if(snapshot.connectionState==ConnectionState.waiting){
+            return const Center(child: CircularProgressIndicator(),);
+          }
+          if(snapshot.hasError){
+            return const Center(child: Text("error"),);
+          }
+          if(!snapshot.hasData){
+            return const Center(child: Text("No Data Found"),);
+          }else{
           return ListView.builder(
               itemCount: snapshot.data.docs.length,
               itemBuilder: (context,index){
-                return ListTile(
-                  onTap: (){
-                    setAreaModel(snapshot.data.docs[index]["areaId"],snapshot.data.docs[index]["areaName"],snapshot.data.docs[index]["userId"]);
-                    Navigator.pushNamed(context, Routes.shop);
-                  },
-                  title: Text("${snapshot.data.docs[index]["areaName"]}"),
-                  trailing:UserModel.role=="Admin"
-                      ?InkWell(
+                if(Company.companyId==snapshot.data.docs[index]["companyId"])
+                {
+                  if(UserModel.role.toUpperCase()!="Admin".toUpperCase()){
+                    if(UserModel.userId==snapshot.data.docs[index]["userId"]) {
+                      return ListTile(
+                        onTap: (){
+                          AreaModel(snapshot.data.docs[index]["areaId"],snapshot.data.docs[index]["areaId"],snapshot.data.docs[index]["userId"],snapshot.data.docs[index]["areaName"]);
+                          Navigator.pushNamed(context, Routes.shop);
+                        },
+                        title: Text("${snapshot.data.docs[index]["areaName"]}"),
+                      );
+                    }else{
+                      return const SizedBox();
+                    }
+                  }else{
+                    return ListTile(
                       onTap: (){
-                        showDialog(context: context, builder: (context){
-                          return AlertDialog(
-                            title: const Text("Warning"),
-                            content: const Text("Are you sure to delete?"),
-                            actions: [
-                              ElevatedButton(onPressed: (){Navigator.pop(context);}, child: const Icon(Icons.cancel,color: Colors.red,)),
-                              ElevatedButton(onPressed: (){deleteArea(snapshot.data.docs[index]["areaId"]);}, child: const Icon(Icons.done,color: Colors.green,)),
-                            ],
-                          );
-                        });
+                        AreaModel(snapshot.data.docs[index]["areaId"],snapshot.data.docs[index]["areaId"],snapshot.data.docs[index]["userId"],snapshot.data.docs[index]["areaName"]);
+                        Navigator.pushNamed(context, Routes.shop);
                       },
-                      child: const Icon(Icons.delete,color: Colors.red,))
-                      :const SizedBox(),
-                );
+                      title: Text("${snapshot.data.docs[index]["areaName"]}"),
+                      trailing:UserModel.role=="Admin"
+                          ?InkWell(
+                          onTap: (){
+                            showDialog(context: context, builder: (context){
+                              return AlertDialog(
+                                title: const Text("Warning"),
+                                content: const Text("Are you sure to delete?"),
+                                actions: [
+                                  ElevatedButton(onPressed: (){Navigator.pop(context);}, child: const Icon(Icons.cancel,color: Colors.red,)),
+                                  ElevatedButton(onPressed: (){deleteArea(snapshot.data.docs[index]["areaId"]);}, child: const Icon(Icons.done,color: Colors.green,)),
+                                ],
+                              );
+                            });
+                          },
+                          child: const Icon(Icons.delete,color: Colors.red,))
+                          :const SizedBox(),
+                    );
+                  }
+                }else{
+                  return const Center(child: Text("No Area Found"),);
+                }
               });
+          }
         },
       ),
     );
-  }
-  setAreaModel(String areaId,String areaName,String userId){
-    AreaModel(areaId, userId, areaName);
   }
   deleteArea(String areaId)async{
    await AreaDB(id: areaId).deleteArea().then((value){

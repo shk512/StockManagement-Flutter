@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:stock_management/Models/area_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
-
 import '../../utils/routes.dart';
 
 class Shop extends StatefulWidget {
@@ -37,8 +36,15 @@ class _ShopState extends State<Shop> {
           },
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
-        title: const Text("Area",style: TextStyle(color: Colors.white),),
+        title: const Text("Shop",style: TextStyle(color: Colors.white),),
         centerTitle: true,
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: (){
+            Navigator.pushNamed(context, Routes.addShop);
+          },
+          icon: const Icon(Icons.add,color: Colors.white,),
+          label: const Text("Shop",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
       ),
       body: StreamBuilder(
         stream: shops,

@@ -9,7 +9,7 @@ class AreaDB{
   final areaCollection=FirebaseFirestore.instance.collection("area");
 
   //save Area
-  Future saveArea(Map<String,dynamic> mapData)async{
+  Future<bool?> saveArea(Map<String,dynamic> mapData)async{
     await areaCollection.doc(id).set(mapData);
     return true;
   }

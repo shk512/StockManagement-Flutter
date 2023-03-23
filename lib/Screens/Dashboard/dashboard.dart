@@ -69,7 +69,7 @@ class _DashboardState extends State<Dashboard> {
               const SizedBox(height: 10,),
               displayFunction(Colors.lime, "Shop", Icons.storefront, Routes.shop),
               const SizedBox(height: 10,),
-              displayFunction(Colors.teal, "Area", Icons.pin_drop, Routes.shop),
+              displayFunction(Colors.teal, "Area", Icons.pin_drop, Routes.area),
               const SizedBox(height: 10,),
               displayFunction(Colors.blueGrey, "Accounts", Icons.account_balance_sharp, Routes.accounts),
             ],
