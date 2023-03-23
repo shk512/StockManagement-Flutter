@@ -1,5 +1,6 @@
 enum UserRole{
   orderTaker,
   supplier,
-  admin
+  admin,
+  shopKeeper
 }

@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Models/company_model.dart';
+import 'package:stock_management/Screens/register_login/signup.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 
 class Employee extends StatefulWidget {
@@ -12,7 +12,7 @@ class Employee extends StatefulWidget {
 }
 
 class _EmployeeState extends State<Employee> {
-  Stream? user;
+  var user;
 
   @override
   void initState() {
@@ -20,11 +20,10 @@ class _EmployeeState extends State<Employee> {
     getUser();
   }
   getUser()async{
-    await UserDb(id: FirebaseAuth.instance.currentUser!.uid).getAllUser().then((val){
+    var request=await UserDb(id: "").getAllUser();
       setState(() {
-        user=val;
+        user=request;
       });
-    });
   }
   @override
   Widget build(BuildContext context) {
@@ -39,6 +38,12 @@ class _EmployeeState extends State<Employee> {
         title: const Text("Users",style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>Signup(companyId: Company.companyId)));
+          },
+          icon: const Icon(Icons.add,color: Colors.white,),
+          label: const Text("User",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
       body: StreamBuilder(
         stream: user,
         builder: (context,AsyncSnapshot snapshot){
@@ -57,9 +62,10 @@ class _EmployeeState extends State<Employee> {
                         title: Text("${snapshot.data.docs[index]["name"]}"),
                   subtitle: Text("${snapshot.data.docs[index]["phone"]}"),
                   trailing: Text("${snapshot.data.docs[index]["role"]}"));
+                  }else{
+                    return const SizedBox();
                   }
                 });
-
           }
           else{
             return const Center(child: Text("No Data Found"),);

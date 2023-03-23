@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Models/company_model.dart';
@@ -20,16 +21,6 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  /*late final AnimationController _controller=AnimationController(
-      duration: const Duration(seconds: 5),
-      vsync: this
-  )..repeat();
-  @override
-  void dispose() {
-  _controller.dispose();
-    super.dispose();
-  }*/
-
   TextEditingController mail=TextEditingController();
   TextEditingController pass=TextEditingController();
   final formKey=GlobalKey<FormState>();
@@ -97,8 +88,8 @@ class _LoginState extends State<Login> {
         isLoading=true;
       });
       await auth.signInWithEmailAndPassword(mail.text, pass.text).then((value)async{
-        if(value!=null){
-          DocumentSnapshot snapshot=await UserDb(id: value.toString()).getData();
+        if(value=="true"){
+          DocumentSnapshot snapshot=await UserDb(id: FirebaseAuth.instance.currentUser!.uid).getData();
           await UserModel.fromJson(snapshot);
           snapshot=await CompanyDb(id: UserModel.companyId).getData();
           await Company.fromJson(snapshot);

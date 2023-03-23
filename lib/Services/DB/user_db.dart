@@ -9,7 +9,7 @@ class UserDb{
 
   //Get ALl users
   getAllUser(){
-    return userCollection.snapshots();
+    return userCollection.orderBy("role",descending: false).snapshots();
   }
 
   //get UserData

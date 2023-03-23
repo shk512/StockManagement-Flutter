@@ -1,11 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Models/area_model.dart';
+import 'package:stock_management/Screens/Order/order_form.dart';
 import 'package:stock_management/Screens/register_login/login.dart';
 import 'package:stock_management/Screens/register_login/new_company.dart';
 import 'package:stock_management/Screens/splash.dart';
 import 'package:stock_management/firebase_options.dart';
 import 'package:stock_management/utils/routes.dart';
 import 'Screens/Accounts/account.dart';
+import 'Screens/Area/area.dart';
 import 'Screens/Dashboard/dashboard.dart';
 import 'Screens/Order/order.dart';
 import 'Screens/Product/product.dart';
@@ -37,7 +40,9 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: Routes.splash,
       routes: {
+        Routes.area:(context)=>const Area(),
         Routes.newCompany:(context)=>const NewCompany(),
+        Routes.orderForm:(context)=>const OrderForm(),
         Routes.splash:(context) => const SplashScreen(),
         Routes.login:(context)=>const Login(),
         Routes.shop:(context)=>const Shop(),

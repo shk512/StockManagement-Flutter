@@ -1,8 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Models/user_model.dart';
+import 'package:stock_management/Screens/Area/area.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
+
+import '../../utils/routes.dart';
 
 class Order extends StatefulWidget {
   const Order({Key? key}) : super(key: key);
@@ -12,7 +15,7 @@ class Order extends StatefulWidget {
 }
 
 class _OrderState extends State<Order> {
-  Stream<QuerySnapshot>? order;
+  var order;
 
   @override
   void initState() {
@@ -20,30 +23,31 @@ class _OrderState extends State<Order> {
     getOrderData();
   }
   getOrderData()async{
-    await OrderDB(id: FirebaseAuth.instance.currentUser!.uid).getOrder().then((val){
+    var request=await OrderDB(id: FirebaseAuth.instance.currentUser!.uid).getOrder();
       setState(() {
-        order=val;
+        order=request;
       });
-    });
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          leading: GestureDetector(
-            onTap: (){
-              Navigator.pop(context);
-            },
-            child: const Icon(CupertinoIcons.back,color: Colors.white,),
-          ),
-          title: const Text("Orders",style: TextStyle(color: Colors.white),),
-          centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          const Text("Something"),
-          Expanded(
-            child: StreamBuilder(
+        leading: GestureDetector(
+        onTap: (){
+      Navigator.pop(context);
+    },
+    child: const Icon(CupertinoIcons.back,color: Colors.white,),
+    ),
+    title: const Text("Order",style: TextStyle(color: Colors.white),),
+    centerTitle: true,
+    ),
+    floatingActionButton: FloatingActionButton.extended(
+    onPressed: (){
+      Navigator.pushNamed(context, Routes.area );
+    },
+    icon: const Icon(Icons.add,color: Colors.white,),
+    label: const Text("Order",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
+      body: StreamBuilder(
                 stream: order,
                 builder: (context,AsyncSnapshot snapshot){
                   if(snapshot.connectionState==ConnectionState.waiting){
@@ -69,9 +73,6 @@ class _OrderState extends State<Order> {
                     return const Center(child: Text("Something Error"),);
                   }
                 }),
-          )
-        ],
-      ),
     );
   }
 }

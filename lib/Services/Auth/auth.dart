@@ -12,7 +12,7 @@ class Auth{
           email: email, password: pass))
           .user!;
       if (user != null) {
-        return user.uid;
+        return "true";
       }
     } on FirebaseAuthException catch (e) {
       return e.message;
@@ -26,9 +26,8 @@ class Auth{
           email: email, password: pass))
           .user!;
       if (user != null) {
-        return user.uid;
+        return "true";
       }
-      return null;
     } on FirebaseAuthException catch (e) {
       return e.message;
     }

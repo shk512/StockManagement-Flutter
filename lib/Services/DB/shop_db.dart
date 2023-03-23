@@ -1,11 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ShopDb{
+class ShopDB{
   String id;
-  ShopDb({required this.id});
+  ShopDB({required this.id});
 
   //Reference Collection
   final shopCollection=FirebaseFirestore.instance.collection("shop");
 
-//
+  //Save Shop
+  Future saveShop(Map<String,dynamic> mapData)async{
+    await shopCollection.doc(id).set(mapData);
+  }
+
+  //Get Shops
+  getShops(){
+    return shopCollection.snapshots();
+  }
+
+  //Delete Shop
+  Future deleteShop()async{
+    await shopCollection.doc(id).delete();
+    return true;
+  }
 }

@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class OrderModel{
   static String orderId="";
   static String companyId="";
-  static String orderTakerId="";
+  static String userId="";
   static String orderDetails="";
   static num totalAmount=0;
   static num concessionAmount=0;
@@ -13,7 +13,7 @@ class OrderModel{
   OrderModel(String orderId1, String companyId1, String orderTakerId1, String orderDetails1, num total, num balance, num concession, num receive){
     orderId=orderId1;
     companyId=companyId1;
-    orderTakerId=orderTakerId1;
+    userId=orderTakerId1;
     orderDetails=orderDetails1;
     totalAmount=total;
     balanceAmount=balance;
@@ -24,7 +24,7 @@ class OrderModel{
     return{
       "orderId":orderId,
       "companyId":companyId,
-      "orderTakerId":orderTakerId,
+      "userId":userId,
       "orderDetails":orderDetails,
       "totalAmount":totalAmount,
       "balanceAmount":balanceAmount,
@@ -35,7 +35,7 @@ class OrderModel{
   static fromJson(DocumentSnapshot snapshot){
     orderId=snapshot["orderId"];
     companyId=snapshot["companyId"];
-    orderTakerId=snapshot["orderTakerId"];
+    userId=snapshot["userId"];
     orderDetails=snapshot["orderDetails"];
     totalAmount=snapshot["totalAmount"];
     amountReceived=snapshot["receiveAmount"];

@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
@@ -60,6 +62,16 @@ class _SignupState extends State<Signup> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Align(
+                  alignment: AlignmentDirectional.topStart,
+                  child: GestureDetector(
+                    onTap: (){
+                      Navigator.pop(context);
+                    },
+                    child: const Icon(CupertinoIcons.back,),
+                  ),
+                ),
+                const SizedBox(height: 10,),
                 const Image(image: AssetImage("image/signup.png")),
                 Center(child: Text(Company.companyName,style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 25),)),
                 const SizedBox(height: 20,),
@@ -88,22 +100,28 @@ class _SignupState extends State<Signup> {
                     ctrl: cPass,
                     icon: const Icon(Icons.password)),
                 const SizedBox(height: 20,),
-                const Text(
-                  "Role:", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+                const Align(
+                  alignment: AlignmentDirectional.bottomStart,
+                  child: Text(
+                    "Role:", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+                ),
                 radioButtons("Admin", UserRole.admin),
                 radioButtons("Order Taker", UserRole.orderTaker),
                 radioButtons("Supplier", UserRole.supplier),
+                radioButtons("Shop Keeper", UserRole.shopKeeper),
                 _role == UserRole.admin
                     ? Container()
                     : TxtField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon: const Icon(Icons.onetwothree)),
                 const SizedBox(height: 20,),
                 ElevatedButton(onPressed: (){
                   if(_role==UserRole.admin){
-                    role="admin";
+                    role="Admin";
                   }else if(_role==UserRole.supplier){
-                    role="supplier";
+                    role="Supplier";
                   }else if(_role==UserRole.orderTaker){
-                    role="orderTaker";
+                    role="Order Taker";
+                  }else if(_role==UserRole.shopKeeper){
+                    role="Shop Keeper";
                   }
                   if(pass.text==cPass.text){
                     signup();
@@ -142,13 +160,8 @@ class _SignupState extends State<Signup> {
         isLoading=true;
       });
       await auth.createUser(mail.text, pass.text).then((value)async{
-        if(value.toString()=="The email address is already in use by another account."){
-          setState(() {
-            isLoading=false;
-          });
-          showSnackbar(context, Colors.red, value.toString());
-        }else if(value!=null){
-          await UserDb(id: value.toString()).saveUser(UserModel(Company.companyId,mail.text,contact.text,role,salary.text,name.text,value.toString()).toJson()).then((value)async{
+        if(value=="true"){
+          await UserDb(id: FirebaseAuth.instance.currentUser!.uid).saveUser(UserModel(Company.companyId,mail.text,contact.text,role,salary.text,name.text,value.toString()).toJson()).then((value)async{
             if(value){
               setState(() {
                 isLoading=false;
