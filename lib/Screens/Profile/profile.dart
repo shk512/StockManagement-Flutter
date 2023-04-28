@@ -39,7 +39,7 @@ class _ProfileState extends State<Profile> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              displayFunction("Company Name", Company.companyName.toUpperCase()),
+              displayFunction("Company Name", CompanyModel.companyName.toUpperCase()),
               const SizedBox(height: 10),
               displayFunction("Name", UserModel.name.toUpperCase()),
               const SizedBox(height: 10),

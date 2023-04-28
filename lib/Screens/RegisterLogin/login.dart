@@ -92,7 +92,7 @@ class _LoginState extends State<Login> {
           DocumentSnapshot snapshot=await UserDb(id: FirebaseAuth.instance.currentUser!.uid).getData();
           await UserModel.fromJson(snapshot);
           snapshot=await CompanyDb(id: UserModel.companyId).getData();
-          await Company.fromJson(snapshot);
+          await CompanyModel.fromJson(snapshot);
           await SPF.saveUserLogInStatus(true);
           Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
         }else{

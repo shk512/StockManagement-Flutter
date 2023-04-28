@@ -63,16 +63,25 @@ class _AreaState extends State<Area> {
           return ListView.builder(
               itemCount: snapshot.data.docs.length,
               itemBuilder: (context,index){
-                if(Company.companyId==snapshot.data.docs[index]["companyId"])
+                AreaModel.fromJson(snapshot.data.docs[index]);
+                if(CompanyModel.companyId==AreaModel.companyId)
                 {
                   if(UserModel.role.toUpperCase()!="Admin".toUpperCase()){
-                    if(UserModel.userId==snapshot.data.docs[index]["userId"]) {
+                    if(UserModel.userId==AreaModel.supplierId) {
                       return ListTile(
                         onTap: (){
-                          AreaModel(snapshot.data.docs[index]["areaId"],snapshot.data.docs[index]["areaId"],snapshot.data.docs[index]["userId"],snapshot.data.docs[index]["areaName"]);
+                          AreaModel(AreaModel.companyId,AreaModel.areaId,AreaModel.orderTakerId,AreaModel.supplierId,AreaModel.areaName);
                           Navigator.pushNamed(context, Routes.shop);
                         },
-                        title: Text("${snapshot.data.docs[index]["areaName"]}"),
+                        title: Text(AreaModel.areaName),
+                      );
+                    }else if(UserModel.userId==AreaModel.orderTakerId){
+                      return ListTile(
+                        onTap: (){
+                          AreaModel(AreaModel.companyId,AreaModel.areaId,AreaModel.orderTakerId,AreaModel.supplierId,AreaModel.areaName);
+                          Navigator.pushNamed(context, Routes.shop);
+                        },
+                        title: Text(AreaModel.areaName),
                       );
                     }else{
                       return const SizedBox();
@@ -80,10 +89,10 @@ class _AreaState extends State<Area> {
                   }else{
                     return ListTile(
                       onTap: (){
-                        AreaModel(snapshot.data.docs[index]["areaId"],snapshot.data.docs[index]["areaId"],snapshot.data.docs[index]["userId"],snapshot.data.docs[index]["areaName"]);
+                        AreaModel(AreaModel.companyId,AreaModel.areaId,AreaModel.orderTakerId,AreaModel.supplierId,AreaModel.areaName);
                         Navigator.pushNamed(context, Routes.shop);
                       },
-                      title: Text("${snapshot.data.docs[index]["areaName"]}"),
+                      title: Text(AreaModel.areaName),
                       trailing:UserModel.role=="Admin"
                           ?InkWell(
                           onTap: (){
@@ -115,7 +124,6 @@ class _AreaState extends State<Area> {
    await AreaDB(id: areaId).deleteArea().then((value){
      if(value){
        setState(() {
-
        });
        showSnackbar(context,Colors.cyan,"Deleted");
      }else{

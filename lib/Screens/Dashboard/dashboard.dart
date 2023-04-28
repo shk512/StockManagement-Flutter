@@ -28,7 +28,7 @@ class _DashboardState extends State<Dashboard> {
     DocumentSnapshot snapshot=await UserDb(id: FirebaseAuth.instance.currentUser!.uid).getData();
     UserModel.fromJson(snapshot);
     snapshot=await CompanyDb(id: UserModel.companyId).getData();
-    Company.fromJson(snapshot);
+    CompanyModel.fromJson(snapshot);
   }
 
   @override
@@ -41,7 +41,7 @@ class _DashboardState extends State<Dashboard> {
           },
           child: const Icon(CupertinoIcons.person_crop_circle,color: Colors.white,),
         ),
-        title: Text(Company.companyName,style: const TextStyle(color: Colors.white),),
+        title: Text(CompanyModel.companyName,style: const TextStyle(color: Colors.white),),
         centerTitle: true,
         actions: [
           GestureDetector(
@@ -67,11 +67,9 @@ class _DashboardState extends State<Dashboard> {
               const SizedBox(height: 10,),
               displayFunction(Colors.pinkAccent, "Product", Icons.add_box, Routes.product),
               const SizedBox(height: 10,),
-              displayFunction(Colors.lime, "Shop", Icons.storefront, Routes.shop),
+              displayFunction(Colors.lime, "Area/Shops", Icons.storefront, Routes.area),
               const SizedBox(height: 10,),
-              displayFunction(Colors.teal, "Area", Icons.pin_drop, Routes.area),
-              const SizedBox(height: 10,),
-              displayFunction(Colors.blueGrey, "Accounts", Icons.account_balance_sharp, Routes.accounts),
+              displayFunction(Colors.grey, "Accounts", Icons.account_balance_sharp, Routes.accounts),
             ],
           ),
         )

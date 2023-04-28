@@ -8,6 +8,7 @@ class AddShop extends StatefulWidget {
 }
 
 class _AddShopState extends State<AddShop> {
+  bool isLoading=false;
   @override
   Widget build(BuildContext context) {
     return const Placeholder();

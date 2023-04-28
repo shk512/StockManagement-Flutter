@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Models/company_model.dart';
-import 'package:stock_management/Screens/register_login/signup.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
+
+import '../RegisterLogin/signup.dart';
 
 class Employee extends StatefulWidget {
   const Employee({Key? key}) : super(key: key);
@@ -12,7 +13,7 @@ class Employee extends StatefulWidget {
 }
 
 class _EmployeeState extends State<Employee> {
-  var user;
+  Stream? user;
 
   @override
   void initState() {
@@ -40,7 +41,7 @@ class _EmployeeState extends State<Employee> {
       ),
       floatingActionButton: FloatingActionButton.extended(
           onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>Signup(companyId: Company.companyId)));
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>Signup(companyId: CompanyModel.companyId)));
           },
           icon: const Icon(Icons.add,color: Colors.white,),
           label: const Text("User",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
@@ -57,7 +58,7 @@ class _EmployeeState extends State<Employee> {
             return ListView.builder(
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context,index){
-                  if(Company.companyId==snapshot.data.docs[index]["companyId"]){
+                  if(CompanyModel.companyId==snapshot.data.docs[index]["companyId"]){
                     return ListTile(
                         title: Text("${snapshot.data.docs[index]["name"]}"),
                   subtitle: Text("${snapshot.data.docs[index]["phone"]}"),

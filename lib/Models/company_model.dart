@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Company{
+class CompanyModel{
   static String companyId="";
   static String companyName="";
   static String contact="";

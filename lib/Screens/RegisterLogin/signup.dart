@@ -44,7 +44,7 @@ class _SignupState extends State<Signup> {
   getCompanyDetails() async {
     DocumentSnapshot snapshot=await CompanyDb(id: widget.companyId).getData();
     setState(() {
-      Company.fromJson(snapshot);
+      CompanyModel.fromJson(snapshot);
     });
   }
 
@@ -73,7 +73,7 @@ class _SignupState extends State<Signup> {
                 ),
                 const SizedBox(height: 10,),
                 const Image(image: AssetImage("image/signup.png")),
-                Center(child: Text(Company.companyName,style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 25),)),
+                Center(child: Text(CompanyModel.companyName,style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 25),)),
                 const SizedBox(height: 20,),
                 TxtField(labelTxt: "Email",
                     hintTxt: "john@gmail.com",
@@ -161,7 +161,7 @@ class _SignupState extends State<Signup> {
       });
       await auth.createUser(mail.text, pass.text).then((value)async{
         if(value=="true"){
-          await UserDb(id: FirebaseAuth.instance.currentUser!.uid).saveUser(UserModel(Company.companyId,mail.text,contact.text,role,salary.text,name.text,value.toString()).toJson()).then((value)async{
+          await UserDb(id: FirebaseAuth.instance.currentUser!.uid).saveUser(UserModel(CompanyModel.companyId,mail.text,contact.text,role,salary.text,name.text,value.toString()).toJson()).then((value)async{
             if(value){
               setState(() {
                 isLoading=false;

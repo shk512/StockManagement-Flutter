@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stock_management/Screens/register_login/signup.dart';
+import 'package:stock_management/Screens/RegisterLogin/signup.dart';
 import 'package:stock_management/Services/DB/auth_db.dart';
 import 'package:stock_management/Widgets/text_field.dart';
 import 'package:stock_management/utils/snackBar.dart';

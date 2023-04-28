@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:stock_management/Models/shop_model.dart';
 
 class ShopDB{
   String id;

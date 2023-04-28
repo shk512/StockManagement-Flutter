@@ -37,7 +37,7 @@ class _AddAreaState extends State<AddArea> {
                   child: Icon(CupertinoIcons.back),
                 ),
                 const SizedBox(height: 20,),
-                const Text("SHOP DETAILS",style: TextStyle(color: Colors.cyan,letterSpacing: 2,fontSize: 25,fontWeight: FontWeight.bold),),
+                const Text("Area DETAILS",style: TextStyle(color: Colors.cyan,letterSpacing: 2,fontSize: 25,fontWeight: FontWeight.bold),),
                 const SizedBox(height: 20,),
                 TxtField(labelTxt: "Area", hintTxt: "Area name...", ctrl: areaCtrl, icon: const Icon(Icons.pin_drop)),
                 const SizedBox(height: 20,),
@@ -60,7 +60,7 @@ class _AddAreaState extends State<AddArea> {
         isLoading=true;
       });
       String areaId=DateTime.now().microsecondsSinceEpoch.toString();
-      await AreaDB(id: areaId).saveArea(AreaModel(Company.companyId, areaId, "", areaCtrl.text).toJson()).then((value){
+      await AreaDB(id: areaId).saveArea(AreaModel(CompanyModel.companyId, areaId, "","", areaCtrl.text).toJson()).then((value){
         if(value!){
           setState(() {
             isLoading=false;
