@@ -8,6 +8,7 @@ import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/utils/routes.dart';
+import 'package:stock_management/utils/snackBar.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -77,8 +78,12 @@ class _DashboardState extends State<Dashboard> {
     );
   }
   signOut()async{
-    await auth.firebaseAuth.signOut();
-    Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+    await auth.signOut().then((value){
+      Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+    }).onError((error, stackTrace) {
+      showSnackbar(context, Colors.red, error.toString());
+    });
+
   }
 
   Widget displayFunction(Color clr, String name, IconData icon,String route){

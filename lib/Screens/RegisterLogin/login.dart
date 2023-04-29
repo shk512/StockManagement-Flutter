@@ -35,7 +35,7 @@ class _LoginState extends State<Login> {
           ?const Center(child: CircularProgressIndicator())
       :SingleChildScrollView(
         child:Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20,vertical: 30),
+          padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 30),
             child: Form(
                 key: formKey,
                 child: Column(
@@ -88,7 +88,7 @@ class _LoginState extends State<Login> {
         isLoading=true;
       });
       await auth.signInWithEmailAndPassword(mail.text, pass.text).then((value)async{
-        if(value=="true"){
+        if(value){
           DocumentSnapshot snapshot=await UserDb(id: FirebaseAuth.instance.currentUser!.uid).getData();
           await UserModel.fromJson(snapshot);
           snapshot=await CompanyDb(id: UserModel.companyId).getData();
@@ -101,6 +101,8 @@ class _LoginState extends State<Login> {
           });
           showSnackbar(context, Colors.red, value.toString());
         }
+      }).onError((error, stackTrace){
+        showSnackbar(context, Colors.red, error.toString());
       });
     }
   }

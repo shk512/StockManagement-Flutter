@@ -12,7 +12,7 @@ class Auth{
           email: email, password: pass))
           .user!;
       if (user != null) {
-        return "true";
+        return true;
       }
     } on FirebaseAuthException catch (e) {
       return e.message;
@@ -48,7 +48,7 @@ class Auth{
       await SPF.saveUserLogInStatus(false);
       await firebaseAuth.signOut();
     } catch (e) {
-      return null;
+      return e;
     }
   }
 
