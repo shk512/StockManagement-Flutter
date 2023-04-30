@@ -64,33 +64,6 @@ class _ShopState extends State<Shop> {
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context,index){
                   ShopModel.fromJson(snapshot.data.docs);
-                  if(AreaModel.areaId==ShopModel.areaId){
-                    return ListTile(
-                      onTap: (){
-                        
-                      },
-                      title: Text(ShopModel.shopName),
-                      subtitle: Text(ShopModel.ownerName+" "+ShopModel.contact),
-                      trailing: UserModel.role.toLowerCase()=="Admin".toLowerCase()
-                        ?GestureDetector(
-                          onTap: (){
-                            showDialog(
-                                context: context,
-                                builder: (context){
-                                  return AlertDialog(
-                                    title: Text("Warning"),
-                                    content: Text("Are you sure to delete?"),
-                                    actions: [
-                                      ElevatedButton(onPressed: (){Navigator.pop(context);}, child: const Icon(Icons.cancel,color: Colors.red,)),
-                                      ElevatedButton(onPressed: (){deleteArea(snapshot.data.docs[index]["shopId"]);}, child: const Icon(Icons.done,color: Colors.green,)),
-                                    ],
-                                  );
-                                });
-                          },
-                          child: Icon(Icons.delete,color: Colors.red,))
-                        :SizedBox(),
-                    );
-                  }
                 }
             );
           }

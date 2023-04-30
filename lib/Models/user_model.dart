@@ -1,23 +1,62 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel{
-  static String mail="";
-  static String phone="";
-  static String role="";
-  static double wallet=0;
-  static String companyId="";
-  static String userId="";
-  static String salary="";
-  static String name="";
+  String _userId='';
+  String _companyId='';
+  String _name='';
+  String _mail='';
+  String _phone='';
+  String _role='';
+  num _wallet=0;
+  num _salary=0;
 
-  UserModel(String companyId1,String mail1,String phone1,String role1,String salary1,String name1,String userId1){
-    userId=userId1;
-    mail=mail1;
-    name=name1;
-    phone=phone1;
-    role=role1;
-    salary=salary1;
-    companyId=companyId1;
+
+  String get mail => _mail;
+
+  set mail(String value) {
+    _mail = value;
+  }
+
+  String get phone => _phone;
+
+  set phone(String value) {
+    _phone = value;
+  }
+
+  String get role => _role;
+
+  set role(String value) {
+    _role = value;
+  }
+
+  num get wallet => _wallet;
+
+  set wallet(num value) {
+    _wallet = value;
+  }
+
+  String get companyId => _companyId;
+
+  set companyId(String value) {
+    _companyId = value;
+  }
+
+  String get userId => _userId;
+
+  set userId(String value) {
+    _userId = value;
+  }
+
+  num get salary => _salary;
+
+  set salary(num value) {
+    _salary = value;
+  }
+
+  String get name => _name;
+
+  set name(String value) {
+    _name = value;
   }
 
   Map<String,dynamic> toJson(){
@@ -30,17 +69,17 @@ class UserModel{
       "phone":phone,
       "role":role,
       "wallet":wallet,
-  };
-}
+    };
+  }
 
-  static fromJson(DocumentSnapshot snapshot){
-    userId=snapshot['userId'];
+  void fromJson(DocumentSnapshot snapshot){
+    userId=snapshot["userId"];
     companyId=snapshot["companyId"];
-    mail=snapshot["mail"];
-    phone=snapshot["phone"];
-    role=snapshot["role"];
     name=snapshot["name"];
     salary=snapshot["salary"];
+    mail=snapshot["mail"];
+    phone=snapshot["phone"];
     wallet=snapshot["wallet"];
+    role=snapshot["_role"];
   }
 }

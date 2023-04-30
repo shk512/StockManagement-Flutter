@@ -1,17 +1,30 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class GeoLocationModel{
-  var _latitude;
+  var _lat;
 
-  get latitude => _latitude;
+  get lat => _lat;
 
-  set latitude(value) {
-    _latitude = value;
+  set lat(value) {
+    _lat = value;
   }
 
-  var _longitude;
+  var _lng;
 
-  get longitude => _longitude;
+  get lng => _lng;
 
-  set longitude(value) {
-    _longitude = value;
+  set lng(value) {
+    _lng = value;
   }
+
+   Map<String,dynamic> toJson(){
+    return {
+      "lat":lat,
+      "lng":lng
+    };
+   }
+   void fromJson(DocumentSnapshot snapshot){
+    lat=snapshot["lat"];
+    lng=snapshot["lng"];
+   }
 }

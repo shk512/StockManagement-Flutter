@@ -63,57 +63,7 @@ class _AreaState extends State<Area> {
           return ListView.builder(
               itemCount: snapshot.data.docs.length,
               itemBuilder: (context,index){
-                AreaModel.fromJson(snapshot.data.docs[index]);
-                if(CompanyModel.companyId==AreaModel.companyId)
-                {
-                  if(UserModel.role.toUpperCase()!="Admin".toUpperCase()){
-                    if(UserModel.userId==AreaModel.supplierId) {
-                      return ListTile(
-                        onTap: (){
-                          AreaModel(AreaModel.companyId,AreaModel.areaId,AreaModel.orderTakerId,AreaModel.supplierId,AreaModel.areaName);
-                          Navigator.pushNamed(context, Routes.shop);
-                        },
-                        title: Text(AreaModel.areaName),
-                      );
-                    }else if(UserModel.userId==AreaModel.orderTakerId){
-                      return ListTile(
-                        onTap: (){
-                          AreaModel(AreaModel.companyId,AreaModel.areaId,AreaModel.orderTakerId,AreaModel.supplierId,AreaModel.areaName);
-                          Navigator.pushNamed(context, Routes.shop);
-                        },
-                        title: Text(AreaModel.areaName),
-                      );
-                    }else{
-                      return const SizedBox();
-                    }
-                  }else{
-                    return ListTile(
-                      onTap: (){
-                        AreaModel(AreaModel.companyId,AreaModel.areaId,AreaModel.orderTakerId,AreaModel.supplierId,AreaModel.areaName);
-                        Navigator.pushNamed(context, Routes.shop);
-                      },
-                      title: Text(AreaModel.areaName),
-                      trailing:UserModel.role=="Admin"
-                          ?InkWell(
-                          onTap: (){
-                            showDialog(context: context, builder: (context){
-                              return AlertDialog(
-                                title: const Text("Warning"),
-                                content: const Text("Are you sure to delete?"),
-                                actions: [
-                                  ElevatedButton(onPressed: (){Navigator.pop(context);}, child: const Icon(Icons.cancel,color: Colors.red,)),
-                                  ElevatedButton(onPressed: (){deleteArea(snapshot.data.docs[index]["areaId"]);}, child: const Icon(Icons.done,color: Colors.green,)),
-                                ],
-                              );
-                            });
-                          },
-                          child: const Icon(Icons.delete,color: Colors.red,))
-                          :const SizedBox(),
-                    );
-                  }
-                }else{
-                  return const Center(child: Text("No Area Found"),);
-                }
+
               });
           }
         },

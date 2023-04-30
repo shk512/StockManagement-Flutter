@@ -1,45 +1,115 @@
+import 'dart:js_util';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:stock_management/Models/geolocation_model.dart';
 
 class OrderModel{
-  static String orderId="";
-  static String companyId="";
-  static String userId="";
-  static String orderDetails="";
-  static num totalAmount=0;
-  static num concessionAmount=0;
-  static num balanceAmount=0;
-  static num amountReceived=0;
+  String _orderId='';
+  String _userId='';
+  String _shopId='';
+  String _status='';
+  String _desc='';
+  List _products=[];
+  num _totalAmount=0;
+  num _advanceAmount=0;
+  num _concessionAmount=0;
+  num _balanceAmount=0;
+  GeoLocationModel _geoLocationModel=newObject();
 
-  OrderModel(String orderId1, String companyId1, String orderTakerId1, String orderDetails1, num total, num balance, num concession, num receive){
-    orderId=orderId1;
-    companyId=companyId1;
-    userId=orderTakerId1;
-    orderDetails=orderDetails1;
-    totalAmount=total;
-    balanceAmount=balance;
-    concessionAmount=concession;
-    amountReceived=receive;
+  String get status => _status;
+
+  set status(String value) {
+    _status = value;
   }
+
+  GeoLocationModel get geoLocationModel => _geoLocationModel;
+
+  set geoLocationModel(GeoLocationModel value) {
+    _geoLocationModel = value;
+  }
+
+  String get shopId => _shopId;
+
+  set shopId(String value) {
+    _shopId = value;
+  }
+
+  String get orderId => _orderId;
+
+  set orderId(String value) {
+    _orderId = value;
+  }
+
+  String get userId => _userId;
+
+  set userId(String value) {
+    _userId = value;
+  }
+
+  num get advanceAmount => _advanceAmount;
+
+  set advanceAmount(num value) {
+    _advanceAmount = value;
+  }
+
+  num get balanceAmount => _balanceAmount;
+
+  set balanceAmount(num value) {
+    _balanceAmount = value;
+  }
+
+  num get concessionAmount => _concessionAmount;
+
+  set concessionAmount(num value) {
+    _concessionAmount = value;
+  }
+
+  num get totalAmount => _totalAmount;
+
+  set totalAmount(num value) {
+    _totalAmount = value;
+  }
+
+  List get products => _products;
+
+  set products(List value) {
+    _products = value;
+  }
+
+  String get desc => _desc;
+
+  set desc(String value) {
+    _desc = value;
+  }
+
   Map<String,dynamic> toJson(){
     return{
       "orderId":orderId,
-      "companyId":companyId,
       "userId":userId,
-      "orderDetails":orderDetails,
+      "shopId":shopId,
+      "status":status,
+      "products":products,
       "totalAmount":totalAmount,
+      "advanceAmount":advanceAmount,
       "balanceAmount":balanceAmount,
       "concessionAmount":concessionAmount,
-      "receiveAmount":amountReceived
+      "geoLocation":{
+        "lat":geoLocationModel.lat,
+        "lng":geoLocationModel.lng
+      }
     };
   }
-  static fromJson(DocumentSnapshot snapshot){
+  void fromJson(DocumentSnapshot snapshot){
     orderId=snapshot["orderId"];
-    companyId=snapshot["companyId"];
     userId=snapshot["userId"];
-    orderDetails=snapshot["orderDetails"];
+    shopId=snapshot["shopId"];
+    status=snapshot["status"];
+    products=snapshot["products"];
     totalAmount=snapshot["totalAmount"];
-    amountReceived=snapshot["receiveAmount"];
+    advanceAmount=snapshot["advanceAmount"];
     balanceAmount=snapshot["balanceAmount"];
     concessionAmount=snapshot["concessionAmount"];
+    geoLocationModel.lat=snapshot["geolocation"]["lat"];
+    geoLocationModel.lng=snapshot["geolocation"]["lng"];
   }
 }
