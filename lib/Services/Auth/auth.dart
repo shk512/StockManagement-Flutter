@@ -13,6 +13,8 @@ class Auth{
           .user!;
       if (user != null) {
         return true;
+      }else{
+        return false;
       }
     } on FirebaseAuthException catch (e) {
       return e.message;

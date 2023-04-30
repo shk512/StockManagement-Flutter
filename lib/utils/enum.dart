@@ -1,6 +1,16 @@
 enum UserRole{
   orderTaker,
   supplier,
-  admin,
+  manager,
   shopKeeper
+}
+enum Transaction{
+  dr,
+  cr
+}
+enum OrderStatus{
+  process,
+  dispatch,
+  onRoute,
+  deliver
 }

@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Models/area_model.dart';
-import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Services/DB/area_db.dart';
+import 'package:stock_management/Widgets/floating_action_button.dart';
 import 'package:stock_management/utils/snackBar.dart';
-
-import '../../Models/user_model.dart';
 import '../../utils/routes.dart';
 
 class Area extends StatefulWidget {
@@ -41,13 +38,7 @@ class _AreaState extends State<Area> {
         title: const Text("Area",style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
-      floatingActionButton: FloatingActionButton.extended(
-          onPressed: (){
-            Navigator.pushNamed(context, Routes.addArea );
-          },
-          icon: const Icon(Icons.add,color: Colors.white,),
-          label: const Text("Area",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
-      ),
+      floatingActionButton:FloatingActionBtn(route: Routes.area, name: "Area"),
       body: StreamBuilder(
         stream: area,
         builder: (context,AsyncSnapshot snapshot){

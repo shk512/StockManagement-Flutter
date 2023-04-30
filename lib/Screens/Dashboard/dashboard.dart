@@ -7,8 +7,10 @@ import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
+import 'package:stock_management/Widgets/dashboard_menu.dart';
 import 'package:stock_management/utils/routes.dart';
-import 'package:stock_management/utils/snackBar.dart';
+
+import '../../Functions/sign_out.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -47,7 +49,7 @@ class _DashboardState extends State<Dashboard> {
         actions: [
           GestureDetector(
             onTap: (){
-              signOut();
+              signOut(context);
             },
             child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10),
@@ -60,52 +62,20 @@ class _DashboardState extends State<Dashboard> {
           padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
           child: Column(
             children: [
-              displayFunction(Colors.amberAccent,"Order",Icons.shopping_cart, Routes.order),
+              DashboardMenu(name: "Order", route: Routes.order, icon: Icons.shopping_cart, clr: Colors.red.withOpacity(300)),
               const SizedBox(height: 10,),
-              displayFunction(Colors.lightGreen,"Stock",Icons.cached_outlined, Routes.stock),
+              DashboardMenu(name: "Stock", route: Routes.stock, icon: Icons.cached_outlined, clr: Colors.green.withOpacity(300)),
               const SizedBox(height: 10,),
-              displayFunction(Colors.orangeAccent, "User", Icons.person, Routes.epmloyee),
+              DashboardMenu(name: "User", route: Routes.employee, icon: Icons.person, clr: Colors.green),
               const SizedBox(height: 10,),
-              displayFunction(Colors.pinkAccent, "Product", Icons.add_box, Routes.product),
+              DashboardMenu(name: "Product", route: Routes.product, icon: Icons.add_box, clr: Colors.green.withOpacity(300)),
               const SizedBox(height: 10,),
-              displayFunction(Colors.lime, "Area/Shops", Icons.storefront, Routes.area),
+              DashboardMenu(name: "Area/Shops", route: Routes.area, icon: Icons.storefront, clr: Colors.purpleAccent),
               const SizedBox(height: 10,),
-              displayFunction(Colors.grey, "Accounts", Icons.account_balance_sharp, Routes.accounts),
+              DashboardMenu(name: "Accounts", route: Routes.accounts, icon: Icons.account_balance_sharp, clr: Colors.grey),
             ],
           ),
         )
-      ),
-    );
-  }
-  signOut()async{
-    await auth.signOut().then((value){
-      Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
-    }).onError((error, stackTrace) {
-      showSnackbar(context, Colors.red, error.toString());
-    });
-
-  }
-
-  Widget displayFunction(Color clr, String name, IconData icon,String route){
-    return InkWell(
-      onTap: (){
-        Navigator.pushNamed(context,route);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-            color: clr,
-            borderRadius: BorderRadius.circular(30)
-        ),
-        width: MediaQuery.of(context).size.width,
-        height: 100,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(icon,size: 40,),
-            Text(name,style:const TextStyle(fontWeight: FontWeight.w900,fontSize: 20) ,),
-          ],
-        ),
       ),
     );
   }

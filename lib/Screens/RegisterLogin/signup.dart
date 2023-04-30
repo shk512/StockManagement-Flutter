@@ -31,7 +31,7 @@ class _SignupState extends State<Signup> {
   TextEditingController contact = TextEditingController();
   TextEditingController salary = TextEditingController();
   String role = "";
-  UserRole _role = UserRole.admin;
+  UserRole _role = UserRole.manager;
   Auth auth=Auth();
   bool isLoading=false;
 
@@ -105,23 +105,23 @@ class _SignupState extends State<Signup> {
                   child: Text(
                     "Role:", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
                 ),
-                radioButtons("Admin", UserRole.admin),
+                radioButtons("Admin", UserRole.manager),
                 radioButtons("Order Taker", UserRole.orderTaker),
                 radioButtons("Supplier", UserRole.supplier),
                 radioButtons("Shop Keeper", UserRole.shopKeeper),
-                _role == UserRole.admin
+                _role == UserRole.manager
                     ? Container()
                     : TxtField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon: const Icon(Icons.onetwothree)),
                 const SizedBox(height: 20,),
                 ElevatedButton(onPressed: (){
-                  if(_role==UserRole.admin){
-                    role="Admin";
+                  if(_role==UserRole.manager){
+                    role="Admin".toUpperCase();
                   }else if(_role==UserRole.supplier){
-                    role="Supplier";
+                    role="Supplier".toUpperCase();
                   }else if(_role==UserRole.orderTaker){
-                    role="Order Taker";
+                    role="Order Taker".toUpperCase();
                   }else if(_role==UserRole.shopKeeper){
-                    role="Shop Keeper";
+                    role="Shop Keeper".toUpperCase();
                   }
                   if(pass.text==cPass.text){
                     signup();
@@ -160,25 +160,26 @@ class _SignupState extends State<Signup> {
         isLoading=true;
       });
       await auth.createUser(mail.text, pass.text).then((value)async{
-        if(value=="true"){
-          await UserDb(id: FirebaseAuth.instance.currentUser!.uid).saveUser(UserModel(CompanyModel.companyId,mail.text,contact.text,role,salary.text,name.text,value.toString()).toJson()).then((value)async{
-            if(value){
-              setState(() {
-                isLoading=false;
-              });
-              await SPF.saveUserLogInStatus(true);
-              showSnackbar(context, Colors.cyan, "Registered Successffully!");
-              Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
-            }else{
-              showSnackbar(context, Colors.red, "Error");
-            }
+          await UserDb(id: FirebaseAuth.instance.currentUser!.uid).saveUser(UserModel.toJson(
+              userId: FirebaseAuth.instance.currentUser!.uid,
+              companyId: CompanyModel.companyId,
+              name: name.text,
+              mail: mail.text,
+              phone: contact.text,
+              role: role,
+              wallet: 0,
+              salary: salary as num)).then((value){
+                SPF.saveUserLogInStatus(true);
+                setState(() {
+                  isLoading=false;
+                });
+                Navigator.pushNamed(context, Routes.dashboard);
+            showSnackbar(context, Colors.cyan, "Registered Successfully");
+          }).onError((error, stackTrace){
+            showSnackbar(context, Colors.red, error.toString());
           });
-        }else{
-          setState(() {
-            isLoading=false;
-          });
-          showSnackbar(context, Colors.red, value.toString());
-        }
+      }).onError((error, stackTrace){
+        showSnackbar(context, Colors.red, error.toString());
       });
     }
   }

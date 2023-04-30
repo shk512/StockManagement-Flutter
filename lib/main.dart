@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Screens/Area/add_area.dart';
 import 'package:stock_management/Screens/Order/order_form.dart';
 import 'package:stock_management/Screens/Shop/add_shop.dart';
 import 'package:stock_management/Screens/splash.dart';
@@ -42,7 +41,6 @@ class MyApp extends StatelessWidget {
       initialRoute: Routes.splash,
       routes: {
         Routes.area:(context)=>const Area(),
-        Routes.addArea:(context)=>const AddArea(),
         Routes.newCompany:(context)=>const NewCompany(),
         Routes.orderForm:(context)=>const OrderForm(),
         Routes.splash:(context) => const SplashScreen(),
@@ -51,7 +49,7 @@ class MyApp extends StatelessWidget {
         Routes.addShop:(context)=>const AddShop(),
         Routes.dashboard: (context) => const Dashboard(),
         Routes.accounts: (context) => const Accounts(),
-        Routes.epmloyee: (context) => const Employee(),
+        Routes.employee: (context) => const Employee(),
         Routes.order: (context) => const Order(),
         Routes.product: (context) => const Product(),
         Routes.profile: (context) => const Profile(),

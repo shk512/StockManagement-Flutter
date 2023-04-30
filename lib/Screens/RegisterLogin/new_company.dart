@@ -35,7 +35,7 @@ class _NewCompanyState extends State<NewCompany> {
               }, child: const Text("Submit"),
               ),
               const SizedBox(height: 30),
-              const Text("For any query or assistance,\nPlease contact or whatsApp \n0310-7136172",
+              const Text("For any issue or assistance,\nPlease contact or whatsApp \n0310-7136172",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold,letterSpacing: 2),
               )

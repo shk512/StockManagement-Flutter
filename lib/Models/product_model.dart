@@ -1,57 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductModel{
-  String _productId='';
-  String _productName='';
-  String _description='';
-  num _totalPrice=0;
-  num _minPrice=0;
-  int _quantityPerPiece=0;
-  int _totalQuantity=0;
+  static String productId='';
+  static String productName='';
+  static String description='';
+  static num totalPrice=0;
+  static num minPrice=0;
+  static int quantityPerPiece=0;
+  static int totalQuantity=0;
 
-  String get productId => _productId;
-
-  set productId(String value) {
-    _productId = value;
-  }
-
-  String get productName => _productName;
-
-  int get totalQuantity => _totalQuantity;
-
-  set totalQuantity(int value) {
-    _totalQuantity = value;
-  }
-
-  int get quantityPerPiece => _quantityPerPiece;
-
-  set quantityPerPiece(int value) {
-    _quantityPerPiece = value;
-  }
-
-  num get minPrice => _minPrice;
-
-  set minPrice(num value) {
-    _minPrice = value;
-  }
-
-  num get totalPrice => _totalPrice;
-
-  set totalPrice(num value) {
-    _totalPrice = value;
-  }
-
-  String get description => _description;
-
-  set description(String value) {
-    _description = value;
-  }
-
-  set productName(String value) {
-    _productName = value;
-  }
-
-  Map<String,dynamic> toJson(){
+  static Map<String,dynamic> toJson({
+    required String productId,
+    required String productName,
+    required String description,
+    required num totalPrice,
+    required num minPrice,
+    required int quantityPerPiece,
+    required int totalQuantity
+}){
       return{
         "productId":productId,
         "productName":productName,
@@ -63,7 +29,7 @@ class ProductModel{
       };
   }
 
-  void fromJson(DocumentSnapshot snapshot){
+  static fromJson(DocumentSnapshot snapshot){
     productId=snapshot["productId"];
     productName=snapshot["productName"];
     description=snapshot["description"];

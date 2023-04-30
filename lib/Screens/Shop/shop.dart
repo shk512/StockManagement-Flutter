@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Models/area_model.dart';
 import 'package:stock_management/Models/shop_model.dart';
-import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
+import 'package:stock_management/Widgets/floating_action_button.dart';
 import 'package:stock_management/utils/snackBar.dart';
 import '../../utils/routes.dart';
 
@@ -41,13 +40,7 @@ class _ShopState extends State<Shop> {
         title: const Text("Shop",style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
-      floatingActionButton: FloatingActionButton.extended(
-          onPressed: (){
-            Navigator.pushNamed(context, Routes.addShop);
-          },
-          icon: const Icon(Icons.add,color: Colors.white,),
-          label: const Text("Shop",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
-      ),
+      floatingActionButton: FloatingActionBtn(route: Routes.shop, name: "Shop"),
       body: StreamBuilder(
         stream: shops,
         builder: (context,AsyncSnapshot snapshot){

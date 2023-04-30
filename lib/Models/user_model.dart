@@ -1,65 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel{
-  String _userId='';
-  String _companyId='';
-  String _name='';
-  String _mail='';
-  String _phone='';
-  String _role='';
-  num _wallet=0;
-  num _salary=0;
+  static String userId='';
+  static String companyId='';
+  static String name='';
+  static String mail='';
+  static String phone='';
+  static String role='';
+  static num wallet=0;
+  static num salary=0;
 
-
-  String get mail => _mail;
-
-  set mail(String value) {
-    _mail = value;
-  }
-
-  String get phone => _phone;
-
-  set phone(String value) {
-    _phone = value;
-  }
-
-  String get role => _role;
-
-  set role(String value) {
-    _role = value;
-  }
-
-  num get wallet => _wallet;
-
-  set wallet(num value) {
-    _wallet = value;
-  }
-
-  String get companyId => _companyId;
-
-  set companyId(String value) {
-    _companyId = value;
-  }
-
-  String get userId => _userId;
-
-  set userId(String value) {
-    _userId = value;
-  }
-
-  num get salary => _salary;
-
-  set salary(num value) {
-    _salary = value;
-  }
-
-  String get name => _name;
-
-  set name(String value) {
-    _name = value;
-  }
-
-  Map<String,dynamic> toJson(){
+  static Map<String,dynamic> toJson({
+    required String userId,
+    required String companyId,
+    required String name,
+    required String mail,
+    required String phone,
+    required String role,
+    required num wallet,
+    required num salary,
+}){
     return {
       "userId":userId,
       "name":name,
@@ -72,7 +32,7 @@ class UserModel{
     };
   }
 
-  void fromJson(DocumentSnapshot snapshot){
+  static fromJson(DocumentSnapshot snapshot){
     userId=snapshot["userId"];
     companyId=snapshot["companyId"];
     name=snapshot["name"];

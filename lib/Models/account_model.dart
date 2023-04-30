@@ -1,48 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AccountModel{
-  String _transactionId='';
-  String _desc='';
-  num _amount=0;
-  String _type='';
+  static String transactionId='';
+  static String desc='';
+  static num amount=0;
+  static String type='';
+  static String dateTime='';
 
-  String get transactionId => _transactionId;
-
-  set transactionId(String value) {
-    _transactionId = value;
-  }
-
-  String get desc => _desc;
-
-  set desc(String value) {
-    _desc = value;
-  }
-
-  String get type => _type;
-
-  set type(String value) {
-    _type = value;
-  }
-
-  num get amount => _amount;
-
-  set amount(num value) {
-    _amount = value;
-  }
-
-  Map<String,dynamic> toJson(){
+  static Map<String,dynamic> toJson({
+    required String transactionId,
+    required String desc,
+    required num amount,
+    required String type,
+    required String dateTime
+}){
     return{
       "transactionId":transactionId,
       "type":type,
       "description":desc,
-      "amount":amount
+      "amount":amount,
+      "date":dateTime
     };
   }
 
-  void fromJson(DocumentSnapshot snapshot){
+  static fromJson(DocumentSnapshot snapshot){
     transactionId=snapshot["transactionId"];
     type=snapshot["type"];
     desc=snapshot["description"];
     amount=snapshot["amount"];
+    dateTime=snapshot["date"];
   }
 }

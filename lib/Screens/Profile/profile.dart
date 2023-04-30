@@ -47,7 +47,7 @@ class _ProfileState extends State<Profile> {
               const SizedBox(height: 10),
               displayFunction("Designation", UserModel.role.toUpperCase()),
               const SizedBox(height: 10),
-              UserModel.salary!=""?displayFunction("Salary", UserModel.salary):const SizedBox(),
+              UserModel.salary!=""?displayFunction("Salary", UserModel.salary.toString()):const SizedBox(),
               const SizedBox(height: 10),
               UserModel.role=="admin"?Container():const Text("Area",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
             ],
