@@ -16,4 +16,38 @@ class CompanyDb{
   Future updateCompany (Map<String,dynamic> mapData)async{
     await companyCollection.doc(id).update(mapData);
   }
+
+  //save Company Area
+  Future<bool?> saveArea(String area)async{
+    DocumentSnapshot snapshot=await companyCollection.doc(id).get();
+    List check=await snapshot["area"];
+    if(check.contains(area)){
+      return false;
+    }else{
+      companyCollection.doc(id).update({
+        "area":FieldValue.arrayUnion([area]),
+      });
+      return true;
+    }
+  }
+
+  //Delete Company Area
+  Future deleteArea(String area)async{
+    DocumentSnapshot snapshot=await companyCollection.doc(id).get();
+    List check=await snapshot["area"];
+    if(check.contains(area)){
+      return false;
+    }else{
+      companyCollection.doc(id).update({
+        "area":FieldValue.arrayRemove([area]),
+      });
+      return true;
+    }
+  }
+
+  //get Area List
+  getAreaList()async{
+    DocumentSnapshot snapshot=await companyCollection.doc(id).get();
+    return await snapshot["area"];
+  }
 }

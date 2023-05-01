@@ -38,6 +38,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         primarySwatch: Colors.cyan,
       ),
+      //home: const Area(),
       initialRoute: Routes.splash,
       routes: {
         Routes.area:(context)=>const Area(),

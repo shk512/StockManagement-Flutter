@@ -5,8 +5,10 @@ import 'package:stock_management/Functions/user_company_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
-import 'package:stock_management/Services/DB/area_db.dart';
+import 'package:stock_management/Services/DB/company_db.dart';
 import 'package:stock_management/utils/snackBar.dart';
+
+import '../../Services/DB/user_db.dart';
 
 class Area extends StatefulWidget {
   const Area({Key? key}) : super(key: key);
@@ -16,13 +18,21 @@ class Area extends StatefulWidget {
 }
 
 class _AreaState extends State<Area> {
-  List? area;
+  List? companyArea,userArea;
   @override
   void initState() {
     super.initState();
     getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
-    setState(() {
-      area=UserModel.area;
+    getAreaList();
+    print(companyArea);
+    print(userArea);
+  }
+  getAreaList(){
+    setState(() async{
+      userArea=await UserDb(id: UserModel.userId).getAreaList();
+    });
+    setState(() async{
+      companyArea=await CompanyDb(id: CompanyModel.companyId).getAreaList();
     });
   }
   @override
@@ -46,18 +56,27 @@ class _AreaState extends State<Area> {
           label: const Text("Area",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
       ),
       body: ListView.builder(
-          itemCount: area!.isEmpty?0:area!.length,
+          itemCount: userArea!.length,
           itemBuilder: (context,index){
-            if(area!.isEmpty){
-              return const Center(child: Text('No area added yet!',
+            if(userArea!.isEmpty){
+              return const Center(
+                child: Text(
+                  'No area added yet!',
                 style: TextStyle(color: Colors.black45,fontWeight: FontWeight.bold),),);
             }else{
-              if(CompanyModel.area.contains(area![index])){
+              if(companyArea!.contains(userArea![index])){
                 return ListTile(
-                  title: Text(area![index]),
+                  title: Text(userArea![index]),
+                  trailing: UserModel.role=="Manager".toUpperCase()
+                      ? InkWell(
+                        onTap: (){
+                          deleteArea(userArea![index]);
+                        },
+                        child: Icon(Icons.delete,color: Colors.red,))
+                      :Container(),
                 );
               }else{
-                AreaDB(id: UserModel.userId).deleteUserArea(area![index]);
+                UserDb(id: UserModel.userId).deleteUserArea(userArea![index]);
                 return const SizedBox(height: 0);
               }
             }
@@ -65,9 +84,9 @@ class _AreaState extends State<Area> {
       )
     );
   }
-  deleteArea(String areaId)async{
-    await AreaDB(id: CompanyModel.companyId).deleteArea(areaId).then((value){
-      if(value){
+  deleteArea(String areaName)async{
+    await CompanyDb(id: CompanyModel.companyId).deleteArea(areaName).then((value){
+      if(value==true){
         showSnackbar(context, Colors.green, "Deleted");
       }else{
         showSnackbar(context, Colors.red, "Error");
@@ -81,18 +100,17 @@ class _AreaState extends State<Area> {
         context: context,
         builder: (context){
       TextEditingController areaName=TextEditingController();
-      final key=GlobalKey<FormState>();
       return AlertDialog(
         title: const Text("Area Name"),
         content: TextFormField(
-          controller: areaName,
-          decoration: InputDecoration(
-            hintText: "Model Town",
+            controller: areaName,
+            decoration: const InputDecoration(
+              hintText: "Model Town",
+            ),
+            validator: (val){
+              return val!.isEmpty?"Please insert name":null;
+            },
           ),
-          validator: (val){
-            return val!.isEmpty?"Please insert name":null;
-          },
-        ),
         actions: [
           ElevatedButton(
               onPressed: (){
@@ -101,8 +119,10 @@ class _AreaState extends State<Area> {
               child: const Text("Cancel")),
           ElevatedButton(
               onPressed: (){
-                if(key.currentState!.validate()){
+                if(areaName.text.isNotEmpty){
                   saveArea(areaName.text.toUpperCase());
+                }else{
+
                 }
               }, child: const Text("Save")),
         ],
@@ -110,14 +130,12 @@ class _AreaState extends State<Area> {
     });
   }
   saveArea(String areaName)async{
-    await AreaDB(id: CompanyModel.companyId).saveArea(areaName).then((value)async{
+    await CompanyDb(id: CompanyModel.companyId).saveArea(areaName).then((value)async{
       if(value==true){
-        await AreaDB(id: UserModel.userId).saveUserArea(areaName).then((value){
+        await UserDb(id: UserModel.userId).updateAreaList(areaName).then((value){
           if(value==true){
-            showSnackbar(context, Colors.red, "Saved Successfully");
+            showSnackbar(context, Colors.cyan, "Saved Successfully");
             Navigator.pop(context);
-            setState(() {
-            });
           }else{
             Navigator.pop(context);
             showSnackbar(context, Colors.red, "Area with same name already available");

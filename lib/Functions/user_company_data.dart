@@ -7,7 +7,7 @@ import '../Services/DB/user_db.dart';
 
 void getUserAndCompanyData(String userId) async{
   DocumentSnapshot snapshot=await UserDb(id: userId).getData();
-  UserModel.fromJson(snapshot);
+  await UserModel.fromJson(snapshot);
   snapshot=await CompanyDb(id: UserModel.companyId).getData();
-  CompanyModel.fromJson(snapshot);
+  await CompanyModel.fromJson(snapshot);
 }

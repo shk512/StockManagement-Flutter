@@ -1,15 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Models/company_model.dart';
-import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
-import 'package:stock_management/Services/DB/company_db.dart';
-import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/Widgets/text_field.dart';
 import 'package:stock_management/utils/snackBar.dart';
 
-import '../../Services/shared_preferences/spf.dart';
 import '../../utils/routes.dart';
 import '../Splash_Error/error.dart';
 
@@ -26,12 +20,6 @@ class _LoginState extends State<Login> {
   final formKey=GlobalKey<FormState>();
   Auth auth=Auth();
   bool isLoading=false;
-
-  @override
-  void initState() {
-    super.initState();
-
-  }
 
   @override
   Widget build(BuildContext context) {

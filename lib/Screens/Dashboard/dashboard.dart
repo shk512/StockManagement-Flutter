@@ -19,7 +19,6 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-
   Auth auth=Auth();
 
   @override
