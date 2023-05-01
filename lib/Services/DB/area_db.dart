@@ -6,23 +6,63 @@ class AreaDB{
   AreaDB({required this.id});
 
   //Reference
-  final areaCollection=FirebaseFirestore.instance.collection("area");
+  final companyAreaCollection=FirebaseFirestore.instance.collection("company");
+  final userAreaCollection=FirebaseFirestore.instance.collection("user");
 
-  //save Area
-  Future<bool?> saveArea(Map<String,dynamic> mapData)async{
-    await areaCollection.doc(id).set(mapData);
-    return true;
+  //save Company Area
+  Future<bool?> saveArea(String area)async{
+    DocumentSnapshot snapshot=await companyAreaCollection.doc(id).get();
+    List check=await snapshot["area"];
+    if(check.contains(area)){
+      return false;
+    }else{
+      companyAreaCollection.doc(id).update({
+        "area":FieldValue.arrayUnion([area]),
+      });
+      return true;
+    }
   }
 
-  //Get Area List
-  getArea(){
-    return areaCollection.snapshots();
+  //Delete Company Area
+  Future deleteArea(String area)async{
+    DocumentSnapshot snapshot=await companyAreaCollection.doc(id).get();
+    List check=await snapshot["area"];
+    if(check.contains(area)){
+      return false;
+    }else{
+      companyAreaCollection.doc(id).update({
+        "area":FieldValue.arrayRemove([area]),
+      });
+      return true;
+    }
   }
 
-  //Delete Area
-  Future deleteArea()async{
-    await areaCollection.doc(id).delete();
-    return true;
+  //Save User Area
+  Future<bool?> saveUserArea(String area)async{
+    DocumentSnapshot snapshot=await userAreaCollection.doc(id).get();
+    List check=await snapshot["area"];
+    if(check.contains(area)){
+      return false;
+    }else{
+      companyAreaCollection.doc(id).update({
+        "area":FieldValue.arrayUnion([area]),
+      });
+      return true;
+    }
+  }
+
+  //Delete Company Area
+  Future deleteUserArea(String area)async{
+    DocumentSnapshot snapshot=await userAreaCollection.doc(id).get();
+    List check=await snapshot["area"];
+    if(check.contains(area)){
+      return false;
+    }else{
+      companyAreaCollection.doc(id).update({
+        "area":FieldValue.arrayRemove([area]),
+      });
+      return true;
+    }
   }
 
 }

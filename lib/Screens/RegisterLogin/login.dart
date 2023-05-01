@@ -30,13 +30,7 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
-    navigateToNextScreen();
-  }
-  navigateToNextScreen() async{
-    bool? logInStatus=await SPF.getLogInStatus();
-    if(logInStatus!){
-      Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
-    }
+
   }
 
   @override

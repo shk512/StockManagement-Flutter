@@ -25,6 +25,8 @@ class CompanyModel{
   required num wallet,
   required bool isPackageActive,
   required List area,
+    required var lat,
+    required var lng
 })
     {
       return{
@@ -39,8 +41,8 @@ class CompanyModel{
         "packageType":packageType,
         "city":city,
         "geoLocation":{
-          "lat":GeoLocationModel.lat,
-          "lng":GeoLocationModel.lng
+          "lat":lat,
+          "lng":lng
         }
      };
     }

@@ -9,6 +9,7 @@ import 'package:stock_management/utils/routes.dart';
 import 'package:stock_management/utils/snackBar.dart';
 
 import '../../Functions/sign_out.dart';
+import '../../Functions/update_company_data.dart';
 import '../../Functions/user_company_data.dart';
 
 class Dashboard extends StatefulWidget {
@@ -28,6 +29,17 @@ class _DashboardState extends State<Dashboard> {
     if(UserModel.isDeleted){
       Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
       showSnackbar(context, Colors.red, "Oops! Account has been deleted");
+    }
+    if(!CompanyModel.isPackageActive){
+      Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+      showSnackbar(context, Colors.red, "Oops! Company package has been expired");
+    }else{
+      DateTime date=DateTime.parse(CompanyModel.packageEndsDate);
+      if(date.isBefore(DateTime.now())){
+        CompanyModel.isPackageActive=false;
+        CompanyModel.packageEndsDate="";
+        updateCompanyData(context);
+      }
     }
   }
 

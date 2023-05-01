@@ -11,4 +11,9 @@ class CompanyDb{
   getData()async{
     return await companyCollection.doc(id).get();
   }
+
+  //Update the Company Data
+  Future updateCompany (Map<String,dynamic> mapData)async{
+    await companyCollection.doc(id).update(mapData);
+  }
 }
