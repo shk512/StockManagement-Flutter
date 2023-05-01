@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
+import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
@@ -109,26 +110,26 @@ class _SignupState extends State<Signup> {
                 radioButtons("Order Taker", UserRole.orderTaker),
                 radioButtons("Supplier", UserRole.supplier),
                 radioButtons("Shop Keeper", UserRole.shopKeeper),
-                _role == UserRole.manager
+                _role==UserRole.shopKeeper
                     ? Container()
                     : TxtField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon: const Icon(Icons.onetwothree)),
                 const SizedBox(height: 20,),
                 ElevatedButton(onPressed: (){
                   if(_role==UserRole.manager){
-                    role="Admin".toUpperCase();
+                    role="Manager".toUpperCase();
                   }else if(_role==UserRole.supplier){
                     role="Supplier".toUpperCase();
                   }else if(_role==UserRole.orderTaker){
                     role="Order Taker".toUpperCase();
                   }else if(_role==UserRole.shopKeeper){
                     role="Shop Keeper".toUpperCase();
+                    salary.text="0";
                   }
                   if(pass.text==cPass.text){
                     signup();
                   }else{
                     showSnackbar(context, Colors.red, "Oops! Password doesn't match");
                   }
-
                 }, child: const Text("Register")),
               ],
             ),
@@ -161,25 +162,33 @@ class _SignupState extends State<Signup> {
       });
       await auth.createUser(mail.text, pass.text).then((value)async{
           await UserDb(id: FirebaseAuth.instance.currentUser!.uid).saveUser(UserModel.toJson(
-              userId: FirebaseAuth.instance.currentUser!.uid,
-              companyId: CompanyModel.companyId,
-              name: name.text,
-              mail: mail.text,
-              phone: contact.text,
-              role: role,
-              wallet: 0,
-              salary: salary as num)).then((value){
+            userId: FirebaseAuth.instance.currentUser!.uid,
+            companyId: CompanyModel.companyId,
+            name: name.text,
+            mail: mail.text,
+            phone: contact.text,
+            role: role,
+            wallet: 0,
+            salary: int.parse(salary.text),
+            isDeleted: false,
+            area: []
+          )).then((value){
                 SPF.saveUserLogInStatus(true);
                 setState(() {
                   isLoading=false;
                 });
                 Navigator.pushNamed(context, Routes.dashboard);
-            showSnackbar(context, Colors.cyan, "Registered Successfully");
           }).onError((error, stackTrace){
-            showSnackbar(context, Colors.red, error.toString());
+            setState(() {
+              isLoading=false;
+            });
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
           });
       }).onError((error, stackTrace){
-        showSnackbar(context, Colors.red, error.toString());
+        setState(() {
+          isLoading=false;
+        });
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
       });
     }
   }

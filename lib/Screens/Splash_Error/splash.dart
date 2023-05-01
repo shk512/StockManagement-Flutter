@@ -1,15 +1,8 @@
 import 'dart:async';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Models/company_model.dart';
-import 'package:stock_management/Models/user_model.dart';
-import 'package:stock_management/Services/DB/company_db.dart';
-import 'package:stock_management/Services/DB/user_db.dart';
 import 'dart:math' as math;
-import '../Services/shared_preferences/spf.dart';
-import '../utils/routes.dart';
+import '../../Services/shared_preferences/spf.dart';
+import '../../utils/routes.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -27,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 5), () {
+    Timer(const Duration(seconds: 5), (){
       Navigator.pushNamed(context, Routes.login);
     });
   }

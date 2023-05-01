@@ -9,6 +9,8 @@ class UserModel{
   static String role='';
   static num wallet=0;
   static num salary=0;
+  static List area=[];
+  static bool isDeleted=false;
 
   static Map<String,dynamic> toJson({
     required String userId,
@@ -19,6 +21,8 @@ class UserModel{
     required String role,
     required num wallet,
     required num salary,
+    required bool isDeleted,
+    required List area
 }){
     return {
       "userId":userId,
@@ -29,6 +33,8 @@ class UserModel{
       "phone":phone,
       "role":role,
       "wallet":wallet,
+      "isDeleted":isDeleted,
+      "area":area
     };
   }
 
@@ -40,6 +46,8 @@ class UserModel{
     mail=snapshot["mail"];
     phone=snapshot["phone"];
     wallet=snapshot["wallet"];
-    role=snapshot["_role"];
+    role=snapshot["role"];
+    isDeleted=snapshot["isDeleted"];
+    area=snapshot["area"];
   }
 }

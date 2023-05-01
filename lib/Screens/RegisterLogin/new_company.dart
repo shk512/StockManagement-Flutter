@@ -50,7 +50,7 @@ class _NewCompanyState extends State<NewCompany> {
         isLoading=true;
       });
       await db.licenseKey(license.text).then((value){
-        if(value){
+        if(value==true){
           setState(() {
             isLoading=false;
           });

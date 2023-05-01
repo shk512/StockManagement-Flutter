@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Functions/user_company_data.dart';
 import 'package:stock_management/Models/user_model.dart';
 
 import '../../Models/company_model.dart';
@@ -14,6 +16,11 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   @override
+  void initState() {
+    super.initState();
+    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -23,13 +30,15 @@ class _ProfileState extends State<Profile> {
           },
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
-        title: Text(UserModel.mail,style: const TextStyle(color: Colors.white),),
+        title: const Text("Profile",style: TextStyle(color: Colors.white),),
         centerTitle: true,
         actions: [
           const Icon(Icons.account_balance_wallet_outlined,color: Colors.white,),
           Padding(
               padding:const EdgeInsets.symmetric(horizontal: 10,vertical: 20),
-              child: Text("Rs. ${UserModel.wallet}",style: const TextStyle(fontSize: 17,color: Colors.white),textAlign: TextAlign.center,))
+              child: Text(
+                "Rs. ${UserModel.wallet}",
+                style: const TextStyle(fontSize: 17,color: Colors.white),textAlign: TextAlign.center,),),
         ],
       ),
       body: SingleChildScrollView(
@@ -39,7 +48,9 @@ class _ProfileState extends State<Profile> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              displayFunction("Company Name", CompanyModel.companyName.toUpperCase()),
+              displayFunction("Email", UserModel.mail.toLowerCase()),
+              const SizedBox(height: 10),
+              displayFunction("Company", CompanyModel.companyName.toUpperCase()),
               const SizedBox(height: 10),
               displayFunction("Name", UserModel.name.toUpperCase()),
               const SizedBox(height: 10),
@@ -47,9 +58,9 @@ class _ProfileState extends State<Profile> {
               const SizedBox(height: 10),
               displayFunction("Designation", UserModel.role.toUpperCase()),
               const SizedBox(height: 10),
-              UserModel.salary!=""?displayFunction("Salary", UserModel.salary.toString()):const SizedBox(),
+              UserModel.salary!=0?displayFunction("Salary", UserModel.salary.toString()):const SizedBox(),
               const SizedBox(height: 10),
-              UserModel.role=="admin"?Container():const Text("Area",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+              UserModel.role=="shop keeper".toUpperCase()?Container():const Text("Area Assigned",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
             ],
         ),
         ),
@@ -60,7 +71,7 @@ class _ProfileState extends State<Profile> {
     return Row(
       children: [
         Expanded(
-            flex: 2,
+            flex: 1,
             child: Text(label,style: const TextStyle(fontWeight: FontWeight.w900),)
         ),
         Expanded(

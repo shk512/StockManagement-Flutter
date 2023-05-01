@@ -28,7 +28,7 @@ class Auth{
           email: email, password: pass))
           .user!;
       if (user != null) {
-        return "true";
+        return true;
       }
     } on FirebaseAuthException catch (e) {
       return e.message;

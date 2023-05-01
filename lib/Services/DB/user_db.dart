@@ -20,6 +20,5 @@ class UserDb{
   //save user
   Future saveUser(Map<String,dynamic> mapData)async{
     await userCollection.doc(id).set(mapData);
-    return true;
   }
 }

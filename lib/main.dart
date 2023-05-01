@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Screens/Order/order_form.dart';
 import 'package:stock_management/Screens/Shop/add_shop.dart';
-import 'package:stock_management/Screens/splash.dart';
+import 'package:stock_management/Screens/Splash_Error/splash.dart';
 import 'package:stock_management/firebase_options.dart';
 import 'package:stock_management/utils/routes.dart';
 import 'Screens/Accounts/account.dart';
