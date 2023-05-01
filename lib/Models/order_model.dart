@@ -6,7 +6,8 @@ class OrderModel{
   static String userId='';
   static String shopId='';
   static String status='';
-  static String desc='';
+  static String description='';
+  static String dateTime='';
   static List products=[];
   static num totalAmount=0;
   static num advanceAmount=0;
@@ -19,6 +20,7 @@ class OrderModel{
     required String shopId,
     required String status,
     required String desc,
+    required String dateTime,
     required List products,
     required num totalAmount,
     required num advanceAmount,
@@ -32,6 +34,8 @@ class OrderModel{
       "userId":userId,
       "shopId":shopId,
       "status":status,
+      "description":desc,
+      "dateTime":dateTime,
       "products":products,
       "totalAmount":totalAmount,
       "advanceAmount":advanceAmount,
@@ -49,6 +53,8 @@ class OrderModel{
     shopId=snapshot["shopId"];
     status=snapshot["status"];
     products=snapshot["products"];
+    description=snapshot["description"];
+    dateTime=snapshot["dateTime"];
     totalAmount=snapshot["totalAmount"];
     advanceAmount=snapshot["advanceAmount"];
     balanceAmount=snapshot["balanceAmount"];

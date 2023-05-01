@@ -9,6 +9,7 @@ import 'package:stock_management/Services/DB/company_db.dart';
 import 'package:stock_management/utils/snackBar.dart';
 
 import '../../Services/DB/user_db.dart';
+import '../Shop/shop.dart';
 
 class Area extends StatefulWidget {
   const Area({Key? key}) : super(key: key);
@@ -23,17 +24,6 @@ class _AreaState extends State<Area> {
   void initState() {
     super.initState();
     getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
-    getAreaList();
-    print(companyArea);
-    print(userArea);
-  }
-  getAreaList(){
-    setState(() async{
-      userArea=await UserDb(id: UserModel.userId).getAreaList();
-    });
-    setState(() async{
-      companyArea=await CompanyDb(id: CompanyModel.companyId).getAreaList();
-    });
   }
   @override
   Widget build(BuildContext context) {
@@ -56,27 +46,30 @@ class _AreaState extends State<Area> {
           label: const Text("Area",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
       ),
       body: ListView.builder(
-          itemCount: userArea!.length,
+          itemCount:UserModel.area.length /*userArea!.length*/,
           itemBuilder: (context,index){
-            if(userArea!.isEmpty){
+            if(UserModel.area.isEmpty){
               return const Center(
                 child: Text(
                   'No area added yet!',
                 style: TextStyle(color: Colors.black45,fontWeight: FontWeight.bold),),);
             }else{
-              if(companyArea!.contains(userArea![index])){
+              if(CompanyModel.area.contains(UserModel.area[index])){
                 return ListTile(
-                  title: Text(userArea![index]),
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>Shop(areaName: UserModel.area[index],)));
+                  },
+                  title: Text(UserModel.area[index]),
                   trailing: UserModel.role=="Manager".toUpperCase()
                       ? InkWell(
                         onTap: (){
-                          deleteArea(userArea![index]);
+                          deleteArea(UserModel.area[index]);
                         },
-                        child: Icon(Icons.delete,color: Colors.red,))
+                        child: const Icon(Icons.delete,color: Colors.red,))
                       :Container(),
                 );
               }else{
-                UserDb(id: UserModel.userId).deleteUserArea(userArea![index]);
+                UserDb(id: UserModel.userId).deleteUserArea(UserModel.area[index]);
                 return const SizedBox(height: 0);
               }
             }

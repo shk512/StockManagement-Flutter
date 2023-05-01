@@ -48,6 +48,6 @@ class UserModel{
     wallet=snapshot["wallet"];
     role=snapshot["role"];
     isDeleted=snapshot["isDeleted"];
-    area=snapshot["area"];
+    area=List.from(snapshot["area"]);
   }
 }

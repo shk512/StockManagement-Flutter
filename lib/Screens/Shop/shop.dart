@@ -7,7 +7,8 @@ import 'package:stock_management/utils/snackBar.dart';
 import '../../utils/routes.dart';
 
 class Shop extends StatefulWidget {
-  const Shop({Key? key}) : super(key: key);
+  final String areaName;
+  const Shop({Key? key,required this.areaName}) : super(key: key);
 
   @override
   State<Shop> createState() => _ShopState();
@@ -40,7 +41,7 @@ class _ShopState extends State<Shop> {
         title: const Text("Shop",style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
-      floatingActionButton: FloatingActionBtn(route: Routes.shop, name: "Shop"),
+      //floatingActionButton: FloatingActionBtn(route: Routes.shop, name: "Shop"),
       body: StreamBuilder(
         stream: shops,
         builder: (context,AsyncSnapshot snapshot){

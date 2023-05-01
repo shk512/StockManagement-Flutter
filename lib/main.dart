@@ -46,7 +46,6 @@ class MyApp extends StatelessWidget {
         Routes.orderForm:(context)=>const OrderForm(),
         Routes.splash:(context) => const SplashScreen(),
         Routes.login:(context)=>const Login(),
-        Routes.shop:(context)=>const Shop(),
         Routes.addShop:(context)=>const AddShop(),
         Routes.dashboard: (context) => const Dashboard(),
         Routes.accounts: (context) => const Accounts(),

@@ -53,7 +53,7 @@ class CompanyModel{
     isPackageActive= snapshot['isPackageActive'];
     packageEndsDate= snapshot['packageEndsDate'];
     companyName= snapshot['companyName'];
-    area=snapshot['area'];
+    area=List.from(snapshot['area']);
     wallet=snapshot['wallet'];
     packageType=snapshot["packageType"];
     whatsApp=snapshot["whatsApp"];

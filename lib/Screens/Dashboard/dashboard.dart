@@ -25,6 +25,8 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     super.initState();
     getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+  }
+  getProfileStatus()async{
     if(UserModel.isDeleted){
       Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
       showSnackbar(context, Colors.red, "Oops! Account has been deleted");
