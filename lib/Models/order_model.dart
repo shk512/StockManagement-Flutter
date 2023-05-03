@@ -4,8 +4,9 @@ import 'package:stock_management/Models/geolocation_model.dart';
 class OrderModel{
   static String  orderId='';
   static String userId='';
-  static String shopId='';
+  static String shopDetails='';
   static String status='';
+  static String remarks='';
   static String description='';
   static String dateTime='';
   static List products=[];
@@ -17,8 +18,9 @@ class OrderModel{
   static Map<String,dynamic> toJson({
     required String  orderId,
     required String userId,
-    required String shopId,
+    required String shopDetails,
     required String status,
+    required String remarks,
     required String desc,
     required String dateTime,
     required List products,
@@ -32,8 +34,9 @@ class OrderModel{
     return{
       "orderId":orderId,
       "userId":userId,
-      "shopId":shopId,
+      "shopDetails":shopDetails,
       "status":status,
+      "remarks":remarks,
       "description":desc,
       "dateTime":dateTime,
       "products":products,
@@ -50,9 +53,10 @@ class OrderModel{
   void fromJson(DocumentSnapshot snapshot){
     orderId=snapshot["orderId"];
     userId=snapshot["userId"];
-    shopId=snapshot["shopId"];
+    shopDetails=snapshot["shopId"];
     status=snapshot["status"];
-    products=snapshot["products"];
+    remarks=snapshot["remarks"];
+    products=List.from(snapshot["products"]);
     description=snapshot["description"];
     dateTime=snapshot["dateTime"];
     totalAmount=snapshot["totalAmount"];

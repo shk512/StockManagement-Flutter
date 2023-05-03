@@ -38,7 +38,7 @@ class UserModel{
     };
   }
 
-  static fromJson(DocumentSnapshot snapshot){
+  static fromJson(DocumentSnapshot snapshot)async{
     userId=snapshot["userId"];
     companyId=snapshot["companyId"];
     name=snapshot["name"];
@@ -48,6 +48,6 @@ class UserModel{
     wallet=snapshot["wallet"];
     role=snapshot["role"];
     isDeleted=snapshot["isDeleted"];
-    area=List.from(snapshot["area"]);
+    area=await List.from(snapshot["area"]);
   }
 }

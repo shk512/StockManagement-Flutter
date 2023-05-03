@@ -1,14 +1,15 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Functions/user_company_data.dart';
+import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/user_model.dart';
+import 'package:stock_management/Widgets/row_info_display.dart';
 
 import '../../Models/company_model.dart';
 
 
 class Profile extends StatefulWidget {
-  const Profile({Key? key}) : super(key: key);
+  final String userId;
+  const Profile({Key? key,required this.userId}) : super(key: key);
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -18,7 +19,12 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    getUserAndCompanyData(widget.userId);
+  }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
   @override
   Widget build(BuildContext context) {
@@ -48,37 +54,40 @@ class _ProfileState extends State<Profile> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              displayFunction("Email", UserModel.mail.toLowerCase()),
+              RowInfoDisplay(label: "Email", value: UserModel.mail.toLowerCase()),
               const SizedBox(height: 10),
-              displayFunction("Company", CompanyModel.companyName.toUpperCase()),
+              RowInfoDisplay(label: "Company", value: CompanyModel.companyName.toUpperCase()),
               const SizedBox(height: 10),
-              displayFunction("Name", UserModel.name.toUpperCase()),
+              RowInfoDisplay(label: "Name", value: UserModel.name.toUpperCase()),
               const SizedBox(height: 10),
-              displayFunction("Contact", UserModel.phone),
+              RowInfoDisplay(label:"Contact", value: UserModel.phone),
               const SizedBox(height: 10),
-              displayFunction("Designation", UserModel.role.toUpperCase()),
+              RowInfoDisplay(label: "Designation", value: UserModel.role.toUpperCase()),
               const SizedBox(height: 10),
-              UserModel.salary!=0?displayFunction("Salary", UserModel.salary.toString()):const SizedBox(),
+              UserModel.salary!=0?RowInfoDisplay(label: "Salary", value:UserModel.salary.toString()):const SizedBox(),
               const SizedBox(height: 10),
-              UserModel.role=="shop keeper".toUpperCase()?Container():const Text("Area Assigned",style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+              UserModel.role=="shop keeper".toUpperCase()
+                  ?Container()
+                  :const Align(
+                alignment: Alignment.center,
+                  child:  Text("Area Assigned",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900),)),
+              const SizedBox(height: 10),
+              areaList(),
             ],
         ),
         ),
       ),
     );
   }
-  Widget displayFunction(String label,String value){
-    return Row(
-      children: [
-        Expanded(
-            flex: 1,
-            child: Text(label,style: const TextStyle(fontWeight: FontWeight.w900),)
-        ),
-        Expanded(
-            flex: 3,
-            child: Text(value)
-        ),
-      ],
+
+  Widget areaList(){
+    return Column(
+            children: UserModel.area.map((e) => Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Text(">\t\t $e")))).toList(),
     );
   }
 }
+

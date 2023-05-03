@@ -29,8 +29,8 @@ class _DashboardMenuState extends State<DashboardMenu> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(widget.icon,size: 40,),
-            Text(widget.name,style:const TextStyle(fontWeight: FontWeight.w900,fontSize: 20) ,),
+            Icon(widget.icon,size: 40,color: Colors.white,),
+            Text(widget.name,style:const TextStyle(fontWeight: FontWeight.w900,fontSize: 20,color: Colors.white) ,),
           ],
         ),
       ),

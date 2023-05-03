@@ -1,41 +1,45 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Functions/location.dart';
+import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
-import 'package:stock_management/Models/shop_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
-import 'package:stock_management/Widgets/text_field.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Widgets/num_field.dart';
+import '../../Widgets/text_field.dart';
 
-class AddShop extends StatefulWidget {
-  final String areaName;
-  const AddShop({Key? key,required this.areaName}) : super(key: key);
+class EditShop extends StatefulWidget {
+  final String shopId;
+  const EditShop({Key? key,required this.shopId}) : super(key: key);
 
   @override
-  State<AddShop> createState() => _AddShopState();
+  State<EditShop> createState() => _EditShopState();
 }
 
-class _AddShopState extends State<AddShop> {
-  bool isLoading=false;
-  double? lat;
-  double? lng;
-  String address='';
-  TextEditingController ownerName=TextEditingController();
+class _EditShopState extends State<EditShop> {
   TextEditingController shopName=TextEditingController();
+  TextEditingController ownerName=TextEditingController();
   TextEditingController contact=TextEditingController();
   TextEditingController nearBy=TextEditingController();
+  String areaName="";
   final formKey=GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    getCurrentLocation(context).then((value){
+    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    getShopDetails();
+  }
+  getShopDetails()async{
+    await ShopDB(companyId: CompanyModel.companyId,shopId: widget.shopId).getShopDetails().then((value){
       setState(() {
-        lat=value.latitude;
-        lng=value.longitude;
+        shopName.text=value["shopName"];
+        ownerName.text=value["ownerName"];
+        contact.text=value["contact"];
+        nearBy.text=value["nearBy"];
+        areaName=value["areaId"];
       });
     });
   }
@@ -50,20 +54,20 @@ class _AddShopState extends State<AddShop> {
           },
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
-        title: Text(widget.areaName,style: const TextStyle(color: Colors.white),),
+        title: Text(areaName,style: const TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: (){
-            if(formKey.currentState!.validate()){
-              saveShop();
-            }
-          },
-          child: const Text("Save",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+        onPressed: (){
+          if(formKey.currentState!.validate()){
+            updateShop();
+          }
+        },
+        child: const Text("Update",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
       ),
       body: SingleChildScrollView(
         child: Form(
-          key: formKey,
+            key: formKey,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 20),
               child: Column(
@@ -82,20 +86,19 @@ class _AddShopState extends State<AddShop> {
       ),
     );
   }
-  saveShop()async{
-    String shopId=DateTime.now().microsecondsSinceEpoch.toString();
-    await ShopDB(companyId: CompanyModel.companyId, shopId: shopId).saveShop(ShopModel.toJson(
-        shopId: shopId,
-        areaName: widget.areaName,
-        shopName: shopName.text.toUpperCase(),
-        contact: contact.text,
-        ownerName: ownerName.text,
-        nearBy: nearBy.text,
-        isDeleted: false,
-        lat: lat,
-        lng: lng)).then((value){
-          Navigator.pop(context);
-          showSnackbar(context, Colors.cyan, "Saved");
+  updateShop()async{
+    await ShopDB(companyId: CompanyModel.companyId, shopId: widget.shopId).updateShop({
+      "shopName":shopName.text,
+      "ownerName":ownerName.text,
+      "contact":contact.text,
+      "nearBy":nearBy.text
+    }).then((value){
+      if(value==true){
+        showSnackbar(context, Colors.cyan, "Updated");
+        Navigator.pop(context);
+      }else{
+        showSnackbar(context, Colors.red, "Error");
+      }
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
     });

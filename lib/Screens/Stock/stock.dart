@@ -17,7 +17,7 @@ class _StockState extends State<Stock> {
       floatingActionButton: UserModel.role.toUpperCase()=="Admin".toUpperCase()
           ?FloatingActionButton.extended(
           onPressed: (){
-            Navigator.pushNamed(context, Routes.addShop);
+
           },
           icon: const Icon(Icons.add,color: Colors.white,),
           label: const Text("Shop",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)

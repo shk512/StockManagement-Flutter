@@ -1,27 +1,39 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:stock_management/Models/shop_model.dart';
 
 class ShopDB{
-  String id;
-  ShopDB({required this.id});
+  final String shopId;
+  final String companyId;
+  ShopDB({required this.companyId,required this.shopId});
 
   //Reference Collection
-  final shopCollection=FirebaseFirestore.instance.collection("shop");
+  final companyCollection=FirebaseFirestore.instance.collection("company");
 
   //Save Shop
   Future saveShop(Map<String,dynamic> mapData)async{
-    await shopCollection.doc(id).set(mapData);
+    await companyCollection.doc(companyId).collection("shop").doc(shopId).set(mapData);
   }
 
   //Get Shops
-  getShops(){
-    return shopCollection.snapshots();
+  Future getShops()async{
+    return companyCollection.doc(companyId).collection("shop").snapshots();
+  }
+
+  //Get shop details
+  Future getShopDetails() async{
+    return companyCollection.doc(companyId).collection("shop").doc(shopId).get();
+  }
+
+  //update shopData
+  Future updateShop(Map<String,dynamic> mapData)async{
+    await companyCollection.doc(companyId).collection("shop").doc(shopId).update(mapData);
+    return true;
   }
 
   //Delete Shop
-  Future deleteShop()async{
-    await shopCollection.doc(id).delete();
+  Future deleteShop()async {
+    await companyCollection.doc(companyId).collection("shop")
+        .doc(shopId)
+        .update({"isDeleted":true});
     return true;
   }
 }

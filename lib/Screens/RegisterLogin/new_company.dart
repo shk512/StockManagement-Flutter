@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:stock_management/Screens/RegisterLogin/signup.dart';
 import 'package:stock_management/Services/DB/auth_db.dart';
-import 'package:stock_management/Widgets/text_field.dart';
-import 'package:stock_management/utils/snackBar.dart';
+import 'package:stock_management/utils/snack_bar.dart';
+
+import '../../Widgets/num_field.dart';
 
 class NewCompany extends StatefulWidget {
   const NewCompany({Key? key}) : super(key: key);
@@ -28,7 +29,7 @@ class _NewCompanyState extends State<NewCompany> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              TxtField(labelTxt: "License Key", hintTxt: "Your company's license key....", ctrl: license, icon: const Icon(Icons.warehouse_outlined)),
+              NumField(labelTxt: "License Key", hintTxt: "Your company's license key....", ctrl: license, icon: const Icon(Icons.warehouse_outlined)),
               const SizedBox(height: 30),
               ElevatedButton(onPressed: (){
                 licenseCheck();

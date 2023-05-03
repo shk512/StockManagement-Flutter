@@ -11,8 +11,9 @@ import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/Services/shared_preferences/spf.dart';
 import 'package:stock_management/Widgets/text_field.dart';
 import 'package:stock_management/utils/enum.dart';
-import 'package:stock_management/utils/snackBar.dart';
+import 'package:stock_management/utils/snack_bar.dart';
 
+import '../../Widgets/num_field.dart';
 import '../../utils/routes.dart';
 
 class Signup extends StatefulWidget {
@@ -86,8 +87,8 @@ class _SignupState extends State<Signup> {
                     ctrl: name,
                     icon: const Icon(Icons.perm_identity)),
                 const SizedBox(height: 20,),
-                TxtField(labelTxt: "Contact",
-                    hintTxt: "923001234567",
+                NumField(labelTxt: "Contact",
+                    hintTxt: "03001234567",
                     ctrl: contact,
                     icon: const Icon(Icons.phone)),
                 const SizedBox(height: 20,),
@@ -112,7 +113,7 @@ class _SignupState extends State<Signup> {
                 radioButtons("Shop Keeper", UserRole.shopKeeper),
                 _role==UserRole.shopKeeper
                     ? Container()
-                    : TxtField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon: const Icon(Icons.onetwothree)),
+                    : NumField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon: const Icon(Icons.onetwothree)),
                 const SizedBox(height: 20,),
                 ElevatedButton(onPressed: (){
                   if(_role==UserRole.manager){

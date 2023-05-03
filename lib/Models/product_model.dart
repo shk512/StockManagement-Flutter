@@ -8,11 +8,13 @@ class ProductModel{
   static num minPrice=0;
   static int quantityPerPiece=0;
   static int totalQuantity=0;
+  static bool isDeleted=false;
 
   static Map<String,dynamic> toJson({
     required String productId,
     required String productName,
     required String description,
+    required bool isDeleted,
     required num totalPrice,
     required num minPrice,
     required int quantityPerPiece,
@@ -25,7 +27,8 @@ class ProductModel{
         "totalPrice":totalPrice,
         "minPrice":minPrice,
         "quantityPerPiece":quantityPerPiece,
-        "totalQuantity":totalQuantity
+        "totalQuantity":totalQuantity,
+        "isDeleted":isDeleted
       };
   }
 
@@ -35,6 +38,7 @@ class ProductModel{
     description=snapshot["description"];
     totalPrice=snapshot["totalPrice"];
     minPrice=snapshot["minPrice"];
+    isDeleted=snapshot["isDeleted"];
     quantityPerPiece=snapshot["quantityPerPiece"];
     totalQuantity=snapshot["totalQuantity"];
   }

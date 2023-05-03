@@ -18,7 +18,7 @@ class CompanyDb{
   }
 
   //save Company Area
-  Future<bool?> saveArea(String area)async{
+  Future saveArea(String area)async{
     DocumentSnapshot snapshot=await companyCollection.doc(id).get();
     List check=await snapshot["area"];
     if(check.contains(area)){
@@ -36,18 +36,13 @@ class CompanyDb{
     DocumentSnapshot snapshot=await companyCollection.doc(id).get();
     List check=await snapshot["area"];
     if(check.contains(area)){
-      return false;
-    }else{
       companyCollection.doc(id).update({
         "area":FieldValue.arrayRemove([area]),
       });
       return true;
+    }else{
+      return false;
     }
   }
 
-  //get Area List
-  getAreaList()async{
-    DocumentSnapshot snapshot=await companyCollection.doc(id).get();
-    return await snapshot["area"];
-  }
 }

@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Widgets/text_field.dart';
-import 'package:stock_management/utils/snackBar.dart';
+import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../utils/routes.dart';
 import '../Splash_Error/error.dart';
@@ -32,7 +34,8 @@ class _LoginState extends State<Login> {
             child: Form(
                 key: formKey,
                 child: Column(
-                  
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children:[
                     const Image(image: AssetImage("image/login.png")),
                     const SizedBox(height: 40),
@@ -81,11 +84,13 @@ class _LoginState extends State<Login> {
         isLoading=true;
       });
       await auth.signInWithEmailAndPassword(mail.text, pass.text).then((value)async{
-        if(value){
-          /*await UserModel.fromJson(UserDb(id: FirebaseAuth.instance.currentUser!.uid).getData());
-          await CompanyModel.fromJson(CompanyDb(id: UserModel.companyId).getData());*/
+        if(value==true){
+          await getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
           Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
         }else{
+          setState(() {
+            isLoading=false;
+          });
           showSnackbar(context, Colors.red, value.toString());
         }
       }).onError((error, stackTrace){

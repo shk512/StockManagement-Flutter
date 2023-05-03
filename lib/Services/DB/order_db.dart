@@ -7,21 +7,21 @@ class OrderDB{
   OrderDB({required this.id});
 
   //Reference
-  final orderCollerction=FirebaseFirestore.instance.collection("order");
+  final companyCollerction=FirebaseFirestore.instance.collection("company");
 
   //Get All Orders
   getOrder(){
-    return orderCollerction.orderBy("date",descending: true).snapshots();
+    return companyCollerction.orderBy("date",descending: true).snapshots();
   }
 
   //save Order
   Future saveOrder(Map<String,dynamic> mapData)async{
-    await orderCollerction.doc(id).set(mapData);
+    await companyCollerction.doc(id).set(mapData);
     return true;
   }
 
   //get Order By Id
   getOrderById()async{
-    return await orderCollerction.doc(id).get();
+    return await companyCollerction.doc(id).get();
   }
 }

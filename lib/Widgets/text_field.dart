@@ -1,5 +1,6 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class TxtField extends StatefulWidget {
   final String hintTxt;
@@ -44,8 +45,6 @@ class _TxtFieldState extends State<TxtField> {
                   return val!.length<6?"Contains min six characters":null;
                 }else if(widget.labelTxt=="Email"){
                   return EmailValidator.validate(val!)?null:"Invalid";
-                }else if(widget.labelTxt=="Contact"){
-                  return val!.length==12?null:"Invalid";
                 }else{
                   return val!.isNotEmpty?null:"Invalid";
                 }

@@ -41,12 +41,12 @@ class UserDb{
     DocumentSnapshot snapshot=await userCollection.doc(id).get();
     List check=await snapshot["area"];
     if(check.contains(area)){
-      return false;
-    }else{
       userCollection.doc(id).update({
         "area":FieldValue.arrayRemove([area]),
       });
       return true;
+    }else{
+      return false;
     }
   }
 
