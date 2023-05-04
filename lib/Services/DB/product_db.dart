@@ -20,6 +20,21 @@ class ProductDb{
     return true;
   }
 
+  //update Stock
+  Future updateStock(num quantity)async{
+    await companyCollection.doc(companyId).collection("product").doc(productId).update({
+      "totalQuantity": quantity
+    });
+    return true;
+  }
+
+  //add stock again
+  Future updateStockAgain(num quantity)async{
+   DocumentSnapshot snapshot= await companyCollection.doc(companyId).collection("product").doc(productId).get();
+   quantity=snapshot["totalQuantity"]+quantity;
+   updateStock(quantity);
+  }
+
   //get Products
   Future getProducts() async{
     return companyCollection.doc(companyId).collection("product").snapshots();

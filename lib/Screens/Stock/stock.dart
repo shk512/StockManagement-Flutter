@@ -1,7 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:stock_management/Functions/get_data.dart';
+import 'package:stock_management/Models/company_model.dart';
+import 'package:stock_management/Screens/Splash_Error/error.dart';
+import 'package:stock_management/Services/DB/product_db.dart';
+import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Models/user_model.dart';
-import '../../utils/routes.dart';
 
 class Stock extends StatefulWidget {
   const Stock({Key? key}) : super(key: key);
@@ -11,18 +18,118 @@ class Stock extends StatefulWidget {
 }
 
 class _StockState extends State<Stock> {
+  Stream? products;
+  @override
+  void initState() {
+    super.initState();
+    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    getProducts();
+  }
+  getProducts()async{
+    ProductDb(companyId: CompanyModel.companyId, productId: "").getProducts().then((value){
+      setState(() {
+        products=value;
+      });
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: UserModel.role.toUpperCase()=="Admin".toUpperCase()
-          ?FloatingActionButton.extended(
-          onPressed: (){
-
+      appBar: AppBar(
+        elevation: 0,
+        leading: GestureDetector(
+          onTap: (){
+            Navigator.pop(context);
           },
-          icon: const Icon(Icons.add,color: Colors.white,),
-          label: const Text("Shop",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
-      )
-          :const SizedBox(),
+          child: const Icon(CupertinoIcons.back,color: Colors.white,),
+        ),
+        title: const Text("Stock",style: TextStyle(color: Colors.white),),
+        centerTitle: true,
+      ),
+      body: StreamBuilder(
+        stream: products,
+        builder: (context,AsyncSnapshot snapshot){
+          if(snapshot.connectionState==ConnectionState.waiting){
+            return const Center(child: CircularProgressIndicator(),);
+          }
+          if(snapshot.hasError){
+            return const Center(child: Text("error"),);
+          }
+          if(!snapshot.hasData){
+            return const Center(child: Text("No Data Found"),);
+          }else{
+            return ListView.builder(
+                itemCount: snapshot.data.docs.length,
+                itemBuilder: (context,index){
+                  if(snapshot.data.docs[index]["isDeleted"]==false){
+                    return ListTile(
+                      title: Text(snapshot.data.docs[index]["productName"]),
+                      subtitle: Text(snapshot.data.docs[index]["totalQuantity"].toString()),
+                      trailing: UserModel.role == "manager".toUpperCase()
+                          ? InkWell(
+                          onTap: () {
+                            showStockInputDialogue(
+                                snapshot.data.docs[index]["productId"], snapshot.data.docs[index]["totalQuantity"],
+                                snapshot.data.docs[index]["productName"]);
+                          },
+                          child: const Icon(Icons.cached_outlined, color: Colors.cyan,))
+                          : const SizedBox(height: 0,),
+                    );
+                  }else{
+                    return const SizedBox(height: 0,);
+                  }
+                });
+          }
+        },
+      ),
     );
+  }
+  showStockInputDialogue(String productId,num quantity,String productName){
+    TextEditingController newQuantity=TextEditingController();
+    return showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+             title: Text(productName),
+            content: TextFormField(
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly
+              ],
+              controller: newQuantity,
+              decoration: const InputDecoration(
+                labelText: "Stock",
+                hintText: "Enter new stock"
+              ),
+            ),
+            actions: [
+              ElevatedButton(
+                  onPressed: (){Navigator.pop(context);},
+                  child: const Text("Cancel",style: TextStyle(color: Colors.white),)),
+              ElevatedButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                    if(newQuantity.text.isNotEmpty){
+                      updateStock(int.parse(newQuantity.text)+quantity,productId);
+                    }
+                  },
+                  child: const Text("Update",style: TextStyle(color: Colors.white),))
+            ],
+          );
+        });
+  }
+  updateStock(num quantity,String productId)async{
+    await ProductDb(companyId: CompanyModel.companyId, productId: productId).updateStock(quantity).then((value){
+      if(value==true){
+        showSnackbar(context,Colors.cyan, "Updated");
+        setState(() {
+
+        });
+      }else{
+        showSnackbar(context, Colors.red, "Error");
+      }
+    }).onError((error, stackTrace) {
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+    });
   }
 }

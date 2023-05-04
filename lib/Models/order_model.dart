@@ -50,6 +50,7 @@ class OrderModel{
       }
     };
   }
+
   void fromJson(DocumentSnapshot snapshot){
     orderId=snapshot["orderId"];
     userId=snapshot["userId"];

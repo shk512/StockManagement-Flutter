@@ -45,7 +45,7 @@ class _LoginState extends State<Login> {
                     const SizedBox(height: 20),
                     ElevatedButton(onPressed: (){
                       login();
-                    }, child: const Text('Login')),
+                    }, child: const Text('Login',style: TextStyle(color: Colors.white),)),
                     const SizedBox(height: 20),
                     Text.rich(
                       TextSpan(

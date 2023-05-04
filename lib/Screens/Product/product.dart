@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
-import 'package:stock_management/Models/product_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Product/edit_product.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
@@ -66,7 +65,7 @@ class _ProductState extends State<Product> {
                   itemCount: snapshot.data.docs.length,
                   itemBuilder: (context,index){
                     if(snapshot.data.docs[index]["isDeleted"]==true){
-                      return SizedBox(height: 0,);
+                      return const SizedBox(height: 0,);
                     }else{
                       return ListTile(
                         onTap: (){
@@ -79,8 +78,8 @@ class _ProductState extends State<Product> {
                             onTap:(){
                               showWarning(snapshot.data.docs[index]["productId"]);
                             },
-                            child: Icon(Icons.delete,color: Colors.red,))
-                            :SizedBox(height: 0,),
+                            child: const Icon(Icons.delete,color: Colors.red,))
+                            :const SizedBox(height: 0,),
                       );
                     }
                   });

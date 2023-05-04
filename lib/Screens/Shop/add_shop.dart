@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:stock_management/Functions/location.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/shop_model.dart';
+import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Widgets/text_field.dart';
@@ -53,14 +54,15 @@ class _AddShopState extends State<AddShop> {
         title: Text(widget.areaName,style: const TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: UserModel.role=="Manager".toUpperCase() || UserModel.role=="order taker".toUpperCase()
+        ?FloatingActionButton(
           onPressed: (){
             if(formKey.currentState!.validate()){
               saveShop();
             }
           },
           child: const Text("Save",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
-      ),
+      ):const SizedBox(height: 0,),
       body: SingleChildScrollView(
         child: Form(
           key: formKey,

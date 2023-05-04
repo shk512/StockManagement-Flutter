@@ -52,13 +52,14 @@ class _AreaState extends State<Area> {
         title: const Text("Area",style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
-      floatingActionButton:   FloatingActionButton.extended(
+      floatingActionButton:  UserModel.role=="Manager".toUpperCase()
+          ?FloatingActionButton.extended(
           onPressed: (){
             showDialogueBox();
           },
           icon: const Icon(Icons.add,color: Colors.white,),
           label: const Text("Area",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
-      ),
+      ):const SizedBox(height: 0,),
       body: UserModel.area==[]
         ? const Center(child:  Text(
           'No area added yet!',

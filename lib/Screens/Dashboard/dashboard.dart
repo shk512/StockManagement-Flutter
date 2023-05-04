@@ -21,11 +21,15 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   Auth auth=Auth();
+  String userRole="";
 
   @override
   void initState() {
     super.initState();
     getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    setState(() {
+      userRole=UserModel.role;
+    });
   }
   getProfileStatus()async{
     if(UserModel.isDeleted){
@@ -73,17 +77,17 @@ class _DashboardState extends State<Dashboard> {
           padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
           child: Column(
             children: const [
-              DashboardMenu(name: "Order", route: Routes.order, icon: Icons.shopping_cart_outlined, clr: Colors.red),
+              DashboardMenu(name: "Track Order", route: Routes.order, icon: Icons.directions, clr: Colors.black26),
               SizedBox(height: 10,),
-              DashboardMenu(name: "Stock", route: Routes.stock, icon: Icons.cached_outlined, clr: Colors.green),
+              DashboardMenu(name: "Stock", route: Routes.stock, icon: Icons.cached_outlined, clr: Colors.black38),
               SizedBox(height: 10,),
-              DashboardMenu(name: "User", route: Routes.employee, icon: CupertinoIcons.person_2, clr: Colors.green),
+              DashboardMenu(name: "User", route: Routes.employee, icon: CupertinoIcons.person_2, clr: Colors.black54),
               SizedBox(height: 10,),
-              DashboardMenu(name: "Product", route: Routes.product, icon: Icons.add_circle_outline, clr: Colors.green),
+              DashboardMenu(name: "Product", route: Routes.product, icon: Icons.add_circle_outline, clr: Colors.black54),
               SizedBox(height: 10,),
-              DashboardMenu(name: "Area/Shops", route: Routes.area, icon: Icons.storefront, clr: Colors.purpleAccent),
+              DashboardMenu(name: "Area/Shops", route: Routes.area, icon:Icons.storefront, clr: Colors.black38),
               SizedBox(height: 10,),
-              DashboardMenu(name: "Accounts", route: Routes.accounts, icon: Icons.account_balance_outlined, clr: Colors.grey),
+              DashboardMenu(name: "Accounts", route: Routes.accounts, icon: Icons.account_balance_outlined, clr: Colors.black26),
             ],
           ),
         )

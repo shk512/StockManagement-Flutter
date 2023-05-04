@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
-import 'package:stock_management/Models/shop_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Order/order_form.dart';
 import 'package:stock_management/Screens/Shop/add_shop.dart';
@@ -122,7 +121,7 @@ class _ShopState extends State<Shop> {
                       :const SizedBox(height: 0,),
                 ],),
               const SizedBox(height: 5,),
-              RowInfoDisplay(label: "Person Name", value:snapshot["ownerName"]),
+              RowInfoDisplay(label: "Name", value:snapshot["ownerName"]),
               const SizedBox(height: 5,),
               RowInfoDisplay(label: "Contact", value: snapshot["contact"]),
               const SizedBox(height: 5,),
