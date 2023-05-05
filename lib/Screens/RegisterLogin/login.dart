@@ -6,6 +6,7 @@ import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Widgets/text_field.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
+import '../../Services/shared_preferences/spf.dart';
 import '../../utils/routes.dart';
 import '../Splash_Error/error.dart';
 
@@ -22,6 +23,29 @@ class _LoginState extends State<Login> {
   final formKey=GlobalKey<FormState>();
   Auth auth=Auth();
   bool isLoading=false;
+  bool logInStatus=false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkLoginStatus();
+    if(logInStatus){
+      Navigator.pushNamed(context, Routes.dashboard);
+    }
+  }
+  checkLoginStatus() async{
+    await SPF.getLogInStatus().then((value){
+      if(value==null){
+        setState(() {
+          logInStatus=false;
+        });
+      }else{
+        setState(() {
+          logInStatus=value;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +109,10 @@ class _LoginState extends State<Login> {
       });
       await auth.signInWithEmailAndPassword(mail.text, pass.text).then((value)async{
         if(value==true){
-          await getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
-          Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
+          await getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid).then((value){
+           // Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=>const Navigation()), (route) => false);
+           Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
+          });
         }else{
           setState(() {
             isLoading=false;

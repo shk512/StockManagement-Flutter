@@ -8,7 +8,7 @@ class CompanyDb{
   final companyCollection=FirebaseFirestore.instance.collection("company");
 
   //Get Company Data
-  getData()async{
+  Future getData()async{
     return await companyCollection.doc(id).get();
   }
 

@@ -10,4 +10,5 @@ class Routes{
   static const addProduct="/addProduct";
   static const accounts="/accounts";
   static const newCompany="/newCompany";
+  static const companyDetails="/company";
 }

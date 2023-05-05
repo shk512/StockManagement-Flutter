@@ -89,6 +89,7 @@ class _AddShopState extends State<AddShop> {
     await ShopDB(companyId: CompanyModel.companyId, shopId: shopId).saveShop(ShopModel.toJson(
         shopId: shopId,
         areaName: widget.areaName,
+        isActive: true,
         shopName: shopName.text.toUpperCase(),
         contact: contact.text,
         ownerName: ownerName.text,

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import '../../Services/shared_preferences/spf.dart';
 import '../../utils/routes.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -21,20 +20,12 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   void initState() {
     super.initState();
     Timer(const Duration(seconds: 5), (){
-      navigateToNextScreen();
+      Navigator.pushNamed(context,Routes.login);
     });
+
+
   }
-  navigateToNextScreen() async{
-    bool? logInStatus=await SPF.getLogInStatus();
-    if(logInStatus==null){
-      logInStatus=false;
-    }
-    if(logInStatus){
-      Navigator.pushNamed(context, Routes.dashboard);
-    }else{
-      Navigator.pushNamed(context, Routes.login);
-    }
-  }
+
   @override
   void dispose() {
     _controller.dispose();

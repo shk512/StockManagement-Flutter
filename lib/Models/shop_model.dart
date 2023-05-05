@@ -19,6 +19,7 @@ class ShopModel{
     required String ownerName,
     required bool isDeleted,
     required String nearBy,
+    required bool isActive,
     required var lat,
     required var lng
 }){
@@ -28,6 +29,7 @@ class ShopModel{
       "areaId":areaName,
       "contact":contact,
       "nearBy":nearBy,
+      "isActive":isActive,
       "isDeleted":isDeleted,
       "ownerName":ownerName,
       "geoLocation": {

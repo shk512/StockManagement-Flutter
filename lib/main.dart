@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Screens/Company/company_details.dart';
 import 'package:stock_management/Screens/Order/order_form.dart';
 import 'package:stock_management/Screens/Product/add_product.dart';
 import 'package:stock_management/Screens/Shop/add_shop.dart';
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
       //home: const Area(),
       initialRoute: Routes.splash,
       routes: {
+        Routes.companyDetails:(context)=>const CompanyDetails(),
         Routes.area:(context)=>const Area(),
         Routes.newCompany:(context)=>const NewCompany(),
         Routes.splash:(context) => const SplashScreen(),

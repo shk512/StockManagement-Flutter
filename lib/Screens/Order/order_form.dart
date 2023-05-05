@@ -6,11 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/product_model.dart';
 import 'package:stock_management/Screens/Order/cart.dart';
+import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/product_db.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Models/company_model.dart';
+import '../../Models/order_model.dart';
 
 class OrderForm extends StatefulWidget {
   final String shopId;
@@ -21,17 +23,25 @@ class OrderForm extends StatefulWidget {
 }
 
 class _OrderFormState extends State<OrderForm> {
-  String shopDetails="";
   String shopName="";
-  List order=[];
+  String shopDetails="";
   Stream? products;
-  num totalBill=0;
   @override
   void initState() {
     super.initState();
     getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
-    getShopDetails();
     getProducts();
+    getShopDetails();
+  }
+  getShopDetails()async{
+    await ShopDB(companyId: CompanyModel.companyId, shopId: widget.shopId).getShopDetails().then((value){
+      setState(() {
+        shopName=value["shopName"];
+        shopDetails="${value["shopName"]},\t ${value["nearBy"]},\t ${value["areaId"]}";
+      });
+    }).onError((error, stackTrace){
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+    });
   }
   getProducts()async{
     await ProductDb(companyId: CompanyModel.companyId, productId: "").getProducts().then((value) {
@@ -40,14 +50,7 @@ class _OrderFormState extends State<OrderForm> {
       });
     });
   }
-  getShopDetails() async{
-    await ShopDB(companyId: CompanyModel.companyId, shopId: widget.shopId).getShopDetails().then((value){
-      setState(() {
-        shopName=value["shopName"];
-        shopDetails="${value["shopName"]},\tnear ${value["nearBy"]},\t${value["areaId"]}";
-      });
-    });
-  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,7 +73,7 @@ class _OrderFormState extends State<OrderForm> {
                 width: 30.0,
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.push(context,MaterialPageRoute(builder: (context)=>Cart(shopDetails: shopDetails,order: order,totalBill: totalBill,)));
+                    Navigator.push(context,MaterialPageRoute(builder: (context)=>Cart(shopId: widget.shopId,shopDetails: shopDetails,)));
                   },
 
                   child: Stack(
@@ -80,7 +83,7 @@ class _OrderFormState extends State<OrderForm> {
                         color: Colors.white,),
                         onPressed: null,
                       ),
-                      order.isEmpty ?Container() :
+                      OrderModel.products.isEmpty?Container() :
                       Positioned(
 
                           child: Stack(
@@ -93,7 +96,7 @@ class _OrderFormState extends State<OrderForm> {
                                   right: 4.0,
                                   child: Center(
                                     child: Text(
-                                      order.length.toString(),
+                                      OrderModel.products.length.toString(),
                                       style: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 11.0,
@@ -113,9 +116,7 @@ class _OrderFormState extends State<OrderForm> {
 
             ,)],
       ),
-      body: shopName==""
-          ? const Center(child: CircularProgressIndicator(),)
-          :StreamBuilder(
+      body: StreamBuilder(
           stream: products,
           builder: (context,AsyncSnapshot snapshot){
             if(snapshot.connectionState==ConnectionState.waiting){
@@ -134,14 +135,14 @@ class _OrderFormState extends State<OrderForm> {
                       return const SizedBox(height: 0,);
                     }else{
                       return ListTile(
-                        onTap: (){
-                          showOrderDialogue(snapshot.data.docs[index]);
-                        },
-                        title: Text("${snapshot.data.docs[index]["productName"]}"),
-                        subtitle: Text("${snapshot.data.docs[index]["description"]}"),
-                        trailing: Text("${snapshot.data.docs[index]["totalPrice"]} Rs."),
-                      );
-                    }
+                          onTap: (){
+                            showOrderDialogue(snapshot.data.docs[index]);
+                          },
+                          title: Text("${snapshot.data.docs[index]["productName"]}"),
+                          subtitle: Text("${snapshot.data.docs[index]["description"]}"),
+                          trailing: Text("${snapshot.data.docs[index]["totalPrice"]} Rs."),
+                        );
+                      }
                   });
             }
           },
@@ -223,7 +224,7 @@ class _OrderFormState extends State<OrderForm> {
                   onPressed: ()async{
                     if(formKey.currentState!.validate()){
                       num totalPrice=quantity*price;
-                     order.add(ProductModel.toJson(
+                     OrderModel.products.add(ProductModel.toJson(
                           productId: snapshot["productId"],
                           productName: snapshot["productName"],
                           description: snapshot["description"],
@@ -234,11 +235,11 @@ class _OrderFormState extends State<OrderForm> {
                           totalQuantity: int.parse(quantity.toString())
                       )
                      );
-                    await ProductDb(companyId: CompanyModel.companyId, productId: snapshot["productId"]).updateStock(snapshot["totalQuantity"]-quantity).then((value){
+                     await ProductDb(companyId: CompanyModel.companyId, productId: snapshot["productId"]).updateStock(snapshot["totalQuantity"]-quantity).then((value){
                        Navigator.pop(context);
                        showSnackbar(context, Colors.cyan, "Added to cart");
                        setState(() {
-                         totalBill+=totalPrice;
+                         OrderModel.totalAmount+=totalPrice;
                        });
                      });
 
@@ -250,61 +251,3 @@ class _OrderFormState extends State<OrderForm> {
         });
   }
 }
-/*
-*     Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                          child: IconButton(
-                                              onPressed: (){
-                                                if(quantity!=0){
-                                                  quantity-=snapshot.data.docs[index]["quantityPerPiece"];
-                                                }
-                                              },
-                                              icon: const Icon(CupertinoIcons.minus))),
-                                      Expanded(child: Text("Quantity: $quantity",style: const TextStyle(fontWeight: FontWeight.bold),)),
-                                      Expanded(
-                                          child: IconButton(
-                                              onPressed: (){
-                                                quantity+=snapshot.data.docs[index]["quantityPerPiece"];
-                                              },
-                                              icon: const Icon(CupertinoIcons.add))),
-                                    ],
-                                  ),*/
-
-/*
-if(formKey.currentState!.validate()){
-                                                num totalAmount=int.parse(price.text)*(quantity/snapshot.data.docs[index]["quantityPerPiece"]);
-                                                order.add(ProductModel.toJson(
-                                                    productId: snapshot.data.docs[index]["productId"],
-                                                    productName: snapshot.data.docs[index]["productName"],
-                                                    description: snapshot.data.docs[index]["description"],
-                                                    isDeleted: false,
-                                                    totalPrice: totalAmount,
-                                                    minPrice: int.parse(price.text),
-                                                    quantityPerPiece: snapshot.data.docs[index]["quantityPerPiece"],
-                                                    totalQuantity: int.parse(quantity.toString())
-                                                ));
-                                                setState(() {
-                                                  totalBill+=totalAmount;
-                                                });
-                                              }
-* */
-
-/*
-*  TextFormField(
-                                          keyboardType: TextInputType.number,
-                                          inputFormatters: <TextInputFormatter>[
-                                           FilteringTextInputFormatter.digitsOnly
-                                          ],
-                                          controller: price,
-                                          decoration: InputDecoration(
-                                            border: const OutlineInputBorder(),
-                                            labelText: "Price",
-                                            hintText: "${snapshot.data.docs[index]["totalPrice"]}"
-                                          ),
-                                          validator: (val){
-                                            return int.parse(val.toString())<snapshot.data.docs[index]["totalPrice"]?"Invalid":null;
-                                          },
-                                      ),
-* */

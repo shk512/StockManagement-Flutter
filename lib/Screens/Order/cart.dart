@@ -15,10 +15,9 @@ import '../../Services/DB/product_db.dart';
 import '../../utils/routes.dart';
 
 class Cart extends StatefulWidget {
-  final List order;
-  num totalBill;
+  final String shopId;
   final String shopDetails;
-  Cart({Key? key,required this.shopDetails,required this.order,required this.totalBill}) : super(key: key);
+  const Cart({Key? key,required this.shopDetails,required this.shopId}) : super(key: key);
 
   @override
   State<Cart> createState() => _CartState();
@@ -79,28 +78,26 @@ class _CartState extends State<Cart> {
             Expanded(
               flex: 3,
               child: ListView.builder(
-                itemCount: widget.order.length,
+                itemCount: OrderModel.products.length,
                 itemBuilder: (context,index){
-                  if(widget.order.isEmpty){
+                  if(OrderModel.products.isEmpty){
                     return const Center(child: Text("Cart is Empty"),);
                   }else{
                     return ListTile(
-                      title: Text("${widget.order[index]["productName"]}-${widget.order[index]["description"]}"),
-                      subtitle: Text("Detail: ${widget.order[index]["totalQuantity"]}x${widget.order[index]["minPrice"]}=${widget.order[index]["totalPrice"]}"),
+                      leading: Text("$index"),
+                      title: Text("${OrderModel.products[index]["productName"]}-${OrderModel.products[index]["description"]}"),
+                      subtitle: Text("Detail: ${OrderModel.products[index]["totalQuantity"]}x${OrderModel.products[index]["minPrice"]}=${OrderModel.products[index]["totalPrice"]}"),
                       trailing: IconButton(
                           onPressed: ()async{
-                            widget.order.removeAt(index);
-                            setState(() {
-
-                            });
-                            await ProductDb(companyId: CompanyModel.companyId, productId: widget.order[index]["productId"]).updateStockAgain(widget.order[index]["totalQuantity"]).then((value){
-                              Navigator.pop(context);
-                              showSnackbar(context, Colors.cyan, "Added to cart");
+                            await ProductDb(companyId: CompanyModel.companyId, productId: OrderModel.products[index]["productId"]).updateStockAgain(OrderModel.products[index]["totalQuantity"]).then((value){
+                              showSnackbar(context, Colors.red, "Removed");
                               setState(() {
-                                widget.totalBill-=widget.order[index]["totalPrice"];
+                                OrderModel.totalAmount-=OrderModel.products[index]["totalPrice"];
                               });
                             });
-                            showSnackbar(context, Colors.red, "Removed");
+                            OrderModel.products.removeAt(index);
+                            setState(() {
+                            });
                           },
                           icon: const Icon(Icons.remove_circle,color: Colors.red,)),
                     );
@@ -140,7 +137,7 @@ class _CartState extends State<Cart> {
                             },
                           ),
                       const SizedBox(height: 10,),
-                      Text("Total Amount: ${widget.totalBill}",style: const TextStyle(fontWeight: FontWeight.w900),)
+                      Text("Total Amount: ${OrderModel.totalAmount}",style: const TextStyle(fontWeight: FontWeight.w900),)
                     ],
                   ),
                   ),
@@ -158,16 +155,17 @@ class _CartState extends State<Cart> {
         .saveOrder(OrderModel.toJson(
         orderId: orderId,
         userId: UserModel.userId,
+        shopId: widget.shopId,
         shopDetails: widget.shopDetails,
         status: "Processing".toUpperCase(),
         remarks: remarks,
         desc: "",
         dateTime: DateTime.now().toString(),
-        products: widget.order,
-        totalAmount: widget.totalBill,
+        products: OrderModel.products,
+        totalAmount: OrderModel.totalAmount,
         advanceAmount: advanceAmount,
         concessionAmount: 0,
-        balanceAmount: widget.totalBill - advanceAmount,
+        balanceAmount: OrderModel.totalAmount - advanceAmount,
         lat: lat,
         lng: lng)
     )
@@ -175,6 +173,10 @@ class _CartState extends State<Cart> {
       if (value == true) {
         Navigator.pushNamedAndRemoveUntil(context, Routes.area, (route) => false);
         showSnackbar(context, Colors.cyan, "Order has been placed");
+        setState(() {
+          OrderModel.products=[];
+          OrderModel.totalAmount=0;
+        });
       } else {
         setState(() {
           isLoading=false;

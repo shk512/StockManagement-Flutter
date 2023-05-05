@@ -11,8 +11,8 @@ class OrderDB{
   final companyCollection=FirebaseFirestore.instance.collection("company");
 
   //Get All Orders
-  getOrder(){
-    return companyCollection.doc(companyId).collection("order").orderBy("date",descending: true).snapshots();
+  Future getOrder()async{
+    return companyCollection.doc(companyId).collection("order").orderBy("dateTime",descending: true).snapshots();
   }
 
   //save Order
@@ -22,7 +22,7 @@ class OrderDB{
   }
 
   //get Order By Id
-  getOrderById()async{
-    return await companyCollection.doc(companyId).collection("order").doc(orderId).get();
+  Future getOrderById()async{
+    return companyCollection.doc(companyId).collection("order").doc(orderId).get();
   }
 }

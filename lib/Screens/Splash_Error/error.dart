@@ -7,7 +7,7 @@ class ErrorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+      body: Center(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 10),
             child: Column(
@@ -22,7 +22,7 @@ class ErrorScreen extends StatelessWidget {
                     onPressed: (){
                       Navigator.pop(context);
                     }, 
-                    child: const Text('Go Back',),
+                    child: const Text('Go Back',style: TextStyle(color: Colors.white),),
                 ),
               ],
             ),

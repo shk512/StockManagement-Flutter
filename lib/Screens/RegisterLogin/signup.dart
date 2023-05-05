@@ -33,7 +33,8 @@ class _SignupState extends State<Signup> {
   TextEditingController contact = TextEditingController();
   TextEditingController salary = TextEditingController();
   String role = "";
-  UserRole _role = UserRole.manager;
+  List rights=[];
+  UserRole _role = UserRole.company;
   Auth auth=Auth();
   bool isLoading=false;
 
@@ -107,11 +108,12 @@ class _SignupState extends State<Signup> {
                   child: Text(
                     "Role:", style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
                 ),
-                radioButtons("Admin", UserRole.manager),
+                radioButtons("Company", UserRole.manager),
+                radioButtons("Manager", UserRole.manager),
                 radioButtons("Order Taker", UserRole.orderTaker),
                 radioButtons("Supplier", UserRole.supplier),
                 radioButtons("Shop Keeper", UserRole.shopKeeper),
-                _role==UserRole.shopKeeper
+                _role==UserRole.shopKeeper || _role==UserRole.company
                     ? Container()
                     : NumField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon: const Icon(Icons.onetwothree)),
                 const SizedBox(height: 20,),
@@ -125,6 +127,10 @@ class _SignupState extends State<Signup> {
                   }else if(_role==UserRole.shopKeeper){
                     role="Shop Keeper".toUpperCase();
                     salary.text="0";
+                  }else if(_role==UserRole.company){
+                    role="Company".toUpperCase();
+                    salary.text="0";
+                    rights.add("all".toLowerCase());
                   }
                   if(pass.text==cPass.text){
                     signup();
@@ -172,7 +178,8 @@ class _SignupState extends State<Signup> {
             wallet: 0,
             salary: int.parse(salary.text),
             isDeleted: false,
-            area: []
+            area: [],
+            right: rights
           )).then((value){
                 SPF.saveUserLogInStatus(true);
                 setState(() {

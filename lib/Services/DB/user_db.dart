@@ -22,6 +22,11 @@ class UserDb{
     await userCollection.doc(id).set(mapData);
   }
 
+  //update user
+  Future updateUser(Map<String,dynamic> mapData)async{
+    await userCollection.doc(id).update(mapData);
+  }
+
   //update area list
   Future updateAreaList(String areaName) async{
     DocumentSnapshot snapshot=await userCollection.doc(id).get();

@@ -18,6 +18,7 @@ class OrderModel{
   static Map<String,dynamic> toJson({
     required String  orderId,
     required String userId,
+    required String shopId,
     required String shopDetails,
     required String status,
     required String remarks,
@@ -34,6 +35,7 @@ class OrderModel{
     return{
       "orderId":orderId,
       "userId":userId,
+      "shopId":shopId,
       "shopDetails":shopDetails,
       "status":status,
       "remarks":remarks,

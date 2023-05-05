@@ -10,6 +10,7 @@ class UserModel{
   static num wallet=0;
   static num salary=0;
   static List area=[];
+  static List rights=[];
   static bool isDeleted=false;
 
   static Map<String,dynamic> toJson({
@@ -22,7 +23,8 @@ class UserModel{
     required num wallet,
     required num salary,
     required bool isDeleted,
-    required List area
+    required List area,
+    required List right
 }){
     return {
       "userId":userId,
@@ -34,11 +36,12 @@ class UserModel{
       "role":role,
       "wallet":wallet,
       "isDeleted":isDeleted,
+      "right":right,
       "area":area
     };
   }
 
-  static fromJson(DocumentSnapshot snapshot)async{
+  static fromJson(DocumentSnapshot snapshot){
     userId=snapshot["userId"];
     companyId=snapshot["companyId"];
     name=snapshot["name"];
@@ -48,6 +51,7 @@ class UserModel{
     wallet=snapshot["wallet"];
     role=snapshot["role"];
     isDeleted=snapshot["isDeleted"];
-    area=await List.from(snapshot["area"]);
+    area=List.from(snapshot["area"]);
+    rights=List.from(snapshot["right"]);
   }
 }
