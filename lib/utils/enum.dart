@@ -1,8 +1,6 @@
 enum UserRole{
   company,
-  orderTaker,
-  supplier,
-  manager,
+  employee,
   shopKeeper
 }
 enum Transaction{

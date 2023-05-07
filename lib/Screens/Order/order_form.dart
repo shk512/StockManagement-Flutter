@@ -225,6 +225,7 @@ class _OrderFormState extends State<OrderForm> {
                     if(formKey.currentState!.validate()){
                       num totalPrice=quantity*price;
                      OrderModel.products.add(ProductModel.toJson(
+                          imageUrl: snapshot["imageUrl"],
                           productId: snapshot["productId"],
                           productName: snapshot["productName"],
                           description: snapshot["description"],

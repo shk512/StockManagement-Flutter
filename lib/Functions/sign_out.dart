@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 
-import '../utils/routes.dart';
+import '../Constants/routes.dart';
 import '../utils/snack_bar.dart';
 
 signOut(BuildContext context)async{

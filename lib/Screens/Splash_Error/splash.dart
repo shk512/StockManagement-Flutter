@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import '../../utils/routes.dart';
+import '../../Constants/routes.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -58,10 +58,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               SizedBox(height: MediaQuery.of(context).size.height*.04,),
               const Image(image: AssetImage("image/pos.png")),
               SizedBox(height: MediaQuery.of(context).size.height*.04,),
-              const Text(
+              Text(
                 "Developed By\n360 Tech",
                 textAlign:TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.cyan,letterSpacing: 2),)
+                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.cyan.withOpacity(0.8),letterSpacing: 2),)
             ],
           ),
         ),

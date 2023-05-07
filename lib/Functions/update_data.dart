@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 
@@ -15,6 +16,7 @@ updateUserData(BuildContext context) async{
       mail: UserModel.mail,
       phone: UserModel.phone,
       role: UserModel.role,
+      designation: UserModel.designation,
       wallet: UserModel.wallet,
       salary: UserModel.salary,
       isDeleted: UserModel.isDeleted,
@@ -34,8 +36,8 @@ updateCompanyData(BuildContext context)async {
       wallet: CompanyModel.wallet,
       isPackageActive: CompanyModel.isPackageActive,
       area: CompanyModel.area,
-      lat: GeoLocationModel.lat,
-      lng: GeoLocationModel.lng
+      location: LatLng(CompanyModel.location.latitude, CompanyModel.location.longitude),
+      imageUrl: CompanyModel.imageUrl
   )
   ).onError((error, stackTrace) {
     Navigator.push(context, MaterialPageRoute(

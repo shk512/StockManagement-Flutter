@@ -1,8 +1,8 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:stock_management/Models/geolocation_model.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class CompanyModel{
+  static String imageUrl="";
   static String companyId='';
   static String companyName='';
   static String contact='';
@@ -13,53 +13,51 @@ class CompanyModel{
   static num wallet=0;
   static bool isPackageActive=false;
   static List area=[];
-
-  static Map<String,dynamic> toJson({
-  required String companyId,
-  required String companyName,
-  required String contact,
-  required String packageEndsDate,
-  required String packageType,
-  required String whatsApp,
-  required String city,
-  required num wallet,
-  required bool isPackageActive,
-  required List area,
-    required var lat,
-    required var lng
-})
-    {
-      return{
-        "companyId": companyId,
-        "companyName":companyName,
-        "isPackageActive":isPackageActive,
-        "contact":contact,
-        "packageEndsDate":packageEndsDate,
-        "area":area,
-        "wallet":wallet,
-        "whatsApp":whatsApp,
-        "packageType":packageType,
-        "city":city,
-        "geoLocation":{
-          "lat":lat,
-          "lng":lng
-        }
-     };
-    }
+  static GeoPoint location=const GeoPoint(0, 0);
 
   static fromJson(DocumentSnapshot snapshot){
+    imageUrl=snapshot["imageUrl"];
     companyId=snapshot['companyId'];
     contact=snapshot['contact'];
     isPackageActive= snapshot['isPackageActive'];
     packageEndsDate= snapshot['packageEndsDate'];
     companyName= snapshot['companyName'];
-    area=List.from(snapshot['area']);
+    area=snapshot['area'];
     wallet=snapshot['wallet'];
     packageType=snapshot["packageType"];
     whatsApp=snapshot["whatsApp"];
     city=snapshot["city"];
-    GeoLocationModel.lat=snapshot["geoLocation"]["lat"];
-    GeoLocationModel.lng=snapshot["geoLocation"]["lng"];
+    location=snapshot["geoLocation"];
   }
 
+  static Map<String,dynamic> toJson({
+    required String companyId,
+    required String companyName,
+    required String contact,
+    required String whatsApp,
+    required String packageEndsDate,
+    required String packageType,
+    required String city,
+    required num wallet,
+    required List area,
+    required bool isPackageActive,
+    required LatLng location,
+    required String imageUrl
+  })
+  {
+    return<String,dynamic>{
+      "imageUrl":imageUrl,
+      "companyId": companyId,
+      "companyName":companyName,
+      "isPackageActive":isPackageActive,
+      "contact":contact,
+      "packageEndsDate":packageEndsDate,
+      "area":area,
+      "wallet":wallet,
+      "whatsApp":whatsApp,
+      "packageType":packageType,
+      "city":city,
+      "geoLocation":GeoPoint(location.latitude,location.longitude)
+    };
+  }
 }

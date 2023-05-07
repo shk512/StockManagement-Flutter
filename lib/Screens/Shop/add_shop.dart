@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stock_management/Functions/location.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/shop_model.dart';
-import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Widgets/text_field.dart';
@@ -21,8 +21,8 @@ class AddShop extends StatefulWidget {
 
 class _AddShopState extends State<AddShop> {
   bool isLoading=false;
-  double? lat;
-  double? lng;
+  var lat;
+  var lng;
   String address='';
   TextEditingController ownerName=TextEditingController();
   TextEditingController shopName=TextEditingController();
@@ -37,6 +37,11 @@ class _AddShopState extends State<AddShop> {
       setState(() {
         lat=value.latitude;
         lng=value.longitude;
+      });
+      convertCoordiantesToAddress(lat, lng).then((value){
+        setState(() {
+          address=value;
+        });
       });
     });
   }
@@ -54,15 +59,14 @@ class _AddShopState extends State<AddShop> {
         title: Text(widget.areaName,style: const TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
-      floatingActionButton: UserModel.role=="Manager".toUpperCase() || UserModel.role=="order taker".toUpperCase()
-        ?FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
           onPressed: (){
             if(formKey.currentState!.validate()){
               saveShop();
             }
           },
           child: const Text("Save",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
-      ):const SizedBox(height: 0,),
+      ),
       body: SingleChildScrollView(
         child: Form(
           key: formKey,
@@ -76,7 +80,9 @@ class _AddShopState extends State<AddShop> {
                   const SizedBox(height: 10,),
                   NumField(labelTxt: "Contact", hintTxt: "03001234567", ctrl: contact, icon: const Icon(Icons.phone)),
                   const SizedBox(height: 10,),
-                  TxtField(labelTxt: "Near By", hintTxt: "Any famous nearby place", ctrl: nearBy, icon: const Icon(Icons.pin_drop_outlined))
+                  TxtField(labelTxt: "Near By", hintTxt: "Any famous nearby place", ctrl: nearBy, icon: const Icon(Icons.pin_drop_outlined)),
+                  const SizedBox(height: 10,),
+                  Text("Address: $address"),
                 ],
               ),
             )
@@ -95,8 +101,8 @@ class _AddShopState extends State<AddShop> {
         ownerName: ownerName.text,
         nearBy: nearBy.text,
         isDeleted: false,
-        lat: lat,
-        lng: lng)).then((value){
+      location: LatLng(lat,lng)
+        )).then((value){
           Navigator.pop(context);
           showSnackbar(context, Colors.cyan, "Saved");
     }).onError((error, stackTrace){

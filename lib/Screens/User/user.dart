@@ -62,7 +62,7 @@ class _EmployeeState extends State<Employee> {
                     return ListTile(
                         title: Text("${snapshot.data.docs[index]["name"]}"),
                   subtitle: Text("${snapshot.data.docs[index]["phone"]}"),
-                  trailing: Text("${snapshot.data.docs[index]["role"]}"));
+                  trailing: Text("${snapshot.data.docs[index]["designation"]}"));
                   }else{
                     return const SizedBox();
                   }

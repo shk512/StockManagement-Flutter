@@ -1,14 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Functions/location.dart';
 import 'package:stock_management/Models/company_model.dart';
-import 'package:stock_management/Models/geolocation_model.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
 
+import '../../Constants/routes.dart';
+import '../../Models/user_model.dart';
 import '../../Widgets/row_info_display.dart';
-import '../../utils/routes.dart';
+import '../../utils/snack_bar.dart';
+import '../Splash_Error/error.dart';
 
 class CompanyDetails extends StatefulWidget {
   const CompanyDetails({Key? key}) : super(key: key);
@@ -19,35 +23,32 @@ class CompanyDetails extends StatefulWidget {
 
 class _CompanyDetailsState extends State<CompanyDetails> {
   String address="";
-  var lat;
-  var lng;
+  GeoPoint location=const GeoPoint(0,0);
   @override
   void initState() {
     super.initState();
     getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
     getLatitudeAndLongitude();
-    if(lat!=0&&lng!=0){
+    if(location.latitude!=0&&location.longitude!=0){
       getAddress();
+    }else{
+      setState(() {
+        address="Not set";
+      });
     }
   }
   getLatitudeAndLongitude()async{
    await CompanyDb(id: CompanyModel.companyId).getData().then((value){
-      if(value["geoLocation"]["lat"]!=null&&value["geoLocation"]["lng"]!=null){
+      if(location.latitude!=0&&location.longitude!=0){
         setState(() {
-          lat=value["geoLocation"]["lat"];
-          lng=value["geoLocation"]["lng"];
-        });
-      }else{
-        setState(() {
-          lat=0;
-          lng=0;
+          location=value["geoLocation"];
         });
       }
     });
   }
   getAddress(){
     setState(() {
-      address=convertCoordiantesToAddress(GeoLocationModel.lat, GeoLocationModel.lng).toString();
+      address=convertCoordiantesToAddress(location.latitude, location.longitude).toString();
     });
   }
   @override
@@ -60,15 +61,24 @@ class _CompanyDetailsState extends State<CompanyDetails> {
           },
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
-        title: const Text("Profile",style: TextStyle(color: Colors.white),),
+        title: const Text("Company",style: TextStyle(color: Colors.white),),
         centerTitle: true,
         actions: [
-          const Icon(Icons.account_balance_wallet_outlined,color: Colors.white,),
-          Padding(
+          UserModel.rights.contains(Rights.viewCompanyWallet)||UserModel.rights.contains(Rights.all)
+          ?const Icon(Icons.account_balance_wallet_outlined,color: Colors.white,):const SizedBox(),
+          UserModel.rights.contains(Rights.viewCompanyWallet)||UserModel.rights.contains(Rights.all)
+              ?Padding(
             padding:const EdgeInsets.symmetric(horizontal: 10,vertical: 20),
             child: Text(
               "Rs. ${CompanyModel.wallet}",
-              style: const TextStyle(fontSize: 17,color: Colors.white),textAlign: TextAlign.center,),),
+              style: const TextStyle(fontSize: 17,color: Colors.white),textAlign: TextAlign.center,),)
+              :const SizedBox(),
+          UserModel.rights.contains(Rights.editCompany)||UserModel.rights.contains(Rights.all)
+              ?IconButton(
+              onPressed: (){
+                Navigator.pushNamed(context, Routes.editCompany);
+              }, icon: const Icon(Icons.edit,color: Colors.white,))
+              :const SizedBox()
         ],
       ),
       body: SingleChildScrollView(
@@ -84,9 +94,7 @@ class _CompanyDetailsState extends State<CompanyDetails> {
                   ?const SizedBox()
                   :RowInfoDisplay(label: "Package Ends Date", value:CompanyModel.packageEndsDate),
               const SizedBox(height: 5),
-              RowInfoDisplay(label: "Company Name", value:CompanyModel.companyName),
-              const SizedBox(height: 5),
-              RowInfoDisplay(label: "Address", value:address),
+              RowInfoDisplay(label: "Name", value:CompanyModel.companyName),
               const SizedBox(height: 5),
               RowInfoDisplay(label: "City", value:CompanyModel.city),
               const SizedBox(height: 5),
@@ -94,17 +102,22 @@ class _CompanyDetailsState extends State<CompanyDetails> {
               const SizedBox(height: 5),
               RowInfoDisplay(label: "Package", value: CompanyModel.packageType),
               const SizedBox(height: 10),
-              const Align(
-                  alignment: Alignment.center,
-                  child:  Text("Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900),)),
-              const SizedBox(height: 10),
+              Row(
+                children: [
+                  const Expanded(child: Text("Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.cyan),)),
+                  UserModel.rights.contains(Rights.addArea) || UserModel.rights.contains(Rights.all)
+                      ? Expanded(
+                      child: IconButton(
+                          onPressed: (){
+                            showDialogueBox();
+                          },
+                        icon: const Icon(Icons.add,color: Colors.cyan,) ,
+                          ),
+                  ): const SizedBox()
+                ],
+              ),
+              const SizedBox(height: 5),
               areaList(),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                  onPressed: (){
-                    Navigator.pushNamed(context, Routes.area);
-                  },
-                  child: const Text('Area'))
             ],
           ),
         ),
@@ -115,9 +128,103 @@ class _CompanyDetailsState extends State<CompanyDetails> {
     return Column(
       children: CompanyModel.area.map((e) => Align(
           alignment: AlignmentDirectional.centerStart,
-          child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Text(">\t\t $e")))).toList(),
+          child: InkWell(
+            onTap: (){
+              if(UserModel.rights.contains(Rights.deleteArea)||UserModel.rights.contains(Rights.all)){
+                showWarningDialogue(e);
+              }
+            },
+            child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Text(">\t\t $e")),
+          ))).toList(),
+    );
+  }
+  showDialogueBox(){
+    return showDialog(
+        context: context,
+        builder: (context){
+          TextEditingController areaName=TextEditingController();
+          return AlertDialog(
+            title: const Text("Area Name"),
+            content: TextFormField(
+              controller: areaName,
+              decoration: const InputDecoration(
+                hintText: "Model Town",
+              ),
+              validator: (val){
+                return val!.isEmpty?"Please insert name":null;
+              },
+            ),
+            actions: [
+              ElevatedButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancel")),
+              ElevatedButton(
+                  onPressed: (){
+                    if(areaName.text.isNotEmpty){
+                      Navigator.pop(context);
+                      saveArea(areaName.text.toUpperCase());
+                    }else{
+                      Navigator.pop(context);
+                      showSnackbar(context, Colors.red, "Not saved as field was empty");
+                    }
+                  }, child: const Text("Save")),
+            ],
+          );
+        });
+  }
+  saveArea(String areaName)async{
+    await CompanyDb(id: CompanyModel.companyId).saveArea(areaName).then((value)async{
+      if(value==true){
+        setState(() {
+          CompanyModel.area.add(areaName);
+        });
+      }else{
+        showSnackbar(context, Colors.red, "Area with same name already available");
+      }
+    }).onError((error, stackTrace){
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+    });
+  }
+  deleteArea(String areaName)async{
+    await CompanyDb(id: CompanyModel.companyId).deleteArea(areaName).then((value){
+      if(value==true){
+        showSnackbar(context, Colors.cyan, "Deleted");
+        setState(() {
+          CompanyModel.area.remove(areaName);
+        });
+      }else{
+        showSnackbar(context, Colors.red, "Error");
+      }
+    }).onError((error, stackTrace) {
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+    });
+  }
+  showWarningDialogue(String areaName){
+    return showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+            title: const Text("Warning"),
+            content: Text("Are you sure to delete area $areaName?"),
+            actions: [
+              IconButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.cancel,color: Colors.red,)),
+              IconButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                    deleteArea(areaName);
+                  },
+                  icon: const Icon(Icons.check_circle_rounded,color: Colors.green,)),
+            ],
+          );
+        }
     );
   }
 }

@@ -62,7 +62,7 @@ class _ProfileState extends State<Profile> {
               const SizedBox(height: 10),
               RowInfoDisplay(label:"Contact", value: UserModel.phone),
               const SizedBox(height: 10),
-              RowInfoDisplay(label: "Designation", value: UserModel.role.toUpperCase()),
+              UserModel.designation.isNotEmpty?RowInfoDisplay(label: "Designation", value: UserModel.designation.toUpperCase()):const SizedBox(),
               const SizedBox(height: 10),
               UserModel.salary!=0?RowInfoDisplay(label: "Salary", value:UserModel.salary.toString()):const SizedBox(),
               const SizedBox(height: 10),

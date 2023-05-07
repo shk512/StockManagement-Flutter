@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'geolocation_model.dart';
 
@@ -10,6 +11,7 @@ class ShopModel{
   static String ownerName="";
   static String nearBy="";
   static bool isDeleted=false;
+  static GeoPoint location=const GeoPoint(0, 0);
 
   static Map<String,dynamic> toJson({
     required String shopId,
@@ -20,8 +22,7 @@ class ShopModel{
     required bool isDeleted,
     required String nearBy,
     required bool isActive,
-    required var lat,
-    required var lng
+    required LatLng location
 }){
     return {
       "shopId":shopId,
@@ -32,10 +33,7 @@ class ShopModel{
       "isActive":isActive,
       "isDeleted":isDeleted,
       "ownerName":ownerName,
-      "geoLocation": {
-        "lat":lat,
-        "lng":lng
-      }
+      "geoLocation": GeoPoint(location.latitude, location.longitude)
     };
   }
 
@@ -47,8 +45,7 @@ class ShopModel{
     ownerName=snapshot["ownerName"];
     nearBy=snapshot["nearBy"];
     isDeleted=snapshot["isDeleted"];
-    GeoLocationModel.lat=snapshot["geoLocation"]["lat"];
-    GeoLocationModel.lng=snapshot["geoLocation"]["lng"];
+    location=snapshot["geoLocation"];
   }
 
 }

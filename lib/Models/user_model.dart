@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel{
   static String userId='';
+  static String designation="";
   static String companyId='';
   static String name='';
   static String mail='';
@@ -20,6 +21,7 @@ class UserModel{
     required String mail,
     required String phone,
     required String role,
+    required String designation,
     required num wallet,
     required num salary,
     required bool isDeleted,
@@ -34,6 +36,7 @@ class UserModel{
       "companyId":companyId,
       "phone":phone,
       "role":role,
+      "designation":designation,
       "wallet":wallet,
       "isDeleted":isDeleted,
       "right":right,
@@ -50,6 +53,7 @@ class UserModel{
     phone=snapshot["phone"];
     wallet=snapshot["wallet"];
     role=snapshot["role"];
+    designation=snapshot["designation"];
     isDeleted=snapshot["isDeleted"];
     area=List.from(snapshot["area"]);
     rights=List.from(snapshot["right"]);

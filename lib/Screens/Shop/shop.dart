@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,9 +10,11 @@ import 'package:stock_management/Screens/Shop/add_shop.dart';
 import 'package:stock_management/Screens/Shop/edit_shop.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 
+import '../../utils/snack_bar.dart';
+import '../Splash_Error/error.dart';
+
 class Shop extends StatefulWidget {
-  final String areaName;
-  const Shop({Key? key,required this.areaName}) : super(key: key);
+  const Shop({Key? key}) : super(key: key);
 
   @override
   State<Shop> createState() => _ShopState();
@@ -44,15 +47,8 @@ class _ShopState extends State<Shop> {
           },
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
-        title: Text(widget.areaName,style: const TextStyle(color: Colors.white),),
+        title: const Text("Shop",style: const TextStyle(color: Colors.white),),
         centerTitle: true,
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-          onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>AddShop(areaName: widget.areaName)));
-          },
-          icon: const Icon(Icons.add,color: Colors.white,),
-          label: const Text("Shop",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -149,74 +145,11 @@ class _ShopState extends State<Shop> {
                       itemCount: snapshot.data.docs.length,
                       itemBuilder: (context,index) {
                         if(tab=="all".toUpperCase()){
-                          if(snapshot.data.docs[index]["areaId"]==widget.areaName && snapshot.data.docs[index]["isDeleted"]==false){
-                            return ListTile(
-                              onTap: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: snapshot.data.docs[index]["shopId"])));
-                              },
-                              leading: Icon(Icons.brightness_1,size: 10,color: snapshot.data.docs[index]["isActive"]?Colors.green:Colors.red,),
-                              title: Text("${snapshot.data.docs[index]["shopName"]}"),
-                              subtitle: Text("${snapshot.data.docs[index]["ownerName"]}\t${snapshot.data.docs[index]["contact"]}"),
-                              trailing: UserModel.role=="Manager".toUpperCase()
-                                  ?  IconButton(
-                                icon: const Icon(Icons.edit,color: Colors.black38),
-                                onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>EditShop(shopId: snapshot.data.docs[index]["shopId"])));
-                                },
-                              )
-                                  :const SizedBox(height: 0,),
-                            );
-                          }else{
-                            return const SizedBox(height: 0,);
-                          }
-                        }else if(tab=="Active".toUpperCase()){
-                          if(snapshot.data.docs[index]["isActive"]==true){
-                            if(snapshot.data.docs[index]["areaId"]==widget.areaName && snapshot.data.docs[index]["isDeleted"]==false){
-                              return ListTile(
-                                onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: snapshot.data.docs[index]["shopId"])));
-                                },
-                                title: Text("${snapshot.data.docs[index]["shopName"]}"),
-                                subtitle: Text("${snapshot.data.docs[index]["ownerName"]}\t${snapshot.data.docs[index]["contact"]}"),
-                                trailing: UserModel.role=="Manager".toUpperCase()
-                                    ?  IconButton(
-                                  icon: const Icon(Icons.edit,color: Colors.black38),
-                                  onPressed: () {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>EditShop(shopId: snapshot.data.docs[index]["shopId"])));
-                                  },
-                                )
-                                    :const SizedBox(height: 0,),
-                              );
-                            }else{
-                              return const SizedBox(height: 0,);
-                            }
-                          }else{
-                            return const SizedBox(height: 0,);
-                          }
-                        }else if(tab=="InActive".toUpperCase()){
-                          if(snapshot.data.docs[index]["isActive"]==false){
-                            if(snapshot.data.docs[index]["areaId"]==widget.areaName && snapshot.data.docs[index]["isDeleted"]==false){
-                              return ListTile(
-                                onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: snapshot.data.docs[index]["shopId"])));
-                                },
-                                title: Text("${snapshot.data.docs[index]["shopName"]}"),
-                                subtitle: Text("${snapshot.data.docs[index]["ownerName"]}\t${snapshot.data.docs[index]["contact"]}"),
-                                trailing: UserModel.role=="Manager".toUpperCase()
-                                    ?  IconButton(
-                                  icon: const Icon(Icons.edit,color: Colors.black38),
-                                  onPressed: () {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>EditShop(shopId: snapshot.data.docs[index]["shopId"])));
-                                  },
-                                )
-                                    :const SizedBox(height: 0,),
-                              );
-                            }else{
-                              return const SizedBox(height: 0,);
-                            }
-                          }else{
-                            return const SizedBox(height: 0,);
-                          }
+                          return listTile(snapshot.data.docs[index]);
+                        }else if(tab=="Active".toUpperCase() && snapshot.data.docs[index]["isActive"]==true){
+                          return listTile(snapshot.data.docs[index]);
+                        }else if(tab=="InActive".toUpperCase() && snapshot.data.docs[index]["isActive"]==false){
+                          return listTile(snapshot.data.docs[index]);
                         }else{
                           return const SizedBox(height: 0,);
                         }
@@ -228,8 +161,39 @@ class _ShopState extends State<Shop> {
       ),
     );
   }
-
+  listTile(DocumentSnapshot snapshot){
+    return ListTile(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>EditShop(shopId: snapshot["shopId"])));
+      },
+      leading: tab=="all".toUpperCase()?Icon(Icons.brightness_1,size: 10,color: snapshot["isActive"]?Colors.green:Colors.red,):const SizedBox(),
+      title: Text("${snapshot["shopName"]}-${snapshot["areaId"]}"),
+      subtitle: Text("${snapshot["ownerName"]}\t${snapshot["contact"]}"),
+      trailing: UserModel.rights.contains("changeShopStatus".toLowerCase())
+          ?  ElevatedButton(
+        child: Text(snapshot["isActive"]?"Inactive":"Active",style: const TextStyle(color: Colors.white),),
+        onPressed: () {
+          updateStatus(snapshot);
+        },
+      )
+          :const SizedBox(height: 0,),
+    );
+  }
+  updateStatus(DocumentSnapshot snapshot)async{
+    await ShopDB(companyId: CompanyModel.companyId, shopId: snapshot["shopId"]).updateShop({
+      "shopName":snapshot["shopName"],
+      "ownerName":snapshot["ownerName"],
+      "contact":snapshot["contact"],
+      "nearBy":snapshot["nearBy"],
+      "isActive":!snapshot["isActive"]
+    }).then((value){
+      if(value==true){
+        showSnackbar(context, Colors.cyan, "Updated");
+      }else{
+        showSnackbar(context, Colors.red, "Error");
+      }
+    }).onError((error, stackTrace){
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+    });
+  }
 }
-/*
-*
-* */

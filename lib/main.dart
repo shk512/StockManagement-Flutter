@@ -1,12 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Screens/Company/company_details.dart';
+import 'package:stock_management/Screens/Company/edit_comapny.dart';
 import 'package:stock_management/Screens/Order/order_form.dart';
 import 'package:stock_management/Screens/Product/add_product.dart';
 import 'package:stock_management/Screens/Shop/add_shop.dart';
 import 'package:stock_management/Screens/Splash_Error/splash.dart';
 import 'package:stock_management/firebase_options.dart';
-import 'package:stock_management/utils/routes.dart';
+import 'package:stock_management/Constants/routes.dart';
 import 'Screens/Accounts/account.dart';
 import 'Screens/Area/area.dart';
 import 'Screens/Dashboard/dashboard.dart';
@@ -44,7 +45,9 @@ class MyApp extends StatelessWidget {
       initialRoute: Routes.splash,
       routes: {
         Routes.companyDetails:(context)=>const CompanyDetails(),
+        Routes.editCompany:(context)=>const EditCompany(),
         Routes.area:(context)=>const Area(),
+        Routes.shop:(context)=>const Shop(),
         Routes.newCompany:(context)=>const NewCompany(),
         Routes.splash:(context) => const SplashScreen(),
         Routes.login:(context)=>const Login(),

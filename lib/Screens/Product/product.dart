@@ -9,7 +9,7 @@ import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/product_db.dart';
 import 'package:stock_management/Widgets/floating_action_button.dart';
 
-import '../../utils/routes.dart';
+import '../../Constants/routes.dart';
 import '../../utils/snack_bar.dart';
 
 class Product extends StatefulWidget {

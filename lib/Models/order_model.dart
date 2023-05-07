@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stock_management/Models/geolocation_model.dart';
 
 class OrderModel{
   static String  orderId='';
-  static String userId='';
+  static String userBy='';
+  static String deliverBy='';
   static String shopDetails='';
   static String status='';
   static String remarks='';
@@ -14,10 +16,12 @@ class OrderModel{
   static num advanceAmount=0;
   static num concessionAmount=0;
   static num balanceAmount=0;
+  static GeoPoint location=GeoPoint(0, 0);
 
   static Map<String,dynamic> toJson({
     required String  orderId,
     required String userId,
+    required String deliverId,
     required String shopId,
     required String shopDetails,
     required String status,
@@ -29,12 +33,12 @@ class OrderModel{
     required num advanceAmount,
     required num concessionAmount,
     required num balanceAmount,
-    required var lat,
-    required var lng
+    required LatLng location
   }){
     return{
       "orderId":orderId,
-      "userId":userId,
+      "orderBy":userId,
+      "deliverBy":deliverId,
       "shopId":shopId,
       "shopDetails":shopDetails,
       "status":status,
@@ -46,16 +50,13 @@ class OrderModel{
       "advanceAmount":advanceAmount,
       "balanceAmount":balanceAmount,
       "concessionAmount":concessionAmount,
-      "geoLocation":{
-        "lat":lat,
-        "lng":lng
-      }
+      "geoLocation":GeoPoint(location.latitude, location.longitude)
     };
   }
 
-  void fromJson(DocumentSnapshot snapshot){
+  static fromJson(DocumentSnapshot snapshot){
     orderId=snapshot["orderId"];
-    userId=snapshot["userId"];
+    userBy=snapshot["userId"];
     shopDetails=snapshot["shopId"];
     status=snapshot["status"];
     remarks=snapshot["remarks"];
@@ -66,7 +67,6 @@ class OrderModel{
     advanceAmount=snapshot["advanceAmount"];
     balanceAmount=snapshot["balanceAmount"];
     concessionAmount=snapshot["concessionAmount"];
-    GeoLocationModel.lat=snapshot["geoLocation"]["lat"];
-    GeoLocationModel.lng=snapshot["geoLocation"]["lng"];
+    location=snapshot["geoLocation"];
   }
 }

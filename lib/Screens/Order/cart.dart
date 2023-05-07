@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Functions/location.dart';
 import 'package:stock_management/Models/company_model.dart';
@@ -12,7 +13,7 @@ import 'package:stock_management/utils/snack_bar.dart';
 import '../../Models/order_model.dart';
 import '../../Models/user_model.dart';
 import '../../Services/DB/product_db.dart';
-import '../../utils/routes.dart';
+import '../../Constants/routes.dart';
 
 class Cart extends StatefulWidget {
   final String shopId;
@@ -166,8 +167,9 @@ class _CartState extends State<Cart> {
         advanceAmount: advanceAmount,
         concessionAmount: 0,
         balanceAmount: OrderModel.totalAmount - advanceAmount,
-        lat: lat,
-        lng: lng)
+        location: LatLng(lat, lng),
+        deliverId: ''
+    )
     )
         .then((value) {
       if (value == true) {

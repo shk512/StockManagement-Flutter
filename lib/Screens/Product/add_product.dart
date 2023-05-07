@@ -24,6 +24,7 @@ class _AddProductState extends State<AddProduct> {
   TextEditingController totalPrice=TextEditingController();
   TextEditingController minPrice=TextEditingController();
   TextEditingController quantityPerPiece=TextEditingController();
+  String imageUrl="";
   final formKey=GlobalKey<FormState>();
   @override
   void initState() {
@@ -78,6 +79,7 @@ class _AddProductState extends State<AddProduct> {
   saveProduct()async{
     String productId=DateTime.now().microsecondsSinceEpoch.toString();
     await ProductDb(companyId: CompanyModel.companyId, productId: productId).saveProduct(ProductModel.toJson(
+        imageUrl: imageUrl,
         productId: productId,
         productName: productName.text,
         description: description.text,
