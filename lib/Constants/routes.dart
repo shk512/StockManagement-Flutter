@@ -4,6 +4,7 @@ class Routes{
   static const stock="/stock";
   static const area="/area";
   static const shop="/shop";
+  static const profile="/profile";
   static const dashboard="/dashboard";
   static const order="/order";
   static const employee="/user";
@@ -13,4 +14,5 @@ class Routes{
   static const newCompany="/newCompany";
   static const companyDetails="/company";
   static const editCompany="/editCompany";
+  static const report="/report";
 }

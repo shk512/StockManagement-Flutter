@@ -22,7 +22,8 @@ class ShopModel{
     required bool isDeleted,
     required String nearBy,
     required bool isActive,
-    required LatLng location
+    required LatLng location,
+    required num wallet
 }){
     return {
       "shopId":shopId,
@@ -33,6 +34,7 @@ class ShopModel{
       "isActive":isActive,
       "isDeleted":isDeleted,
       "ownerName":ownerName,
+      "wallet":wallet,
       "geoLocation": GeoPoint(location.latitude, location.longitude)
     };
   }

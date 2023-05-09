@@ -1,10 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
+
+import '../../Constants/rights.dart';
 
 
 class Order extends StatefulWidget {
@@ -18,15 +20,17 @@ class _OrderState extends State<Order> {
   Stream? order;
   String tab="Processing".toUpperCase();
   TextEditingController searchController=TextEditingController();
+  CompanyModel _companyModel=CompanyModel();
+  UserModel _userModel=UserModel();
 
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    getUserAndCompanyData(_companyModel,_userModel);
     getOrderData();
   }
   getOrderData()async{
-    await OrderDB(companyId: CompanyModel.companyId, orderId: "").getOrder().then((value) {
+    await OrderDB(companyId: _companyModel.companyId, orderId: "").getOrder().then((value) {
       setState(() {
         order=value;
       });
@@ -43,16 +47,15 @@ class _OrderState extends State<Order> {
     },
     child: const Icon(CupertinoIcons.back,color: Colors.white,),
     ),
-    title: Expanded(
-      child: TextField(
+    title: TextField(
         controller: searchController,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
+          icon: Icon(Icons.search),
           border: InputBorder.none,
-          hintText: "\t Search shop name here...",
+          hintText: "\t Search here...",
           hintStyle: TextStyle(color: Colors.white),
           labelStyle: TextStyle(color: Colors.white),
         ),
-      ),
     ),
     centerTitle: true,
     ),
@@ -168,104 +171,107 @@ class _OrderState extends State<Order> {
                     return ListView.builder(
                         itemCount: snapshot.data.docs.length,
                         itemBuilder: (context, index) {
-                          Color clr;
-                          if(snapshot.data.docs[index]["status"]=="processing".toUpperCase()){
-                            clr=Colors.red;
-                          }else if(snapshot.data.docs[index]["status"]=="dispatch".toUpperCase()){
-                            clr=Colors.amber;
-                          }else if(snapshot.data.docs[index]["status"]=="deliver".toUpperCase()){
-                            clr=Colors.green;
-                          }else{
-                            clr=Colors.black38;
-                          }
+                          /*
+                          * SEARCH BOX IS EMPTY
+                          * */
                           if(searchController.text.isEmpty){
-                            if(UserModel.role=="Manager".toUpperCase()){
+                            /*
+                              * ENTERTAINS COMPANY
+                              * */
+                            if(_userModel.rights.contains(Rights.all)){
                               if(tab.toUpperCase()=="All".toUpperCase()){
-                                return  ListTile(
-                                  title: Text("${snapshot.data.docs[index]["shopDetails"]}"),
-                                  subtitle: Text("${snapshot.data.docs[index]["dateTime"]}"),
-                                  trailing: Icon(Icons.brightness_1,color: clr,size: 10,),
-                                );
+                                return  listTile(snapshot.data.docs[index]);
                               }else{
                                 if(snapshot.data.docs[index]["status"]==tab.toUpperCase()){
-                                  return  ListTile(
-                                    title: Text("${snapshot.data.docs[index]["shopDetails"]}"),
-                                    subtitle: Text("${snapshot.data.docs[index]["dateTime"]}"),
-                                  );
+                                  return  listTile(snapshot.data.docs[index]);
                                 }else{
                                   return const SizedBox();
                                 }
                               }
-                            }else if(snapshot.data.docs[index]["userId"]==UserModel.userId){
+                            }
+                            /*
+                              * ENTERTAINS EMPLOYEE
+                              * */
+                            else if(snapshot.data.docs[index]["userId"]==_userModel.userId){
                               if(tab.toUpperCase()=="All".toUpperCase()){
-                                return  ListTile(
-                                    title: Text("${snapshot.data.docs[index]["shopDetails"]}"),
-                                    subtitle: Text("${snapshot.data.docs[index]["dateTime"]}"),
-                                    trailing: Icon(Icons.brightness_1,color: clr,size: 10,)
-                                );
+                                return  listTile(snapshot.data.docs[index]);
                               }else{
                                 if(snapshot.data.docs[index]["status"]==tab.toUpperCase()){
-                                  return  ListTile(
-                                    title: Text("${snapshot.data.docs[index]["shopDetails"]}"),
-                                    subtitle: Text("${snapshot.data.docs[index]["dateTime"]}"),
-                                  );
+                                  return listTile(snapshot.data.docs[index]);
                                 }else{
                                   return const SizedBox();
                                 }
                               }
-                            }else{
+                            }
+                            else{
                               return const SizedBox();
                             }
-                          }else{
-                            if(snapshot.data.docs[index]["shopDetails"].contains(searchController.text)){
-                              if(UserModel.role=="Manager".toUpperCase()){
+                          }
+                          /*
+                          * SEARCH BOX IS NOT EMPTY
+                          * */
+                          else{
+                            if(snapshot.data.docs[index]["shopDetails"].toString().contains(searchController.text)){
+                              /*
+                              * ENTERTAINS COMPANY
+                              * */
+                              if(_userModel.rights.contains(Rights.all)){
                                 if(tab.toUpperCase()=="All".toUpperCase()){
-                                  return  ListTile(
-                                    title: Text("${snapshot.data.docs[index]["shopDetails"]}"),
-                                    subtitle: Text("${snapshot.data.docs[index]["dateTime"]}"),
-                                    trailing: Icon(Icons.brightness_1,color: clr,size: 10,),
-                                  );
+                                  return  listTile(snapshot.data.docs[index]);
                                 }else{
                                   if(snapshot.data.docs[index]["status"]==tab.toUpperCase()){
-                                    return  ListTile(
-                                      title: Text("${snapshot.data.docs[index]["shopDetails"]}"),
-                                      subtitle: Text("${snapshot.data.docs[index]["dateTime"]}"),
-                                    );
+                                    return  listTile(snapshot.data.docs[index]);
                                   }else{
                                     return const SizedBox();
                                   }
                                 }
-                              }else if(snapshot.data.docs[index]["userId"]==UserModel.userId){
+                              }
+                              /*
+                              * ENTERTAINS EMPLOYEE
+                              * */
+                              else if(snapshot.data.docs[index]["orderBy"]==_userModel.userId||snapshot.data.docs[index]["deliverBy"]==_userModel.userId||snapshot.data.docs[index]["shopId"]==_userModel.userId){
                                 if(tab.toUpperCase()=="All".toUpperCase()){
-                                  return  ListTile(
-                                      title: Text("${snapshot.data.docs[index]["shopDetails"]}"),
-                                      subtitle: Text("${snapshot.data.docs[index]["dateTime"]}"),
-                                      trailing: Icon(Icons.brightness_1,color: clr,size: 10,)
-                                  );
+                                  return  listTile(snapshot.data.docs[index]);
                                 }else{
                                   if(snapshot.data.docs[index]["status"]==tab.toUpperCase()){
-                                    return  ListTile(
-                                      title: Text("${snapshot.data.docs[index]["shopDetails"]}"),
-                                      subtitle: Text("${snapshot.data.docs[index]["dateTime"]}"),
-                                    );
+                                    return listTile(snapshot.data.docs[index]);
                                   }else{
                                     return const SizedBox();
                                   }
                                 }
-                              }else{
+                              }
+                              else{
                                 return const SizedBox();
                               }
                             }else{
-                              return const SizedBox();
+                              const Center(child: Text("Not Found"),);
                             }
                           }
-                        });
+                        }
+                        );
                 }else{
                   return const Center(child: Text("Something Error"),);
                 }
               }),)
         ],
       ),
+    );
+  }
+  Widget listTile(DocumentSnapshot snapshot){
+    Color clr;
+    if(snapshot["status"]=="processing".toUpperCase()){
+      clr=Colors.red;
+    }else if(snapshot["status"]=="dispatch".toUpperCase()){
+      clr=Colors.amber;
+    }else if(snapshot["status"]=="deliver".toUpperCase()){
+      clr=Colors.green;
+    }else{
+      clr=Colors.black38;
+    }
+    return ListTile(
+      title: Text("${snapshot["shopDetails"]}"),
+      subtitle: Text("${snapshot["dateTime"]}"),
+      trailing: tab=="all".toUpperCase()?Icon(Icons.brightness_1,color: clr,size: 10,):const SizedBox(),
     );
   }
 }

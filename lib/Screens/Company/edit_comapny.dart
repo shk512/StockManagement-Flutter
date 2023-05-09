@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Functions/update_data.dart';
 import 'package:stock_management/Models/company_model.dart';
+import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Services/DB/company_db.dart';
@@ -25,16 +26,18 @@ class _EditCompanyState extends State<EditCompany> {
   String imageUrl="";
   bool isLoading = false;
   final formKey = GlobalKey<FormState>();
+  CompanyModel _companyModel=CompanyModel();
+  UserModel _userModel=UserModel();
 
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid).then((value){
+    getUserAndCompanyData(_companyModel,_userModel).then((value){
       setState(() {
-        companyName.text=CompanyModel.companyName;
-        city.text=CompanyModel.city;
-        phone.text=CompanyModel.contact;
-        imageUrl=CompanyModel.imageUrl;
+        companyName.text=_companyModel.companyName;
+        city.text=_companyModel.city;
+        phone.text=_companyModel.contact;
+        imageUrl=_companyModel.imageUrl;
       });
     });
 
@@ -50,7 +53,7 @@ class _EditCompanyState extends State<EditCompany> {
           },
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
-        title: Text(CompanyModel.companyName,style: const TextStyle(color: Colors.white),),
+        title: Text(_companyModel.companyName,style: const TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -83,22 +86,11 @@ class _EditCompanyState extends State<EditCompany> {
       setState(() {
         isLoading=true;
       });
-      await CompanyDb(id: CompanyModel.companyId).updateCompany(
-          CompanyModel.toJson(
-              companyId: CompanyModel.companyId,
-              companyName: companyName.text,
-              contact: phone.text,
-              whatsApp: CompanyModel.whatsApp,
-              packageEndsDate: CompanyModel.packageEndsDate,
-              packageType: CompanyModel.packageType,
-              city: city.text,
-              wallet: CompanyModel.wallet,
-              area: CompanyModel.area,
-              isPackageActive: CompanyModel.isPackageActive,
-              location: LatLng(CompanyModel.location.latitude, CompanyModel.location.longitude),
-              imageUrl: imageUrl
-          )
-      ).then((value)async{
+      _companyModel.companyName=companyName.text;
+      _companyModel.contact=phone.text;
+      _companyModel.city=city.text;
+      _companyModel.imageUrl=imageUrl;
+      await CompanyDb(id: _companyModel.companyId).updateCompany(_companyModel.toJson()).then((value)async{
         showSnackbar(context, Colors.cyan, "Updated");
         Navigator.pop(context);
       }).onError((error, stackTrace){

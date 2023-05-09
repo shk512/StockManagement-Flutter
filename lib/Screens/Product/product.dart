@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Functions/get_data.dart';
@@ -21,14 +20,16 @@ class Product extends StatefulWidget {
 
 class _ProductState extends State<Product> {
   Stream? products;
+  CompanyModel _companyModel=CompanyModel();
+  UserModel _userModel=UserModel();
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    getUserAndCompanyData(_companyModel,_userModel);
     getProducts();
   }
   getProducts()async{
-    await ProductDb(companyId: CompanyModel.companyId, productId: "").getProducts().then((value){
+    await ProductDb(companyId: _companyModel.companyId, productId: "").getProducts().then((value){
       setState(() {
         products=value;
       });
@@ -73,7 +74,7 @@ class _ProductState extends State<Product> {
                         },
                         title: Text(snapshot.data.docs[index]["productName"]),
                         subtitle: Text("Price: ${snapshot.data.docs[index]["totalPrice"]} Rs."),
-                        trailing: UserModel.role=="manager".toUpperCase()
+                        trailing: _userModel.role=="manager".toUpperCase()
                             ?InkWell(
                             onTap:(){
                               showWarning(snapshot.data.docs[index]["productId"]);
@@ -111,7 +112,7 @@ class _ProductState extends State<Product> {
     );
   }
   deleteProduct(String productId)async{
-    await ProductDb(companyId: CompanyModel.companyId, productId: productId).deleteProduct().then((value){
+    await ProductDb(companyId: _companyModel.companyId, productId: productId).deleteProduct().then((value){
       if(value==true){
         showSnackbar(context,Colors.cyan,"Deleted");
       }else{

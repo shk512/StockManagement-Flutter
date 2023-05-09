@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,14 +18,16 @@ class Stock extends StatefulWidget {
 
 class _StockState extends State<Stock> {
   Stream? products;
+  CompanyModel _companyModel=CompanyModel();
+  UserModel _userModel=UserModel();
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    getUserAndCompanyData(_companyModel,_userModel);
     getProducts();
   }
   getProducts()async{
-    ProductDb(companyId: CompanyModel.companyId, productId: "").getProducts().then((value){
+    ProductDb(companyId: _companyModel.companyId, productId: "").getProducts().then((value){
       setState(() {
         products=value;
       });
@@ -65,7 +66,7 @@ class _StockState extends State<Stock> {
                     return ListTile(
                       title: Text(snapshot.data.docs[index]["productName"]),
                       subtitle: Text(snapshot.data.docs[index]["totalQuantity"].toString()),
-                      trailing: UserModel.role == "manager".toUpperCase()
+                      trailing: _userModel.role == "manager".toUpperCase()
                           ? InkWell(
                           onTap: () {
                             showStockInputDialogue(
@@ -119,7 +120,7 @@ class _StockState extends State<Stock> {
         });
   }
   updateStock(num quantity,String productId)async{
-    await ProductDb(companyId: CompanyModel.companyId, productId: productId).updateStock(quantity).then((value){
+    await ProductDb(companyId: _companyModel.companyId, productId: productId).increment(quantity).then((value){
       if(value==true){
         showSnackbar(context,Colors.cyan, "Updated");
         setState(() {

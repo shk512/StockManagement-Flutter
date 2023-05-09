@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Functions/get_data.dart';
-import 'package:stock_management/Functions/location.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
 
@@ -22,33 +20,22 @@ class CompanyDetails extends StatefulWidget {
 }
 
 class _CompanyDetailsState extends State<CompanyDetails> {
-  String address="";
   GeoPoint location=const GeoPoint(0,0);
+  CompanyModel _companyModel=CompanyModel();
+  UserModel _userModel=UserModel();
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    getUserAndCompanyData(_companyModel,_userModel);
     getLatitudeAndLongitude();
-    if(location.latitude!=0&&location.longitude!=0){
-      getAddress();
-    }else{
-      setState(() {
-        address="Not set";
-      });
-    }
   }
   getLatitudeAndLongitude()async{
-   await CompanyDb(id: CompanyModel.companyId).getData().then((value){
+   await CompanyDb(id: _companyModel.companyId).getData().then((value){
       if(location.latitude!=0&&location.longitude!=0){
         setState(() {
           location=value["geoLocation"];
         });
       }
-    });
-  }
-  getAddress(){
-    setState(() {
-      address=convertCoordiantesToAddress(location.latitude, location.longitude).toString();
     });
   }
   @override
@@ -64,16 +51,16 @@ class _CompanyDetailsState extends State<CompanyDetails> {
         title: const Text("Company",style: TextStyle(color: Colors.white),),
         centerTitle: true,
         actions: [
-          UserModel.rights.contains(Rights.viewCompanyWallet)||UserModel.rights.contains(Rights.all)
+          _userModel.rights.contains(Rights.viewCompanyWallet)||_userModel.rights.contains(Rights.all)
           ?const Icon(Icons.account_balance_wallet_outlined,color: Colors.white,):const SizedBox(),
-          UserModel.rights.contains(Rights.viewCompanyWallet)||UserModel.rights.contains(Rights.all)
+          _userModel.rights.contains(Rights.viewCompanyWallet)||_userModel.rights.contains(Rights.all)
               ?Padding(
             padding:const EdgeInsets.symmetric(horizontal: 10,vertical: 20),
             child: Text(
-              "Rs. ${CompanyModel.wallet}",
+              "Rs. ${_companyModel.wallet}",
               style: const TextStyle(fontSize: 17,color: Colors.white),textAlign: TextAlign.center,),)
               :const SizedBox(),
-          UserModel.rights.contains(Rights.editCompany)||UserModel.rights.contains(Rights.all)
+          _userModel.rights.contains(Rights.editCompany)||_userModel.rights.contains(Rights.all)
               ?IconButton(
               onPressed: (){
                 Navigator.pushNamed(context, Routes.editCompany);
@@ -88,24 +75,24 @@ class _CompanyDetailsState extends State<CompanyDetails> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              RowInfoDisplay(label: "Status", value:CompanyModel.isPackageActive?"Active":"InActive"),
+              RowInfoDisplay(label: "Status", value:_companyModel.isPackageActive?"Active":"InActive"),
               const SizedBox(height: 5),
-              CompanyModel.packageType=="LifeTime".toUpperCase()||CompanyModel.packageEndsDate==""
+              _companyModel.packageType=="LifeTime".toUpperCase()||_companyModel.packageEndsDate==""
                   ?const SizedBox()
-                  :RowInfoDisplay(label: "Package Ends Date", value:CompanyModel.packageEndsDate),
+                  :RowInfoDisplay(label: "Package Ends Date", value:_companyModel.packageEndsDate),
               const SizedBox(height: 5),
-              RowInfoDisplay(label: "Name", value:CompanyModel.companyName),
+              RowInfoDisplay(label: "Name", value:_companyModel.companyName),
               const SizedBox(height: 5),
-              RowInfoDisplay(label: "City", value:CompanyModel.city),
+              RowInfoDisplay(label: "City", value:_companyModel.city),
               const SizedBox(height: 5),
-              RowInfoDisplay(label: "Contact", value: CompanyModel.contact),
+              RowInfoDisplay(label: "Contact", value: _companyModel.contact),
               const SizedBox(height: 5),
-              RowInfoDisplay(label: "Package", value: CompanyModel.packageType),
+              RowInfoDisplay(label: "Package", value: _companyModel.packageType),
               const SizedBox(height: 10),
               Row(
                 children: [
                   const Expanded(child: Text("Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.cyan),)),
-                  UserModel.rights.contains(Rights.addArea) || UserModel.rights.contains(Rights.all)
+                  _userModel.rights.contains(Rights.addArea) || _userModel.rights.contains(Rights.all)
                       ? Expanded(
                       child: IconButton(
                           onPressed: (){
@@ -126,11 +113,11 @@ class _CompanyDetailsState extends State<CompanyDetails> {
   }
   Widget areaList(){
     return Column(
-      children: CompanyModel.area.map((e) => Align(
+      children: _companyModel.area.map((e) => Align(
           alignment: AlignmentDirectional.centerStart,
           child: InkWell(
             onTap: (){
-              if(UserModel.rights.contains(Rights.deleteArea)||UserModel.rights.contains(Rights.all)){
+              if(_userModel.rights.contains(Rights.deleteArea)||_userModel.rights.contains(Rights.all)){
                 showWarningDialogue(e);
               }
             },
@@ -177,10 +164,10 @@ class _CompanyDetailsState extends State<CompanyDetails> {
         });
   }
   saveArea(String areaName)async{
-    await CompanyDb(id: CompanyModel.companyId).saveArea(areaName).then((value)async{
+    await CompanyDb(id: _companyModel.companyId).saveArea(areaName).then((value)async{
       if(value==true){
         setState(() {
-          CompanyModel.area.add(areaName);
+          _companyModel.area.add(areaName);
         });
       }else{
         showSnackbar(context, Colors.red, "Area with same name already available");
@@ -190,11 +177,11 @@ class _CompanyDetailsState extends State<CompanyDetails> {
     });
   }
   deleteArea(String areaName)async{
-    await CompanyDb(id: CompanyModel.companyId).deleteArea(areaName).then((value){
+    await CompanyDb(id: _companyModel.companyId).deleteArea(areaName).then((value){
       if(value==true){
         showSnackbar(context, Colors.cyan, "Deleted");
         setState(() {
-          CompanyModel.area.remove(areaName);
+          _companyModel.area.remove(areaName);
         });
       }else{
         showSnackbar(context, Colors.red, "Error");

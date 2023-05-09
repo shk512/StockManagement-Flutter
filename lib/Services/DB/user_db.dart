@@ -8,12 +8,12 @@ class UserDb{
   final userCollection=FirebaseFirestore.instance.collection("user");
 
   //Get ALl users
-  getAllUser(){
-    return userCollection.orderBy("role",descending: false).snapshots();
+  Future getAllUser()async{
+    return userCollection.snapshots();
   }
 
   //get UserData
-  getData()async{
+  Future getData()async{
     return await userCollection.doc(id).get();
   }
 
@@ -25,6 +25,18 @@ class UserDb{
   //update user
   Future updateUser(Map<String,dynamic> mapData)async{
     await userCollection.doc(id).update(mapData);
+  }
+
+  //update user wallet
+  Future addWalletBalance(num amount)async{
+    await userCollection.doc(id).update({
+      "wallet":FieldValue.increment(amount)
+    });
+}
+
+  //debit the wallet
+  Future debitWalletBalance(num amount)async{
+    await userCollection.doc(id).update({"wallet":FieldValue.increment(-amount)});
   }
 
   //update area list

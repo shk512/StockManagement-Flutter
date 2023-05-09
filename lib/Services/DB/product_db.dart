@@ -21,18 +21,19 @@ class ProductDb{
   }
 
   //update Stock
-  Future updateStock(num quantity)async{
+  Future decrement(num quantity)async{
     await companyCollection.doc(companyId).collection("product").doc(productId).update({
-      "totalQuantity": quantity
+      "totalQuantity": FieldValue.increment(-quantity)
     });
     return true;
   }
 
   //add stock again
-  Future updateStockAgain(num quantity)async{
-   DocumentSnapshot snapshot= await companyCollection.doc(companyId).collection("product").doc(productId).get();
-   quantity=snapshot["totalQuantity"]+quantity;
-   updateStock(quantity);
+  Future increment(num quantity)async{
+   await companyCollection.doc(companyId).collection("product").doc(productId).update({
+     "totalQuantity": FieldValue.increment(quantity)
+   });
+   return true;
   }
 
   //get Products

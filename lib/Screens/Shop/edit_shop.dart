@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Functions/get_data.dart';
@@ -7,6 +6,7 @@ import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
+import '../../Models/user_model.dart';
 import '../../Widgets/num_field.dart';
 import '../../Widgets/text_field.dart';
 
@@ -25,15 +25,17 @@ class _EditShopState extends State<EditShop> {
   TextEditingController nearBy=TextEditingController();
   String areaName="";
   final formKey=GlobalKey<FormState>();
+  CompanyModel _companyModel=CompanyModel();
+  UserModel _userModel=UserModel();
 
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    getUserAndCompanyData(_companyModel,_userModel);
     getShopDetails();
   }
   getShopDetails()async{
-    await ShopDB(companyId: CompanyModel.companyId,shopId: widget.shopId).getShopDetails().then((value){
+    await ShopDB(companyId: _companyModel.companyId,shopId: widget.shopId).getShopDetails().then((value){
       setState(() {
         shopName.text=value["shopName"];
         ownerName.text=value["ownerName"];
@@ -94,7 +96,7 @@ class _EditShopState extends State<EditShop> {
     );
   }
   updateShop()async{
-    await ShopDB(companyId: CompanyModel.companyId, shopId: widget.shopId).updateShop({
+    await ShopDB(companyId: _companyModel.companyId, shopId: widget.shopId).updateShop({
       "shopName":shopName.text,
       "ownerName":ownerName.text,
       "contact":contact.text,
@@ -111,7 +113,7 @@ class _EditShopState extends State<EditShop> {
     });
   }
   deleteShop(String shopId)async{
-    await ShopDB(companyId: CompanyModel.companyId, shopId: shopId).deleteShop().then((value) {
+    await ShopDB(companyId: _companyModel.companyId, shopId: shopId).deleteShop().then((value) {
       if(value==true){
         showSnackbar(context, Colors.cyan, "Deleted");
         setState(() {

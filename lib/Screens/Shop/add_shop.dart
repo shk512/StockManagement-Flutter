@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Functions/location.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/shop_model.dart';
@@ -9,6 +10,7 @@ import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Widgets/text_field.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
+import '../../Models/user_model.dart';
 import '../../Widgets/num_field.dart';
 
 class AddShop extends StatefulWidget {
@@ -23,25 +25,22 @@ class _AddShopState extends State<AddShop> {
   bool isLoading=false;
   var lat;
   var lng;
-  String address='';
   TextEditingController ownerName=TextEditingController();
   TextEditingController shopName=TextEditingController();
   TextEditingController contact=TextEditingController();
   TextEditingController nearBy=TextEditingController();
   final formKey=GlobalKey<FormState>();
+  CompanyModel _companyModel=CompanyModel();
+  UserModel _userModel=UserModel();
 
   @override
   void initState() {
     super.initState();
+    getUserAndCompanyData(_companyModel, _userModel);
     getCurrentLocation(context).then((value){
       setState(() {
         lat=value.latitude;
         lng=value.longitude;
-      });
-      convertCoordiantesToAddress(lat, lng).then((value){
-        setState(() {
-          address=value;
-        });
       });
     });
   }
@@ -81,8 +80,6 @@ class _AddShopState extends State<AddShop> {
                   NumField(labelTxt: "Contact", hintTxt: "03001234567", ctrl: contact, icon: const Icon(Icons.phone)),
                   const SizedBox(height: 10,),
                   TxtField(labelTxt: "Near By", hintTxt: "Any famous nearby place", ctrl: nearBy, icon: const Icon(Icons.pin_drop_outlined)),
-                  const SizedBox(height: 10,),
-                  Text("Address: $address"),
                 ],
               ),
             )
@@ -92,7 +89,7 @@ class _AddShopState extends State<AddShop> {
   }
   saveShop()async{
     String shopId=DateTime.now().microsecondsSinceEpoch.toString();
-    await ShopDB(companyId: CompanyModel.companyId, shopId: shopId).saveShop(ShopModel.toJson(
+    await ShopDB(companyId: _companyModel.companyId, shopId: shopId).saveShop(ShopModel.toJson(
         shopId: shopId,
         areaName: widget.areaName,
         isActive: true,
@@ -101,7 +98,8 @@ class _AddShopState extends State<AddShop> {
         ownerName: ownerName.text,
         nearBy: nearBy.text,
         isDeleted: false,
-      location: LatLng(lat,lng)
+        wallet: 0,
+        location: LatLng(lat,lng)
         )).then((value){
           Navigator.pop(context);
           showSnackbar(context, Colors.cyan, "Saved");

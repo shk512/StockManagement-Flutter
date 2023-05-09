@@ -1,12 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
-import 'package:stock_management/Screens/Order/order_form.dart';
-import 'package:stock_management/Screens/Shop/add_shop.dart';
 import 'package:stock_management/Screens/Shop/edit_shop.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 
@@ -24,14 +21,16 @@ class _ShopState extends State<Shop> {
   Stream? shops;
   String address='';
   String tab="all".toUpperCase();
+  CompanyModel _companyModel=CompanyModel();
+  UserModel _userModel=UserModel();
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    getUserAndCompanyData(_companyModel,_userModel);
     getShops();
   }
   getShops()async{
-    var request=await ShopDB(companyId: CompanyModel.companyId, shopId: "").getShops();
+    var request=await ShopDB(companyId: _companyModel.companyId, shopId: "").getShops();
       setState(() {
         shops=request;
       });
@@ -169,7 +168,7 @@ class _ShopState extends State<Shop> {
       leading: tab=="all".toUpperCase()?Icon(Icons.brightness_1,size: 10,color: snapshot["isActive"]?Colors.green:Colors.red,):const SizedBox(),
       title: Text("${snapshot["shopName"]}-${snapshot["areaId"]}"),
       subtitle: Text("${snapshot["ownerName"]}\t${snapshot["contact"]}"),
-      trailing: UserModel.rights.contains("changeShopStatus".toLowerCase())
+      trailing: _userModel.rights.contains("changeShopStatus".toLowerCase())
           ?  ElevatedButton(
         child: Text(snapshot["isActive"]?"Inactive":"Active",style: const TextStyle(color: Colors.white),),
         onPressed: () {
@@ -180,7 +179,7 @@ class _ShopState extends State<Shop> {
     );
   }
   updateStatus(DocumentSnapshot snapshot)async{
-    await ShopDB(companyId: CompanyModel.companyId, shopId: snapshot["shopId"]).updateShop({
+    await ShopDB(companyId: _companyModel.companyId, shopId: snapshot["shopId"]).updateShop({
       "shopName":snapshot["shopName"],
       "ownerName":snapshot["ownerName"],
       "contact":snapshot["contact"],

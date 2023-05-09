@@ -5,6 +5,7 @@ import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Services/DB/product_db.dart';
 
+import '../../Models/user_model.dart';
 import '../../Widgets/num_field.dart';
 import '../../Widgets/text_field.dart';
 import '../../utils/snack_bar.dart';
@@ -25,14 +26,16 @@ class _EditProductState extends State<EditProduct> {
   TextEditingController minPrice=TextEditingController();
   TextEditingController quantityPerPiece=TextEditingController();
   final formKey=GlobalKey<FormState>();
+  CompanyModel _companyModel=CompanyModel();
+  UserModel _userModel=UserModel();
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    getUserAndCompanyData(_companyModel,_userModel);
     getProductDetails();
   }
   getProductDetails()async{
-    await ProductDb(companyId: CompanyModel.companyId, productId: widget.productId).getProductDetails().then((value){
+    await ProductDb(companyId: _companyModel.companyId, productId: widget.productId).getProductDetails().then((value){
       setState(() {
         productName.text=value["productName"];
         description.text=value["description"];
@@ -88,7 +91,7 @@ class _EditProductState extends State<EditProduct> {
     );
   }
   updateProduct()async{
-    await ProductDb(companyId: CompanyModel.companyId, productId: widget.productId).updateProduct({
+    await ProductDb(companyId: _companyModel.companyId, productId: widget.productId).updateProduct({
           "productName":productName.text,
           "description":description.text,
           "totalPrice":int.parse(totalPrice.text),

@@ -8,6 +8,7 @@ import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
+import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/Services/shared_preferences/spf.dart';
 import 'package:stock_management/Widgets/text_field.dart';
@@ -39,6 +40,10 @@ class _SignupState extends State<Signup> {
   UserRole _role = UserRole.company;
   Auth auth=Auth();
   bool isLoading=false;
+  List shopsList=[];
+  Stream? shopStream;
+  CompanyModel _companyModel=CompanyModel();
+  UserModel _userModel=UserModel();
   /*
   * RIGHTS BOOLEAN
   * */
@@ -74,17 +79,35 @@ class _SignupState extends State<Signup> {
   bool viewStock=false;
   bool navigateShop=false;
   bool navigateOrder=false;
+  bool viewReport=false;
 
   @override
   void initState() {
     super.initState();
     getCompanyDetails();
+    getShops();
+    print(shopsList);
   }
 
   getCompanyDetails() async {
     DocumentSnapshot snapshot=await CompanyDb(id: widget.companyId).getData();
     setState(() {
-      CompanyModel.fromJson(snapshot);
+      _companyModel.fromJson(snapshot);
+    });
+  }
+  getShops()async{
+    await ShopDB(companyId: _companyModel.companyId, shopId: "").getShops().then((value){
+      setState(() {
+        shopStream=value;
+      });
+      shopStream?.listen((snapshot) {
+        if(shopStream==null){
+        }else{
+          for(DocumentSnapshot snaps in snapshot){
+            shopsList.add("${snaps["shopName"]}-${snaps["areaId"]}");
+          }
+        }
+      });
     });
   }
 
@@ -113,7 +136,7 @@ class _SignupState extends State<Signup> {
                 ),
                 const SizedBox(height: 10,),
                 const Image(image: AssetImage("image/signup.png")),
-                Center(child: Text(CompanyModel.companyName,style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 25),)),
+                Center(child: Text(_companyModel.companyName,style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 25),)),
                 const SizedBox(height: 20,),
                 TxtField(labelTxt: "Email",
                     hintTxt: "john@gmail.com",
@@ -148,6 +171,28 @@ class _SignupState extends State<Signup> {
                 radioButtons("Company", UserRole.company),
                 radioButtons("Employee", UserRole.employee),
                 radioButtons("Shop Keeper", UserRole.shopKeeper),
+                /*_role==UserRole.shopKeeper
+                    ? StreamBuilder(
+                    stream: shopStream,
+                    builder: (context, snapshot){
+                      if(snapshot.hasError){
+                        return Text('Something went wrong! ${snapshot.error}');
+                      }else if (snapshot.hasData) {
+                        return DropdownButton<String>(
+
+                          items: shopsList!,
+                          onChanged: (String value) {
+                            setState(() {
+                              designation.text=value;
+                            });
+                          },
+
+                        );
+                      } else {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                    })
+                    :const SizedBox(),*/
                 _role==UserRole.shopKeeper || _role==UserRole.company
                     ? Container()
                     : NumField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon: const Icon(Icons.onetwothree)),
@@ -156,7 +201,9 @@ class _SignupState extends State<Signup> {
                     ? TxtField(labelTxt: "Designation", hintTxt: "Employee's Designation", ctrl: designation, icon: const Icon(CupertinoIcons.star_circle))
                     :const SizedBox(),
                 const SizedBox(height: 20,),
-                const Align(
+                _role==UserRole.company
+                    ?const SizedBox()
+                    :const Align(
                   alignment: AlignmentDirectional.bottomStart,
                   child: Text(
                     "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
@@ -211,20 +258,19 @@ class _SignupState extends State<Signup> {
         isLoading=true;
       });
       await auth.createUser(mail.text, pass.text).then((value)async{
-          await UserDb(id: FirebaseAuth.instance.currentUser!.uid).saveUser(UserModel.toJson(
-            designation: designation.text.toUpperCase(),
-            userId: FirebaseAuth.instance.currentUser!.uid,
-            companyId: CompanyModel.companyId,
-            name: name.text,
-            mail: mail.text,
-            phone: contact.text,
-            role: role,
-            wallet: 0,
-            salary: int.parse(salary.text),
-            isDeleted: false,
-            area: [],
-            right: rights
-          )).then((value){
+        _userModel.userId=FirebaseAuth.instance.currentUser!.uid;
+        _userModel.companyId=_companyModel.companyId;
+        _userModel.designation=designation.text.toUpperCase();
+        _userModel.name=name.text;
+        _userModel.mail=mail.text;
+        _userModel.isDeleted=false;
+        _userModel.wallet=0;
+        _userModel.role=role;
+        _userModel.phone=contact.text;
+        _userModel.salary=int.parse(salary.text);
+        _userModel.area=[];
+        _userModel.rights=[];
+          await UserDb(id: FirebaseAuth.instance.currentUser!.uid).saveUser(_userModel.toJson()).then((value){
                 SPF.saveUserLogInStatus(true);
                 setState(() {
                   isLoading=false;
@@ -749,6 +795,23 @@ class _SignupState extends State<Signup> {
             }
           },
           title: const Text("Navigate Order",style: TextStyle(fontWeight: FontWeight.bold),),
+        ),
+        /*
+        * REPORT RIGHTS CHECK BOX
+        * */
+        CheckboxListTile(
+          value: viewReport,
+          onChanged: (val){
+            setState(() {
+              viewReport=val as bool;
+            });
+            if( viewReport){
+              rights.add(Rights.viewReport);
+            }else{
+              rights.remove(Rights.viewReport);
+            }
+          },
+          title: const Text("View Report",style: TextStyle(fontWeight: FontWeight.bold),),
         ),
       ],
     );

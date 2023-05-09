@@ -15,50 +15,47 @@ class NumField extends StatefulWidget {
 class _NumFieldState extends State<NumField> {
   @override
   Widget build(BuildContext context) {
-    return Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child:  widget.icon,
-          ),
-          const SizedBox(
-            width: 20,
-          ),
-          Expanded(
-            flex: 5,
-            child: TextFormField(
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly
-                ],
-                controller: widget.ctrl,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: widget.labelTxt,
-                  labelStyle: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                    letterSpacing: 1,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+      child: Row(
+          children: [
+            Expanded(
+              flex: 9,
+              child: TextFormField(
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                  controller: widget.ctrl,
+                  decoration: InputDecoration(
+                    icon: widget.icon,
+                    border: const OutlineInputBorder(),
+                    labelText: widget.labelTxt,
+                    labelStyle: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      letterSpacing: 1,
+                    ),
+                    hintText: widget.hintTxt,
                   ),
-                  hintText: widget.hintTxt,
-                ),
-                validator: (val) {
-                  if(widget.labelTxt=="Contact"){
-                    return val!.length==11?null:"Invalid";
-                  }else{
-                    return val!.isNotEmpty?null:"Invalid";
+                  validator: (val) {
+                    if(widget.labelTxt=="Contact"){
+                      return val!.length==11?null:"Invalid";
+                    }else{
+                      return val!.isNotEmpty?null:"Invalid";
+                    }
                   }
-                }
+              ),
             ),
-          ),
-          const SizedBox(
-            width: 20,
-          ),
-          Expanded(
-            flex: 1,
-            child: Container(),
-          ),
-        ]
+            const SizedBox(
+              width: 20,
+            ),
+            Expanded(
+              flex: 1,
+              child: Container(),
+            ),
+          ]
+      ),
     );
   }
 }

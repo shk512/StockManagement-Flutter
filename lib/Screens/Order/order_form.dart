@@ -3,11 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/product_model.dart';
+import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Order/cart.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/product_db.dart';
+import 'package:stock_management/Services/DB/report_db.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
@@ -26,25 +29,27 @@ class _OrderFormState extends State<OrderForm> {
   String shopName="";
   String shopDetails="";
   Stream? products;
+  CompanyModel _companyModel=CompanyModel();
+  UserModel _userModel=UserModel();
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    getUserAndCompanyData(_companyModel,_userModel);
     getProducts();
     getShopDetails();
   }
   getShopDetails()async{
-    await ShopDB(companyId: CompanyModel.companyId, shopId: widget.shopId).getShopDetails().then((value){
+    await ShopDB(companyId: _companyModel.companyId, shopId: widget.shopId).getShopDetails().then((value){
       setState(() {
         shopName=value["shopName"];
-        shopDetails="${value["shopName"]},\t ${value["nearBy"]},\t ${value["areaId"]}";
+        shopDetails="${value["shopName"]},\t near ${value["nearBy"]},\t ${value["areaId"]}";
       });
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
     });
   }
   getProducts()async{
-    await ProductDb(companyId: CompanyModel.companyId, productId: "").getProducts().then((value) {
+    await ProductDb(companyId: _companyModel.companyId, productId: "").getProducts().then((value) {
       setState(() {
         products=value;
       });
@@ -184,7 +189,7 @@ class _OrderFormState extends State<OrderForm> {
                                   hintText: "1"
                               ),
                               onChanged: (val){
-                                quantity=int.parse(val);
+                                quantity=val.isEmpty?0:int.parse(val);
                               },
                               validator: (val){
                                 return int.parse(quantity.toString())==0?"Invalid":null;
@@ -205,7 +210,7 @@ class _OrderFormState extends State<OrderForm> {
                           hintText: "${snapshot["totalPrice"]}"
                       ),
                       onChanged: (val){
-                        price=int.parse(val);
+                        price=val.isEmpty?0:int.parse(val);
                       },
                       validator: (val){
                         return int.parse(val.toString())<int.parse(snapshot["minPrice"].toString())?"Invalid":null;
@@ -236,11 +241,14 @@ class _OrderFormState extends State<OrderForm> {
                           totalQuantity: int.parse(quantity.toString())
                       )
                      );
-                     await ProductDb(companyId: CompanyModel.companyId, productId: snapshot["productId"]).updateStock(snapshot["totalQuantity"]-quantity).then((value){
-                       Navigator.pop(context);
-                       showSnackbar(context, Colors.cyan, "Added to cart");
-                       setState(() {
-                         OrderModel.totalAmount+=totalPrice;
+                     await ProductDb(companyId: _companyModel.companyId, productId: snapshot["productId"]).decrement(quantity).then((value)async{
+                       String formattedDate=DateFormat("yyyy-MM-dd").format(DateTime.now());
+                       await ReportDb(companyId: _companyModel.companyId, productId: snapshot["productId"]).increment(quantity, formattedDate).then((value){
+                         Navigator.pop(context);
+                         showSnackbar(context, Colors.cyan, "Added to cart");
+                         setState(() {
+                           OrderModel.totalAmount+=totalPrice;
+                         });
                        });
                      });
 

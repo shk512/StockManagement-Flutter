@@ -1,9 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/product_model.dart';
+import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Services/DB/product_db.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
@@ -26,10 +26,12 @@ class _AddProductState extends State<AddProduct> {
   TextEditingController quantityPerPiece=TextEditingController();
   String imageUrl="";
   final formKey=GlobalKey<FormState>();
+  CompanyModel _companyModel=CompanyModel();
+  UserModel _userModel=UserModel();
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    getUserAndCompanyData(_companyModel,_userModel);
   }
   @override
   Widget build(BuildContext context) {
@@ -78,7 +80,7 @@ class _AddProductState extends State<AddProduct> {
   }
   saveProduct()async{
     String productId=DateTime.now().microsecondsSinceEpoch.toString();
-    await ProductDb(companyId: CompanyModel.companyId, productId: productId).saveProduct(ProductModel.toJson(
+    await ProductDb(companyId: _companyModel.companyId, productId: productId).saveProduct(ProductModel.toJson(
         imageUrl: imageUrl,
         productId: productId,
         productName: productName.text,

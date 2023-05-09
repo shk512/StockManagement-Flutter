@@ -61,5 +61,9 @@ class Rights{
   * */
   static final shopNavigation="shopNavigation".toLowerCase();
   static final orderNavigation="orderNavigation".toLowerCase();
+  /*
+  * REPORT
+  * */
+  static final viewReport="viewReport".toLowerCase();
 
 }

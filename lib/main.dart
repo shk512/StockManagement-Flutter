@@ -13,6 +13,7 @@ import 'Screens/Area/area.dart';
 import 'Screens/Dashboard/dashboard.dart';
 import 'Screens/Order/order.dart';
 import 'Screens/Product/product.dart';
+import 'Screens/Report/report.dart';
 import 'Screens/User/profile.dart';
 import 'Screens/RegisterLogin/login.dart';
 import 'Screens/RegisterLogin/new_company.dart';
@@ -58,6 +59,8 @@ class MyApp extends StatelessWidget {
         Routes.product: (context) => const Product(),
         Routes.addProduct:(context)=>const AddProduct(),
         Routes.stock:(context)=>const Stock(),
+        Routes.report:(context)=>const Report(),
+        Routes.profile:(context)=>const Profile()
       },
     );
   }

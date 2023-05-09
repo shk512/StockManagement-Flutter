@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Functions/location.dart';
+import 'package:stock_management/Functions/update_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
@@ -30,11 +31,13 @@ class _CartState extends State<Cart> {
   num advanceAmount=0;
   var lat;
   var lng;
+  CompanyModel _companyModel=CompanyModel();
+  UserModel _userModel=UserModel();
 
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(FirebaseAuth.instance.currentUser!.uid);
+    getUserAndCompanyData(_companyModel,_userModel);
     getCurrentLocation(context).then((value){
       lat=value.latitude;
       lng=value.longitude;
@@ -90,7 +93,7 @@ class _CartState extends State<Cart> {
                       subtitle: Text("Detail: ${OrderModel.products[index]["totalQuantity"]}x${OrderModel.products[index]["minPrice"]}=${OrderModel.products[index]["totalPrice"]}"),
                       trailing: IconButton(
                           onPressed: ()async{
-                            await ProductDb(companyId: CompanyModel.companyId, productId: OrderModel.products[index]["productId"]).updateStockAgain(OrderModel.products[index]["totalQuantity"]).then((value){
+                            await ProductDb(companyId: _companyModel.companyId, productId: OrderModel.products[index]["productId"]).increment(OrderModel.products[index]["totalQuantity"]).then((value){
                               showSnackbar(context, Colors.red, "Removed");
                               setState(() {
                                 OrderModel.totalAmount-=OrderModel.products[index]["totalPrice"];
@@ -152,10 +155,10 @@ class _CartState extends State<Cart> {
         .now()
         .microsecondsSinceEpoch
         .toString();
-    await OrderDB(companyId: CompanyModel.companyId, orderId: orderId)
+    await OrderDB(companyId: _companyModel.companyId, orderId: orderId)
         .saveOrder(OrderModel.toJson(
         orderId: orderId,
-        userId: UserModel.userId,
+        userId: _userModel.userId,
         shopId: widget.shopId,
         shopDetails: widget.shopDetails,
         status: "Processing".toUpperCase(),
@@ -170,9 +173,10 @@ class _CartState extends State<Cart> {
         location: LatLng(lat, lng),
         deliverId: ''
     )
-    )
-        .then((value) {
+    ).then((value) {
       if (value == true) {
+        _userModel.wallet=advanceAmount;
+        updateUserData(context,_userModel);
         Navigator.pushNamedAndRemoveUntil(context, Routes.area, (route) => false);
         showSnackbar(context, Colors.cyan, "Order has been placed");
         setState(() {
