@@ -49,16 +49,20 @@ class _ViewUserState extends State<ViewUser> {
           },
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
-        title: Text(snapshot!["role"],style: TextStyle(color: Colors.white),),
+        title: Text(widget.userModel.userId==widget.userId?"Profile":snapshot!["role"],style: TextStyle(color: Colors.white),),
         actions: [
           IconButton(
               onPressed: (){
 
               }, icon: const Icon(Icons.account_balance_wallet_outlined,color: Colors.white,)),
-          Text(
+          Align(
+            alignment: Alignment.center,
+            child: Text(
               "Rs. ${snapshot!["wallet"]}",
               style: const TextStyle(fontSize: 17,color: Colors.white),textAlign: TextAlign.center,),
-          widget.userModel.rights.contains(Rights.editUser) || widget.userModel.rights.contains(Rights.all)
+          ),
+          const SizedBox(width: 5,),
+          widget.userModel.rights.contains(Rights.editUser) || widget.userModel.rights.contains(Rights.all) || widget.userModel.userId==widget.userId
               ? IconButton(
               onPressed: (){
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>EditUser(userId: widget.userId)));
@@ -109,7 +113,7 @@ class _ViewUserState extends State<ViewUser> {
   }
   Widget showAreaList(){
     return Column(
-      children: widget.userModel.area.map((e) => Align(
+      children: area.map((e) => Align(
           alignment: AlignmentDirectional.centerStart,
           child: InkWell(
             onTap: (){
@@ -125,7 +129,7 @@ class _ViewUserState extends State<ViewUser> {
   }
   Widget showCompanyList(){
     return Column(
-      children: widget.companyModel.area.map((e) => widget.userModel.area.contains(e)
+      children: widget.companyModel.area.map((e) => area.contains(e)
           ?const SizedBox()
           :Align(
         alignment: AlignmentDirectional.centerStart,
@@ -134,7 +138,9 @@ class _ViewUserState extends State<ViewUser> {
             saveArea(e);
             Navigator.pop(context);
           },
-          child: Text(e),
+          child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Text(e)),
         ),
       )).toList(),
     );
@@ -150,10 +156,10 @@ class _ViewUserState extends State<ViewUser> {
         });
   }
   saveArea(String areaName)async{
-    await UserDb(id: widget.userModel.userId).updateAreaList(areaName).then((value)async{
+    await UserDb(id: snapshot!["userId"]).updateAreaList(areaName).then((value)async{
       if(value==true){
         setState(() {
-          widget.userModel.area.add(areaName);
+          area.add(areaName);
         });
       }else{
         showSnackbar(context, Colors.red, "Area with same name already available");
@@ -163,11 +169,11 @@ class _ViewUserState extends State<ViewUser> {
     });
   }
   deleteArea(String areaName)async{
-    await UserDb(id: widget.userModel.userId).deleteUserArea(areaName).then((value){
+    await UserDb(id: snapshot!["userId"]).deleteUserArea(areaName).then((value){
       if(value==true){
         showSnackbar(context, Colors.cyan, "Deleted");
         setState(() {
-          widget.userModel.area.remove(areaName);
+          area.remove(areaName);
         });
       }else{
         showSnackbar(context, Colors.red, "Error");

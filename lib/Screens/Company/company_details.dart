@@ -49,7 +49,6 @@ class _CompanyDetailsState extends State<CompanyDetails> {
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
         title: const Text("Company",style: TextStyle(color: Colors.white),),
-        centerTitle: true,
         actions: [
           widget.userModel.rights.contains(Rights.viewCompanyWallet)||widget.userModel.rights.contains(Rights.all)
           ?const Icon(Icons.account_balance_wallet_outlined,color: Colors.white,):const SizedBox(),

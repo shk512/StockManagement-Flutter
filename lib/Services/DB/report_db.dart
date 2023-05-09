@@ -10,7 +10,7 @@ class ReportDb{
 
   //increment report
   Future increment(num quantity, String date) async{
-    await companyCollection.doc(companyId).collection("report").doc(productId).update({
+    await companyCollection.doc(companyId).collection("report").doc(productId).set({
       "productId":productId,
       "$date": FieldValue.increment(quantity),
     });

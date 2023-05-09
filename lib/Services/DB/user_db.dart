@@ -68,7 +68,7 @@ class UserDb{
   }
 
   //get area list
-  getAreaList()async{
+  Future getAreaList()async{
     DocumentSnapshot snapshot=await userCollection.doc(id).get();
     return await snapshot["area"];
   }

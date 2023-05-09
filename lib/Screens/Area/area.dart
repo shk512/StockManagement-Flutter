@@ -2,8 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
+import 'package:stock_management/Screens/Splash_Error/error.dart';
+import 'package:stock_management/Services/DB/user_db.dart';
 
-import '../../Services/DB/user_db.dart';
 import '../Shop/area_shop.dart';
 
 class Area extends StatefulWidget {
@@ -16,19 +17,21 @@ class Area extends StatefulWidget {
 }
 
 class _AreaState extends State<Area> {
-  List? companyArea,userArea;
+  List area=[];
 
   @override
   void initState() {
     super.initState();
-    matchList();
+    getAreaList();
   }
-  matchList()async{
-    for(var area in widget.userModel.area){
-      if(widget.companyModel.area.contains(area)){
-        await UserDb(id: widget.userModel.userId).deleteUserArea(area);
-      }
-    }
+  getAreaList() async{
+    await UserDb(id: widget.userModel.userId).getAreaList().then((value){
+      setState(() {
+        area=value;
+      });
+    }).onError((error, stackTrace){
+      Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())), (route) => false);
+    });
   }
 
   @override
@@ -47,19 +50,19 @@ class _AreaState extends State<Area> {
         title: const Text("Area",style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
-      body: widget.userModel.area.isEmpty
+      body: area.isEmpty
         ? const Center(
         child:  Text(
           'No area assigned yet!',
           style: TextStyle(color: Colors.black45,fontWeight: FontWeight.bold),),)
         :ListView.builder(
-          itemCount:widget.userModel.area.length /*userArea!.length*/,
+          itemCount:area.length ,
           itemBuilder: (context,index){
                 return ListTile(
                   onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>AreaShop(areaName: widget.userModel.area[index], companyModel: widget.companyModel,userModel: widget.userModel,)));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>AreaShop(areaName: area[index], companyModel: widget.companyModel,userModel: widget.userModel,)));
                   },
-                  title: Text(widget.userModel.area[index]),
+                  title: Text(area[index]),
                 );
           }
       )

@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Company/company_details.dart';
-import 'package:stock_management/Screens/User/profile.dart';
+import 'package:stock_management/Screens/User/view_user.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Widgets/dashboard_menu.dart';
-import 'package:stock_management/Constants/routes.dart';
 
 import '../../Constants/rights.dart';
 import '../../Functions/sign_out.dart';
@@ -37,6 +36,14 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     super.initState();
     getUserAndCompanyData();
+    matchList();
+  }
+  matchList()async{
+    for(var area in _userModel.area){
+      if(_companyModel.area.contains(area)){
+        await UserDb(id: _userModel.userId).deleteUserArea(area);
+      }
+    }
   }
   getUserAndCompanyData()async{
     await UserDb(id: FirebaseAuth.instance.currentUser!.uid).getData().then((snapshot){
@@ -99,7 +106,7 @@ class _DashboardState extends State<Dashboard> {
               color: Colors.white,
               onSelected: (value){
                 if(value==0){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile(userModel: _userModel)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewUser(userId: _userModel.userId, userModel: _userModel, companyModel: _companyModel)));
                 }
                 if(value==1){
                   signOut(context);
