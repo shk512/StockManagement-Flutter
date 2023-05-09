@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/product_model.dart';
 import 'package:stock_management/Models/user_model.dart';
@@ -12,7 +11,9 @@ import '../../Widgets/text_field.dart';
 import '../Splash_Error/error.dart';
 
 class AddProduct extends StatefulWidget {
-  const AddProduct({Key? key}) : super(key: key);
+  final CompanyModel companyModel;
+  final UserModel userModel;
+  const AddProduct({Key? key,required this.userModel,required this.companyModel}) : super(key: key);
 
   @override
   State<AddProduct> createState() => _AddProductState();
@@ -26,12 +27,10 @@ class _AddProductState extends State<AddProduct> {
   TextEditingController quantityPerPiece=TextEditingController();
   String imageUrl="";
   final formKey=GlobalKey<FormState>();
-  CompanyModel _companyModel=CompanyModel();
-  UserModel _userModel=UserModel();
+
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(_companyModel,_userModel);
   }
   @override
   Widget build(BuildContext context) {
@@ -80,7 +79,7 @@ class _AddProductState extends State<AddProduct> {
   }
   saveProduct()async{
     String productId=DateTime.now().microsecondsSinceEpoch.toString();
-    await ProductDb(companyId: _companyModel.companyId, productId: productId).saveProduct(ProductModel.toJson(
+    await ProductDb(companyId: widget.companyModel.companyId, productId: productId).saveProduct(ProductModel.toJson(
         imageUrl: imageUrl,
         productId: productId,
         productName: productName.text,

@@ -1,16 +1,27 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Company/company_details.dart';
+import 'package:stock_management/Screens/User/profile.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Widgets/dashboard_menu.dart';
 import 'package:stock_management/Constants/routes.dart';
 
 import '../../Constants/rights.dart';
 import '../../Functions/sign_out.dart';
-import '../../Functions/get_data.dart';
+import '../../Services/DB/company_db.dart';
+import '../../Services/DB/user_db.dart';
+import '../Accounts/account.dart';
+import '../Area/area.dart';
+import '../Order/order.dart';
+import '../Product/product.dart';
+import '../Report/report.dart';
+import '../Shop/shop.dart';
 import '../Splash_Error/error.dart';
+import '../Stock/stock.dart';
+import '../User/user.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -25,32 +36,49 @@ class _DashboardState extends State<Dashboard> {
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(_companyModel,_userModel);
-   // getProfileStatus();
+    getUserAndCompanyData();
   }
- /* getProfileStatus(){
-    if(UserModel.isDeleted){
+  getUserAndCompanyData()async{
+    await UserDb(id: FirebaseAuth.instance.currentUser!.uid).getData().then((snapshot){
       setState(() {
-        isUserDeleted=true;
+        _userModel.userId=snapshot["userId"];
+        _userModel.companyId=snapshot["companyId"];
+        _userModel.name=snapshot["name"];
+        _userModel.salary=snapshot["salary"];
+        _userModel.mail=snapshot["mail"];
+        _userModel.phone=snapshot["phone"];
+        _userModel.wallet=snapshot["wallet"];
+        _userModel.role=snapshot["role"];
+        _userModel.designation=snapshot["designation"];
+        _userModel.isDeleted=snapshot["isDeleted"];
+        _userModel.area=List.from(snapshot["area"]);
+        _userModel.rights=List.from(snapshot["right"]);
       });
-      SPF.saveUserLogInStatus(false);
-    }
-    if(!CompanyModel.isPackageActive){
+    }).onError((error, stackTrace){
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())), (route) => false);
+    });
+    await CompanyDb(id: _userModel.companyId).getData().then((snapshot){
       setState(() {
-        isCompanyExpired=true;
+        _companyModel.imageUrl=snapshot["imageUrl"];
+        _companyModel.companyId=snapshot['companyId'];
+        _companyModel.contact=snapshot['contact'];
+        _companyModel.isPackageActive= snapshot['isPackageActive'];
+        _companyModel.packageEndsDate= snapshot['packageEndsDate'];
+        _companyModel.companyName= snapshot['companyName'];
+        _companyModel.area=snapshot['area'];
+        _companyModel.wallet=snapshot['wallet'];
+        _companyModel.packageType=snapshot["packageType"];
+        _companyModel.whatsApp=snapshot["whatsApp"];
+        _companyModel.city=snapshot["city"];
+        _companyModel.location=snapshot["geoLocation"];
       });
-      SPF.saveUserLogInStatus(false);
-    }
-  }*/
+    }).onError((error, stackTrace){
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())), (route) => false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    if(_userModel.isDeleted){
-      return const ErrorScreen(error: "Oops! Account has been deleted");
-    }
-    if(!_companyModel.isPackageActive){
-      return const ErrorScreen(error: "Oops! Company package has been expired.\nContact your company.\nIf you are a company then contact the developer team.");
-    }else{
       return _companyModel.companyName.isEmpty
           ? const Center(child: CircularProgressIndicator(),)
           :Scaffold(
@@ -58,7 +86,7 @@ class _DashboardState extends State<Dashboard> {
           leading: GestureDetector(
             onTap: (){
               if(_userModel.rights.contains(Rights.viewCompany)||_userModel.rights.contains(Rights.all)){
-                Navigator.push(context,MaterialPageRoute(builder: (context)=>const CompanyDetails()));
+                Navigator.push(context,MaterialPageRoute(builder: (context)=>CompanyDetails(userModel: _userModel,companyModel: _companyModel,)));
               }
             },
             child: CircleAvatar(
@@ -71,7 +99,7 @@ class _DashboardState extends State<Dashboard> {
               color: Colors.white,
               onSelected: (value){
                 if(value==0){
-                  Navigator.pushNamed(context, Routes.profile);
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile(userModel: _userModel)));
                 }
                 if(value==1){
                   signOut(context);
@@ -96,25 +124,24 @@ class _DashboardState extends State<Dashboard> {
             child: Column(
                 children: [
                   _userModel.rights.contains(Rights.viewOrder)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Track Order", route: Routes.order, icon: Icons.directions, clr: Colors.lightGreen.shade600):const SizedBox(),
+                      ? DashboardMenu(name: "Track Order", route: Order(userModel: _userModel,companyModel: _companyModel,), icon: Icons.directions, clr: Colors.lightGreen.shade600):const SizedBox(),
                   _userModel.rights.contains(Rights.placeOrder)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Place Order", route: Routes.area, icon:Icons.add_shopping_cart, clr: Colors.lightGreen.shade500):const SizedBox(),
+                      ? DashboardMenu(name: "Place Order", route: Area(companyModel: _companyModel,userModel: _userModel,), icon:Icons.add_shopping_cart, clr: Colors.lightGreen.shade500):const SizedBox(),
                   _userModel.rights.contains(Rights.viewStock)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Stock", route: Routes.stock, icon: Icons.cached_outlined, clr: Colors.lightGreen.shade400):const SizedBox(),
+                      ? DashboardMenu(name: "Stock", route: Stock(userModel: _userModel,companyModel: _companyModel,), icon: Icons.cached_outlined, clr: Colors.lightGreen.shade400):const SizedBox(),
                   _userModel.rights.contains(Rights.viewUser)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "User", route: Routes.employee, icon: CupertinoIcons.person_2, clr: Colors.lightGreen.shade300):const SizedBox(),
+                      ? DashboardMenu(name: "User", route: Employee(companyModel: _companyModel,userModel: _userModel,), icon: CupertinoIcons.person_2, clr: Colors.lightGreen.shade300):const SizedBox(),
                   _userModel.rights.contains(Rights.viewProduct)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Product", route: Routes.product, icon: Icons.add_circle_outline, clr: Colors.lightGreen.shade400):const SizedBox(),
+                      ? DashboardMenu(name: "Product", route: Product(userModel: _userModel,companyModel: _companyModel,), icon: Icons.add_circle_outline, clr: Colors.lightGreen.shade400):const SizedBox(),
                   _userModel.rights.contains(Rights.viewShop)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Shop", route: Routes.shop, icon:Icons.storefront, clr: Colors.lightGreen.shade500):const SizedBox(),
+                      ? DashboardMenu(name: "Shop", route: Shop(userModel: _userModel,companyModel: _companyModel,), icon:Icons.storefront, clr: Colors.lightGreen.shade500):const SizedBox(),
                   _userModel.rights.contains(Rights.viewReport)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Report", route: Routes.report, icon:Icons.description, clr: Colors.lightGreen.shade600):const SizedBox(),
+                      ? DashboardMenu(name: "Report", route: Report(), icon:Icons.description, clr: Colors.lightGreen.shade600):const SizedBox(),
                   _userModel.rights.contains(Rights.viewTransactions)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Accounts", route: Routes.accounts, icon: Icons.account_balance_outlined, clr: Colors.lightGreen.shade700):const SizedBox(),
+                      ? DashboardMenu(name: "Accounts", route: Accounts(), icon: Icons.account_balance_outlined, clr: Colors.lightGreen.shade700):const SizedBox(),
                 ],
               ),
             )
       );
-    }
   }
 }

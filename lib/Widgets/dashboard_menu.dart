@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DashboardMenu extends StatelessWidget {
-  final String route;
+  final Widget route;
   final Color clr;
   final String name;
   final IconData icon;
@@ -13,7 +13,7 @@ class DashboardMenu extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
       child: InkWell(
         onTap: (){
-          Navigator.pushNamed(context,route);
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>route));
         },
         child: Container(
           decoration: BoxDecoration(

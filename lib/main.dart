@@ -1,36 +1,32 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Screens/Company/company_details.dart';
-import 'package:stock_management/Screens/Company/edit_comapny.dart';
-import 'package:stock_management/Screens/Order/order_form.dart';
-import 'package:stock_management/Screens/Product/add_product.dart';
-import 'package:stock_management/Screens/Shop/add_shop.dart';
 import 'package:stock_management/Screens/Splash_Error/splash.dart';
+import 'package:stock_management/Services/shared_preferences/spf.dart';
 import 'package:stock_management/firebase_options.dart';
 import 'package:stock_management/Constants/routes.dart';
-import 'Screens/Accounts/account.dart';
-import 'Screens/Area/area.dart';
 import 'Screens/Dashboard/dashboard.dart';
-import 'Screens/Order/order.dart';
-import 'Screens/Product/product.dart';
-import 'Screens/Report/report.dart';
-import 'Screens/User/profile.dart';
 import 'Screens/RegisterLogin/login.dart';
 import 'Screens/RegisterLogin/new_company.dart';
-import 'Screens/Shop/shop.dart';
-import 'Screens/Stock/stock.dart';
-import 'Screens/User/user.dart';
 
 void main() async{
+  bool logInStatus=false;
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  await SPF.getLogInStatus().then((value){
+    if(value==null){
+      logInStatus=false;
+    }else{
+      logInStatus=true;
+    }
+  });
+  runApp(MyApp(logInStatus: logInStatus,));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool logInStatus;
+  const MyApp({super.key,required this.logInStatus});
 
   // This widget is the root of your application.
   @override
@@ -45,22 +41,10 @@ class MyApp extends StatelessWidget {
       //home: const Area(),
       initialRoute: Routes.splash,
       routes: {
-        Routes.companyDetails:(context)=>const CompanyDetails(),
-        Routes.editCompany:(context)=>const EditCompany(),
-        Routes.area:(context)=>const Area(),
-        Routes.shop:(context)=>const Shop(),
         Routes.newCompany:(context)=>const NewCompany(),
-        Routes.splash:(context) => const SplashScreen(),
+        Routes.splash:(context) => SplashScreen(logInStatus: logInStatus,),
         Routes.login:(context)=>const Login(),
         Routes.dashboard: (context) => const Dashboard(),
-        Routes.accounts: (context) => const Accounts(),
-        Routes.employee: (context) => const Employee(),
-        Routes.order: (context) => const Order(),
-        Routes.product: (context) => const Product(),
-        Routes.addProduct:(context)=>const AddProduct(),
-        Routes.stock:(context)=>const Stock(),
-        Routes.report:(context)=>const Report(),
-        Routes.profile:(context)=>const Profile()
       },
     );
   }

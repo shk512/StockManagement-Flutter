@@ -1,18 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
+import 'package:stock_management/Screens/Product/add_product.dart';
 import 'package:stock_management/Screens/Product/edit_product.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/product_db.dart';
-import 'package:stock_management/Widgets/floating_action_button.dart';
 
-import '../../Constants/routes.dart';
 import '../../utils/snack_bar.dart';
 
 class Product extends StatefulWidget {
-  const Product({Key? key}) : super(key: key);
+  final CompanyModel companyModel;
+  final UserModel userModel;
+  const Product({Key? key,required this.userModel,required this.companyModel}) : super(key: key);
 
   @override
   State<Product> createState() => _ProductState();
@@ -25,7 +25,6 @@ class _ProductState extends State<Product> {
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(_companyModel,_userModel);
     getProducts();
   }
   getProducts()async{
@@ -49,7 +48,13 @@ class _ProductState extends State<Product> {
         title: const Text("Product",style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
-      floatingActionButton:const FloatingActionBtn(route: Routes.addProduct, name: "Product"),
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: (){
+            Navigator.push(context,MaterialPageRoute(builder: (context)=>AddProduct(userModel: widget.userModel, companyModel: widget.companyModel)));
+          },
+          icon: const Icon(Icons.add,color: Colors.white,),
+          label: const Text("Product",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
+      ),
       body:  StreamBuilder(
           stream: products,
           builder: (context,AsyncSnapshot snapshot){
@@ -70,7 +75,7 @@ class _ProductState extends State<Product> {
                     }else{
                       return ListTile(
                         onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProduct(productId: snapshot.data.docs[index]["productId"])));
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProduct(productId: snapshot.data.docs[index]["productId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
                         },
                         title: Text(snapshot.data.docs[index]["productName"]),
                         subtitle: Text("Price: ${snapshot.data.docs[index]["totalPrice"]} Rs."),

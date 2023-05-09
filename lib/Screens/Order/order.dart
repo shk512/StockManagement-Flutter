@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
@@ -10,7 +9,9 @@ import '../../Constants/rights.dart';
 
 
 class Order extends StatefulWidget {
-  const Order({Key? key}) : super(key: key);
+  final CompanyModel companyModel;
+  final UserModel userModel;
+  const Order({Key? key,required this.userModel,required this.companyModel}) : super(key: key);
 
   @override
   State<Order> createState() => _OrderState();
@@ -20,17 +21,14 @@ class _OrderState extends State<Order> {
   Stream? order;
   String tab="Processing".toUpperCase();
   TextEditingController searchController=TextEditingController();
-  CompanyModel _companyModel=CompanyModel();
-  UserModel _userModel=UserModel();
 
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(_companyModel,_userModel);
     getOrderData();
   }
   getOrderData()async{
-    await OrderDB(companyId: _companyModel.companyId, orderId: "").getOrder().then((value) {
+    await OrderDB(companyId: widget.companyModel.companyId, orderId: "").getOrder().then((value) {
       setState(() {
         order=value;
       });
@@ -178,7 +176,7 @@ class _OrderState extends State<Order> {
                             /*
                               * ENTERTAINS COMPANY
                               * */
-                            if(_userModel.rights.contains(Rights.all)){
+                            if(widget.userModel.rights.contains(Rights.all)){
                               if(tab.toUpperCase()=="All".toUpperCase()){
                                 return  listTile(snapshot.data.docs[index]);
                               }else{
@@ -192,7 +190,7 @@ class _OrderState extends State<Order> {
                             /*
                               * ENTERTAINS EMPLOYEE
                               * */
-                            else if(snapshot.data.docs[index]["userId"]==_userModel.userId){
+                            else if(snapshot.data.docs[index]["userId"]==widget.userModel.userId){
                               if(tab.toUpperCase()=="All".toUpperCase()){
                                 return  listTile(snapshot.data.docs[index]);
                               }else{
@@ -215,7 +213,7 @@ class _OrderState extends State<Order> {
                               /*
                               * ENTERTAINS COMPANY
                               * */
-                              if(_userModel.rights.contains(Rights.all)){
+                              if(widget.userModel.rights.contains(Rights.all)){
                                 if(tab.toUpperCase()=="All".toUpperCase()){
                                   return  listTile(snapshot.data.docs[index]);
                                 }else{
@@ -229,7 +227,7 @@ class _OrderState extends State<Order> {
                               /*
                               * ENTERTAINS EMPLOYEE
                               * */
-                              else if(snapshot.data.docs[index]["orderBy"]==_userModel.userId||snapshot.data.docs[index]["deliverBy"]==_userModel.userId||snapshot.data.docs[index]["shopId"]==_userModel.userId){
+                              else if(snapshot.data.docs[index]["orderBy"]==widget.userModel.userId||snapshot.data.docs[index]["deliverBy"]==widget.userModel.userId||snapshot.data.docs[index]["shopId"]==widget.userModel.userId){
                                 if(tab.toUpperCase()=="All".toUpperCase()){
                                   return  listTile(snapshot.data.docs[index]);
                                 }else{

@@ -1,7 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Services/DB/product_db.dart';
 
@@ -12,8 +10,10 @@ import '../../utils/snack_bar.dart';
 import '../Splash_Error/error.dart';
 
 class EditProduct extends StatefulWidget {
+  final CompanyModel companyModel;
+  final UserModel userModel;
   final String productId;
-  const EditProduct({Key? key,required this.productId}) : super(key: key);
+  const EditProduct({Key? key,required this.productId,required this.userModel,required this.companyModel}) : super(key: key);
 
   @override
   State<EditProduct> createState() => _EditProductState();
@@ -26,16 +26,14 @@ class _EditProductState extends State<EditProduct> {
   TextEditingController minPrice=TextEditingController();
   TextEditingController quantityPerPiece=TextEditingController();
   final formKey=GlobalKey<FormState>();
-  CompanyModel _companyModel=CompanyModel();
-  UserModel _userModel=UserModel();
+
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(_companyModel,_userModel);
     getProductDetails();
   }
   getProductDetails()async{
-    await ProductDb(companyId: _companyModel.companyId, productId: widget.productId).getProductDetails().then((value){
+    await ProductDb(companyId: widget.companyModel.companyId, productId: widget.productId).getProductDetails().then((value){
       setState(() {
         productName.text=value["productName"];
         description.text=value["description"];
@@ -91,7 +89,7 @@ class _EditProductState extends State<EditProduct> {
     );
   }
   updateProduct()async{
-    await ProductDb(companyId: _companyModel.companyId, productId: widget.productId).updateProduct({
+    await ProductDb(companyId: widget.companyModel.companyId, productId: widget.productId).updateProduct({
           "productName":productName.text,
           "description":description.text,
           "totalPrice":int.parse(totalPrice.text),

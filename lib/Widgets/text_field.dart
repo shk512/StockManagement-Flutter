@@ -17,7 +17,7 @@ class _TxtFieldState extends State<TxtField> {
   @override
   Widget build(BuildContext context) {
     return  Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 5,vertical: 5),
       child: Row(
         children: [
           Expanded(

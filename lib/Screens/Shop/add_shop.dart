@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Functions/location.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/shop_model.dart';
@@ -14,8 +13,10 @@ import '../../Models/user_model.dart';
 import '../../Widgets/num_field.dart';
 
 class AddShop extends StatefulWidget {
+  final CompanyModel companyModel;
+  final UserModel userModel;
   final String areaName;
-  const AddShop({Key? key,required this.areaName}) : super(key: key);
+  const AddShop({Key? key,required this.areaName,required this.userModel,required this.companyModel}) : super(key: key);
 
   @override
   State<AddShop> createState() => _AddShopState();
@@ -30,13 +31,10 @@ class _AddShopState extends State<AddShop> {
   TextEditingController contact=TextEditingController();
   TextEditingController nearBy=TextEditingController();
   final formKey=GlobalKey<FormState>();
-  CompanyModel _companyModel=CompanyModel();
-  UserModel _userModel=UserModel();
 
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(_companyModel, _userModel);
     getCurrentLocation(context).then((value){
       setState(() {
         lat=value.latitude;
@@ -89,7 +87,7 @@ class _AddShopState extends State<AddShop> {
   }
   saveShop()async{
     String shopId=DateTime.now().microsecondsSinceEpoch.toString();
-    await ShopDB(companyId: _companyModel.companyId, shopId: shopId).saveShop(ShopModel.toJson(
+    await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).saveShop(ShopModel.toJson(
         shopId: shopId,
         areaName: widget.areaName,
         isActive: true,

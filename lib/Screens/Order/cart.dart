@@ -1,12 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Functions/location.dart';
 import 'package:stock_management/Functions/update_data.dart';
 import 'package:stock_management/Models/company_model.dart';
+import 'package:stock_management/Screens/Area/area.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
 import 'package:stock_management/utils/snack_bar.dart';
@@ -14,12 +13,13 @@ import 'package:stock_management/utils/snack_bar.dart';
 import '../../Models/order_model.dart';
 import '../../Models/user_model.dart';
 import '../../Services/DB/product_db.dart';
-import '../../Constants/routes.dart';
 
 class Cart extends StatefulWidget {
   final String shopId;
   final String shopDetails;
-  const Cart({Key? key,required this.shopDetails,required this.shopId}) : super(key: key);
+  final CompanyModel companyModel;
+  final UserModel userModel;
+  const Cart({Key? key,required this.shopDetails,required this.shopId,required this.userModel,required this.companyModel}) : super(key: key);
 
   @override
   State<Cart> createState() => _CartState();
@@ -31,13 +31,10 @@ class _CartState extends State<Cart> {
   num advanceAmount=0;
   var lat;
   var lng;
-  CompanyModel _companyModel=CompanyModel();
-  UserModel _userModel=UserModel();
 
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(_companyModel,_userModel);
     getCurrentLocation(context).then((value){
       lat=value.latitude;
       lng=value.longitude;
@@ -93,7 +90,7 @@ class _CartState extends State<Cart> {
                       subtitle: Text("Detail: ${OrderModel.products[index]["totalQuantity"]}x${OrderModel.products[index]["minPrice"]}=${OrderModel.products[index]["totalPrice"]}"),
                       trailing: IconButton(
                           onPressed: ()async{
-                            await ProductDb(companyId: _companyModel.companyId, productId: OrderModel.products[index]["productId"]).increment(OrderModel.products[index]["totalQuantity"]).then((value){
+                            await ProductDb(companyId: widget.companyModel.companyId, productId: OrderModel.products[index]["productId"]).increment(OrderModel.products[index]["totalQuantity"]).then((value){
                               showSnackbar(context, Colors.red, "Removed");
                               setState(() {
                                 OrderModel.totalAmount-=OrderModel.products[index]["totalPrice"];
@@ -155,10 +152,10 @@ class _CartState extends State<Cart> {
         .now()
         .microsecondsSinceEpoch
         .toString();
-    await OrderDB(companyId: _companyModel.companyId, orderId: orderId)
+    await OrderDB(companyId: widget.companyModel.companyId, orderId: orderId)
         .saveOrder(OrderModel.toJson(
         orderId: orderId,
-        userId: _userModel.userId,
+        userId: widget.userModel.userId,
         shopId: widget.shopId,
         shopDetails: widget.shopDetails,
         status: "Processing".toUpperCase(),
@@ -175,9 +172,9 @@ class _CartState extends State<Cart> {
     )
     ).then((value) {
       if (value == true) {
-        _userModel.wallet=advanceAmount;
-        updateUserData(context,_userModel);
-        Navigator.pushNamedAndRemoveUntil(context, Routes.area, (route) => false);
+        widget.userModel.wallet=advanceAmount;
+        updateUserData(context,widget.userModel);
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>Area(companyModel: widget.companyModel, userModel: widget.userModel)), (route) => false);
         showSnackbar(context, Colors.cyan, "Order has been placed");
         setState(() {
           OrderModel.products=[];

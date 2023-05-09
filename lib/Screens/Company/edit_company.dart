@@ -1,11 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:stock_management/Functions/get_data.dart';
-import 'package:stock_management/Functions/update_data.dart';
 import 'package:stock_management/Models/company_model.dart';
-import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Services/DB/company_db.dart';
@@ -13,7 +8,8 @@ import '../../Widgets/num_field.dart';
 import '../../Widgets/text_field.dart';
 
 class EditCompany extends StatefulWidget {
-  const EditCompany({Key? key}) : super(key: key);
+  final CompanyModel companyModel;
+  const EditCompany({Key? key,required this.companyModel}) : super(key: key);
 
   @override
   State<EditCompany> createState() => _EditCompanyState();
@@ -26,21 +22,16 @@ class _EditCompanyState extends State<EditCompany> {
   String imageUrl="";
   bool isLoading = false;
   final formKey = GlobalKey<FormState>();
-  CompanyModel _companyModel=CompanyModel();
-  UserModel _userModel=UserModel();
 
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(_companyModel,_userModel).then((value){
       setState(() {
-        companyName.text=_companyModel.companyName;
-        city.text=_companyModel.city;
-        phone.text=_companyModel.contact;
-        imageUrl=_companyModel.imageUrl;
+        companyName.text=widget.companyModel.companyName;
+        city.text=widget.companyModel.city;
+        phone.text=widget.companyModel.contact;
+        imageUrl=widget.companyModel.imageUrl;
       });
-    });
-
   }
 
   @override
@@ -53,7 +44,7 @@ class _EditCompanyState extends State<EditCompany> {
           },
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
-        title: Text(_companyModel.companyName,style: const TextStyle(color: Colors.white),),
+        title: Text(widget.companyModel.companyName,style: const TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -86,11 +77,11 @@ class _EditCompanyState extends State<EditCompany> {
       setState(() {
         isLoading=true;
       });
-      _companyModel.companyName=companyName.text;
-      _companyModel.contact=phone.text;
-      _companyModel.city=city.text;
-      _companyModel.imageUrl=imageUrl;
-      await CompanyDb(id: _companyModel.companyId).updateCompany(_companyModel.toJson()).then((value)async{
+      widget.companyModel.companyName=companyName.text;
+      widget.companyModel.contact=phone.text;
+      widget.companyModel.city=city.text;
+      widget.companyModel.imageUrl=imageUrl;
+      await CompanyDb(id: widget.companyModel.companyId).updateCompany(widget.companyModel.toJson()).then((value)async{
         showSnackbar(context, Colors.cyan, "Updated");
         Navigator.pop(context);
       }).onError((error, stackTrace){

@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/product_db.dart';
@@ -10,7 +9,9 @@ import 'package:stock_management/utils/snack_bar.dart';
 import '../../Models/user_model.dart';
 
 class Stock extends StatefulWidget {
-  const Stock({Key? key}) : super(key: key);
+  final CompanyModel companyModel;
+  final UserModel userModel;
+  const Stock({Key? key,required this.userModel,required this.companyModel}) : super(key: key);
 
   @override
   State<Stock> createState() => _StockState();
@@ -18,16 +19,13 @@ class Stock extends StatefulWidget {
 
 class _StockState extends State<Stock> {
   Stream? products;
-  CompanyModel _companyModel=CompanyModel();
-  UserModel _userModel=UserModel();
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(_companyModel,_userModel);
     getProducts();
   }
   getProducts()async{
-    ProductDb(companyId: _companyModel.companyId, productId: "").getProducts().then((value){
+    ProductDb(companyId: widget.companyModel.companyId, productId: "").getProducts().then((value){
       setState(() {
         products=value;
       });
@@ -66,7 +64,7 @@ class _StockState extends State<Stock> {
                     return ListTile(
                       title: Text(snapshot.data.docs[index]["productName"]),
                       subtitle: Text(snapshot.data.docs[index]["totalQuantity"].toString()),
-                      trailing: _userModel.role == "manager".toUpperCase()
+                      trailing:  widget.userModel.role == "manager".toUpperCase()
                           ? InkWell(
                           onTap: () {
                             showStockInputDialogue(
@@ -120,7 +118,7 @@ class _StockState extends State<Stock> {
         });
   }
   updateStock(num quantity,String productId)async{
-    await ProductDb(companyId: _companyModel.companyId, productId: productId).increment(quantity).then((value){
+    await ProductDb(companyId:  widget.companyModel.companyId, productId: productId).increment(quantity).then((value){
       if(value==true){
         showSnackbar(context,Colors.cyan, "Updated");
         setState(() {

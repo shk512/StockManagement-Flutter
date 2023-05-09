@@ -1,14 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
+import 'package:stock_management/Screens/User/view_user.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 
 import '../RegisterLogin/signup.dart';
 
 class Employee extends StatefulWidget {
-  const Employee({Key? key}) : super(key: key);
+  final CompanyModel companyModel;
+  final UserModel userModel;
+  const Employee({Key? key,required this.companyModel,required this.userModel}) : super(key: key);
 
   @override
   State<Employee> createState() => _EmployeeState();
@@ -16,13 +18,10 @@ class Employee extends StatefulWidget {
 
 class _EmployeeState extends State<Employee> {
   Stream? user;
-  CompanyModel _companyModel=CompanyModel();
-  UserModel _userModel=UserModel();
 
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(_companyModel, _userModel);
     getUser();
   }
   getUser()async{
@@ -46,7 +45,7 @@ class _EmployeeState extends State<Employee> {
       ),
       floatingActionButton: FloatingActionButton.extended(
           onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>Signup(companyId: _companyModel.companyId)));
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>Signup(companyId: widget.companyModel.companyId)));
           },
           icon: const Icon(Icons.add,color: Colors.white,),
           label: const Text("User",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
@@ -63,11 +62,14 @@ class _EmployeeState extends State<Employee> {
             return ListView.builder(
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context,index){
-                  if(_companyModel.companyId==snapshot.data.docs[index]["companyId"]){
+                  if(widget.companyModel.companyId==snapshot.data.docs[index]["companyId"]&&snapshot.data.docs[index]["isDeleted"]==false){
                     return ListTile(
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewUser(userId: snapshot.data.docs[index]["userId"], userModel: widget.userModel,companyModel: widget.companyModel,)));
+                      },
                         title: Text("${snapshot.data.docs[index]["name"]}"),
-                  subtitle: Text("${snapshot.data.docs[index]["phone"]}"),
-                  trailing: Text("${snapshot.data.docs[index]["designation"]}"));
+                        subtitle: Text("${snapshot.data.docs[index]["phone"]}"),
+                        trailing: Text("${snapshot.data.docs[index]["designation"]}"));
                   }else{
                     return const SizedBox();
                   }

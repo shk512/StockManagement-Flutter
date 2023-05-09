@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/product_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Order/cart.dart';
@@ -19,7 +17,9 @@ import '../../Models/order_model.dart';
 
 class OrderForm extends StatefulWidget {
   final String shopId;
-  const OrderForm({Key? key,required this.shopId}) : super(key: key);
+  final CompanyModel companyModel;
+  final UserModel userModel;
+  const OrderForm({Key? key,required this.shopId,required this.companyModel,required this.userModel}) : super(key: key);
 
   @override
   State<OrderForm> createState() => _OrderFormState();
@@ -29,17 +29,15 @@ class _OrderFormState extends State<OrderForm> {
   String shopName="";
   String shopDetails="";
   Stream? products;
-  CompanyModel _companyModel=CompanyModel();
-  UserModel _userModel=UserModel();
+
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData(_companyModel,_userModel);
     getProducts();
     getShopDetails();
   }
   getShopDetails()async{
-    await ShopDB(companyId: _companyModel.companyId, shopId: widget.shopId).getShopDetails().then((value){
+    await ShopDB(companyId: widget.companyModel.companyId, shopId: widget.shopId).getShopDetails().then((value){
       setState(() {
         shopName=value["shopName"];
         shopDetails="${value["shopName"]},\t near ${value["nearBy"]},\t ${value["areaId"]}";
@@ -49,7 +47,7 @@ class _OrderFormState extends State<OrderForm> {
     });
   }
   getProducts()async{
-    await ProductDb(companyId: _companyModel.companyId, productId: "").getProducts().then((value) {
+    await ProductDb(companyId: widget.companyModel.companyId, productId: "").getProducts().then((value) {
       setState(() {
         products=value;
       });
@@ -78,7 +76,7 @@ class _OrderFormState extends State<OrderForm> {
                 width: 30.0,
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.push(context,MaterialPageRoute(builder: (context)=>Cart(shopId: widget.shopId,shopDetails: shopDetails,)));
+                    Navigator.push(context,MaterialPageRoute(builder: (context)=>Cart(shopId: widget.shopId,shopDetails: shopDetails, userModel: widget.userModel,companyModel: widget.companyModel,)));
                   },
 
                   child: Stack(
@@ -241,9 +239,9 @@ class _OrderFormState extends State<OrderForm> {
                           totalQuantity: int.parse(quantity.toString())
                       )
                      );
-                     await ProductDb(companyId: _companyModel.companyId, productId: snapshot["productId"]).decrement(quantity).then((value)async{
+                     await ProductDb(companyId: widget.companyModel.companyId, productId: snapshot["productId"]).decrement(quantity).then((value)async{
                        String formattedDate=DateFormat("yyyy-MM-dd").format(DateTime.now());
-                       await ReportDb(companyId: _companyModel.companyId, productId: snapshot["productId"]).increment(quantity, formattedDate).then((value){
+                       await ReportDb(companyId: widget.companyModel.companyId, productId: snapshot["productId"]).increment(quantity, formattedDate).then((value){
                          Navigator.pop(context);
                          showSnackbar(context, Colors.cyan, "Added to cart");
                          setState(() {

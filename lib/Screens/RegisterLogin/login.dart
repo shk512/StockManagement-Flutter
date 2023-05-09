@@ -1,10 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
-import 'package:stock_management/Screens/Dashboard/dashboard.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Widgets/text_field.dart';
 import 'package:stock_management/utils/snack_bar.dart';
@@ -26,33 +23,15 @@ class _LoginState extends State<Login> {
   final formKey=GlobalKey<FormState>();
   Auth auth=Auth();
   bool isLoading=false;
-  bool logInStatus=false;
 
   @override
   void initState() {
     super.initState();
-    checkLoginStatus();
-  }
-  checkLoginStatus() async{
-    await SPF.getLogInStatus().then((value){
-      if(value==null){
-        setState(() {
-          logInStatus=false;
-        });
-      }else{
-        setState(() {
-          logInStatus=value;
-        });
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if(logInStatus){
-      return const Dashboard();
-    }else{
-      return Scaffold(
+     return Scaffold(
         body: isLoading
             ?const Center(child: CircularProgressIndicator())
             :Padding(
@@ -102,8 +81,6 @@ class _LoginState extends State<Login> {
             ),
       );
     }
-
-  }
   login() async{
     if(formKey.currentState!.validate()){
       setState(() {
@@ -112,6 +89,7 @@ class _LoginState extends State<Login> {
       await auth.signInWithEmailAndPassword(mail.text, pass.text).then((value)async{
         if(value==true){
           await SPF.saveUserLogInStatus(true);
+          Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
         }else{
           setState(() {
             isLoading=false;

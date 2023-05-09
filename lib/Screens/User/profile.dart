@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Functions/get_data.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Widgets/row_info_display.dart';
 
@@ -8,20 +7,14 @@ import '../../Models/company_model.dart';
 
 
 class Profile extends StatefulWidget {
-  const Profile({Key? key}) : super(key: key);
+  final UserModel userModel;
+  const Profile({Key? key,required this.userModel}) : super(key: key);
 
   @override
   State<Profile> createState() => _ProfileState();
 }
 
 class _ProfileState extends State<Profile> {
-  CompanyModel _companyModel=CompanyModel();
-  UserModel _userModel=UserModel();
-  @override
-  void initState() {
-    super.initState();
-    getUserAndCompanyData(_companyModel,_userModel);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +33,7 @@ class _ProfileState extends State<Profile> {
           Padding(
               padding:const EdgeInsets.symmetric(horizontal: 10,vertical: 20),
               child: Text(
-                "Rs. ${_userModel.wallet}",
+                "Rs. ${widget.userModel.wallet}",
                 style: const TextStyle(fontSize: 17,color: Colors.white),textAlign: TextAlign.center,),),
         ],
       ),
@@ -51,17 +44,17 @@ class _ProfileState extends State<Profile> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              RowInfoDisplay(label: "Email", value: _userModel.mail.toLowerCase()),
+              RowInfoDisplay(label: "Email", value: widget.userModel.mail.toLowerCase()),
               const SizedBox(height: 10),
-              RowInfoDisplay(label: "Name", value: _userModel.name.toUpperCase()),
+              RowInfoDisplay(label: "Name", value: widget.userModel.name.toUpperCase()),
               const SizedBox(height: 10),
-              RowInfoDisplay(label:"Contact", value: _userModel.phone),
+              RowInfoDisplay(label:"Contact", value: widget.userModel.phone),
               const SizedBox(height: 10),
-              _userModel.designation.isNotEmpty?RowInfoDisplay(label: "Designation", value: _userModel.designation.toUpperCase()):const SizedBox(),
+              widget.userModel.designation.isNotEmpty?RowInfoDisplay(label: "Designation", value: widget.userModel.designation.toUpperCase()):const SizedBox(),
               const SizedBox(height: 10),
-              _userModel.salary!=0?RowInfoDisplay(label: "Salary", value:_userModel.salary.toString()):const SizedBox(),
+              widget.userModel.salary!=0?RowInfoDisplay(label: "Salary", value:widget.userModel.salary.toString()):const SizedBox(),
               const SizedBox(height: 10),
-              _userModel.role=="shop keeper".toUpperCase()
+              widget.userModel.role=="shop keeper".toUpperCase()
                   ?Container()
                   :const Align(
                 alignment: Alignment.center,
@@ -77,7 +70,7 @@ class _ProfileState extends State<Profile> {
 
   Widget areaList(){
     return Column(
-            children: _userModel.area.map((e) => Align(
+            children: widget.userModel.area.map((e) => Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 5),

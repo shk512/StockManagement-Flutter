@@ -4,7 +4,8 @@ import 'dart:math' as math;
 import '../../Constants/routes.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  final bool logInStatus;
+  const SplashScreen({Key? key,required this.logInStatus}) : super(key: key);
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -20,7 +21,11 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   void initState() {
     super.initState();
     Timer(const Duration(seconds: 5), (){
-      Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+      if(widget.logInStatus){
+        Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
+      }else{
+        Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+      }
     });
 
 
