@@ -9,7 +9,9 @@ class AccountModel{
 
   static Map<String,dynamic> toJson({
     required String transactionId,
+    required String transactionBy,
     required String desc,
+    required String narration,
     required num amount,
     required String type,
     required String dateTime
@@ -17,6 +19,8 @@ class AccountModel{
     return{
       "transactionId":transactionId,
       "type":type,
+      "transactionBy":transactionBy,
+      "narration":narration,
       "description":desc,
       "amount":amount,
       "date":dateTime

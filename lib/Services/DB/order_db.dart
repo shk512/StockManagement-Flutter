@@ -21,6 +21,12 @@ class OrderDB{
     return true;
   }
 
+  //update Order
+  Future updateOrder(Map<String,dynamic> mapData)async{
+    await companyCollection.doc(companyId).collection("order").doc(orderId).update(mapData);
+    return true;
+  }
+
   //get Order By Id
   Future getOrderById()async{
     return companyCollection.doc(companyId).collection("order").doc(orderId).get();

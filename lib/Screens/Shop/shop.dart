@@ -1,11 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Models/account_model.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Shop/edit_shop.dart';
+import 'package:stock_management/Services/DB/account_db.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
+import 'package:stock_management/Widgets/num_field.dart';
+import 'package:stock_management/utils/enum.dart';
 
+import '../../Constants/narration.dart';
 import '../../Constants/rights.dart';
 import '../../utils/snack_bar.dart';
 import '../Splash_Error/error.dart';
@@ -167,18 +172,27 @@ class _ShopState extends State<Shop> {
           Navigator.push(context, MaterialPageRoute(builder: (context)=>EditShop(shopId: snapshot["shopId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
         }
       },
-      leading: tab=="all".toUpperCase()?Icon(Icons.brightness_1,size: 10,color: snapshot["isActive"]?Colors.green:Colors.red,):const SizedBox(),
+      leading: tab=="all".toUpperCase()
+          ? IconButton(
+        onPressed: (){
+          if(widget.userModel.rights.contains(Rights.changeShopStatus)|| widget.userModel.rights.contains(Rights.all)){
+            updateStatus(snapshot);
+          }
+        },
+        icon: Icon(Icons.brightness_1,size: 10,color: snapshot["isActive"]?Colors.green:Colors.red,)
+      ):const SizedBox(),
       title: Text("${snapshot["shopName"]}-${snapshot["areaId"]}"),
       subtitle: Text("${snapshot["ownerName"]}\t${snapshot["contact"]}"),
       isThreeLine: true,
-      trailing: widget.userModel.rights.contains(Rights.changeShopStatus)|| widget.userModel.rights.contains(Rights.all)
-          ?  ElevatedButton(
-        child: Text(snapshot["isActive"]?"Inactive":"Active",style: const TextStyle(color: Colors.white),),
+      trailing: ElevatedButton.icon(
         onPressed: () {
-          updateStatus(snapshot);
+          if(widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all)||snapshot["wallet"]!=0){
+            showTransactionDialogue(snapshot["shopId"],"${snapshot["shopName"]}-${snapshot["areaId"]}");
+          }
         },
+        icon: Icon(Icons.wallet,color: Colors.white,),
+        label: Text("${snapshot["wallet"]}",style: TextStyle(color: Colors.white),),
       )
-          :const SizedBox(height: 0,),
     );
   }
   updateStatus(DocumentSnapshot snapshot)async{
@@ -196,6 +210,111 @@ class _ShopState extends State<Shop> {
       }
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+    });
+  }
+  showTransactionDialogue(String shopId,String shopName){
+    final formKey=GlobalKey<FormState>();
+    TextEditingController amount=TextEditingController();
+    TransactionType type=TransactionType.cash;
+    String narration=Narration.minus;
+    return showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+            title: const Text("Transaction Form"),
+            content: Form(
+              key: formKey,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                            child: ListTile(
+                                title: Text(
+                                  "Cash",
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                leading: Radio(
+                                    value: TransactionType.cash,
+                                    groupValue: type,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        type = value!;
+                                      });
+                                    })
+                            ),
+                        ),
+                        Expanded(
+                          child: ListTile(
+                              title: Text(
+                                "Online",
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              leading: Radio(
+                                  value: TransactionType.online,
+                                  groupValue: type,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      type = value!;
+                                    });
+                                  })
+                          ),
+                        )
+                      ],
+                    ),
+                    NumField(icon: Icon(Icons.currency_ruble_outlined), ctrl: amount, hintTxt: "In digits", labelTxt: "Amount Received")
+                  ],
+                ),
+            ),
+            actions: [
+              ElevatedButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  }, child: const Text("Cancel",style: TextStyle(color: Colors.white),),
+              ),
+              ElevatedButton(
+                onPressed: (){
+                  if(formKey.currentState!.validate()){
+                    String tempType="";
+                    if(type==TransactionType.cash){
+                      tempType="Cash";
+                    }else{
+                      tempType="Online";
+                    }
+                    createTransaction(shopId, shopName, narration, int.parse(amount.text),tempType);
+                    Navigator.pop(context);
+                  }
+                }, child: Text("Save",style: TextStyle(color: Colors.white),),
+              ),
+            ],
+          );
+        });
+  }
+  createTransaction(String shopId,String shopName,String narration,num amount,String type) async{
+    String transactionId=DateTime.now().microsecondsSinceEpoch.toString();
+    await AccountDb(companyId: widget.companyModel.companyId, transactionId: transactionId).saveTransaction(
+        AccountModel.toJson(
+            transactionId: transactionId,
+            transactionBy: widget.userModel.userId,
+            desc: shopName,
+            narration: narration,
+            amount: amount,
+            type: type,
+            dateTime: DateTime.now().toString()
+        )
+    ).then((value)async{
+      if(value==true){
+        await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).updateWallet(-amount).then((value){
+          showSnackbar(context, Colors.cyan, "Saved");
+          setState(() {
+
+          });
+        }).onError((error, stackTrace){
+          Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+        });
+      }
+    }).onError((error, stackTrace) {
+      Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
     });
   }
 }

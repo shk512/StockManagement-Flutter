@@ -3,12 +3,7 @@ enum UserRole{
   employee,
   shopKeeper
 }
-enum Transaction{
-  dr,
-  cr
-}
-enum OrderStatus{
-  process,
-  dispatch,
-  deliver
+enum TransactionType{
+  cash,
+  online
 }

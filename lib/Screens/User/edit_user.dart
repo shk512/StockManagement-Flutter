@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Screens/User/asign_shop.dart';
@@ -6,6 +7,7 @@ import 'package:stock_management/Widgets/text_field.dart';
 
 import '../../Constants/rights.dart';
 import '../../Widgets/num_field.dart';
+import '../Splash_Error/error.dart';
 
 class EditUser extends StatefulWidget {
   final String userId;
@@ -69,9 +71,9 @@ class _EditUserState extends State<EditUser> {
     await UserDb(id: widget.userId).getData().then((snapshot) {
       setState(() {
         name.text=snapshot["name"];
-        contact.text=snapshot["contact"];
+        contact.text=snapshot["phone"];
         designation.text=snapshot["designation"];
-        salary.text=snapshot["salary"];
+        salary.text=snapshot["salary"].toString();
         role=snapshot["role"];
         rights=List.from(snapshot["right"]);
         /*
@@ -188,43 +190,62 @@ class _EditUserState extends State<EditUser> {
           },
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
-        title: const Text("Edit"),
+        title: const Text("Edit",style: TextStyle(color: Colors.white),),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: (){
+            updateDate();
+          }, label: Text("Update",style: TextStyle(color: Colors.white),)),
       body: SingleChildScrollView(
-        child: Form(
-            key: formKey,
-            child: Column(
-              children: [
-                TxtField(labelTxt: "Name", hintTxt: "Enter your name", ctrl: name, icon: const Icon(Icons.person_outline)),
-                NumField(labelTxt: "Contact", hintTxt: "03001234567", ctrl: contact, icon: const Icon(Icons.phone)),
-                NumField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon:const Icon(Icons.onetwothree)),
-                role=="Shop Keeper".toUpperCase()
-                    ?Column(
-                  children: [
-                    Text(designation.text),
-                    SizedBox(height: 10,),
-                    ElevatedButton(
-                        onPressed: (){
-                          Navigator.push(context,MaterialPageRoute(builder: (context)=>AssignShop(userId: widget.userId)));
-                        },
-                        child: Text("Change Shop"))
-                  ],
-                )
-                    :TxtField(labelTxt: "Designation", hintTxt: "Employee's designation", ctrl: designation, icon: const Icon(CupertinoIcons.star_circle)),
-                role=="Company".toUpperCase()
-                    ?const SizedBox()
-                    :const Align(
-                  alignment: AlignmentDirectional.bottomStart,
-                  child: Text(
-                    "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
-                ),
-                role=="Company".toUpperCase()
-                    ?const SizedBox()
-                    :checkBoxLists(),
-              ],
-            )),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 5,vertical: 5),
+          child: Form(
+              key: formKey,
+              child: Column(
+                children: [
+                  TxtField(labelTxt: "Name", hintTxt: "Enter your name", ctrl: name, icon: const Icon(Icons.person_outline)),
+                  NumField(labelTxt: "Contact", hintTxt: "03001234567", ctrl: contact, icon: const Icon(Icons.phone)),
+                  role!="Company".toUpperCase()?NumField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon:const Icon(Icons.onetwothree)):const SizedBox(),
+                  role=="Shop Keeper".toUpperCase()
+                      ?Column(
+                    children: [
+                      Text(designation.text),
+                      SizedBox(height: 10,),
+                      ElevatedButton(
+                          onPressed: (){
+                            Navigator.push(context,MaterialPageRoute(builder: (context)=>AssignShop(userId: widget.userId)));
+                          },
+                          child: Text("Change Shop"))
+                    ],
+                  )
+                      :TxtField(labelTxt: "Designation", hintTxt: "Employee's designation", ctrl: designation, icon: const Icon(CupertinoIcons.star_circle)),
+                  role=="Company".toUpperCase()
+                      ?const SizedBox()
+                      :const Align(
+                    alignment: AlignmentDirectional.bottomStart,
+                    child: Text(
+                      "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
+                  ),
+                  role=="Company".toUpperCase()
+                      ?const SizedBox()
+                      :checkBoxLists(),
+                ],
+              )),
+        ),
       )
     );
+  }
+  updateDate()async{
+    await UserDb(id: widget.userId).updateUser({
+      "name":name.text,
+      "phone":contact.text,
+      "designation":designation.text,
+      "salary":salary.text
+    }).then((value){
+
+    }).onError((error, stackTrace){
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+    });
   }
   Widget checkBoxLists(){
     return Column(

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
+import 'package:stock_management/Screens/Order/view_order.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
 
 import '../../Constants/rights.dart';
@@ -55,7 +56,6 @@ class _OrderState extends State<Order> {
           labelStyle: TextStyle(color: Colors.white),
         ),
     ),
-    centerTitle: true,
     ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -267,9 +267,14 @@ class _OrderState extends State<Order> {
       clr=Colors.black38;
     }
     return ListTile(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewOrder(orderId: snapshot["orderId"],companyModel: widget.companyModel,userModel: widget.userModel,)));
+      },
       title: Text("${snapshot["shopDetails"]}"),
       subtitle: Text("${snapshot["dateTime"]}"),
       trailing: tab=="all".toUpperCase()?Icon(Icons.brightness_1,color: clr,size: 10,):const SizedBox(),
+      leading: Text("Rs. ${snapshot["totalAmount"]}"),
+      isThreeLine: true
     );
   }
 }

@@ -7,17 +7,20 @@ class RowInfoDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Row(
-      children: [
-        Expanded(
-            flex: 1,
-            child: Text(label,style: const TextStyle(fontWeight: FontWeight.w900),)
-        ),
-        Expanded(
-            flex: 3,
-            child: Text(value)
-        ),
-      ],
+    return  Padding(
+      padding: EdgeInsets.all(5),
+      child: Row(
+        children: [
+          Expanded(
+              flex: 1,
+              child: Text(label,style: const TextStyle(fontWeight: FontWeight.w900),)
+          ),
+          Expanded(
+              flex: 3,
+              child: Text(value)
+          ),
+        ],
+      ),
     );
   }
 }

@@ -24,6 +24,7 @@ class ViewUser extends StatefulWidget {
 class _ViewUserState extends State<ViewUser> {
   DocumentSnapshot? snapshot;
   List area=[];
+  List rights=[];
   @override
   void initState() {
     super.initState();
@@ -34,6 +35,7 @@ class _ViewUserState extends State<ViewUser> {
       setState(() {
         snapshot=value;
         area=List.from(snapshot!["area"]);
+        rights=List.from(snapshot!["right"]);
       });
     });
   }
@@ -71,9 +73,7 @@ class _ViewUserState extends State<ViewUser> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
-          child: Column(
+        child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -85,7 +85,7 @@ class _ViewUserState extends State<ViewUser> {
               const SizedBox(height: 10),
               snapshot!["designation"].isNotEmpty&&snapshot!["role"]!="Shop Keeper".toUpperCase()?RowInfoDisplay(label: "Designation", value: snapshot!["designation"]):const SizedBox(),
               const SizedBox(height: 10),
-              snapshot!["salary"]!=0?RowInfoDisplay(label: "Salary", value:snapshot!["salary"].toString()):const SizedBox(),
+              snapshot!["role"]!="Company".toUpperCase()?RowInfoDisplay(label: "Salary", value:snapshot!["salary"].toString()):const SizedBox(),
               const SizedBox(height: 10),
               snapshot!["role"]=="shop keeper".toUpperCase()
                   ?Container()
@@ -110,10 +110,28 @@ class _ViewUserState extends State<ViewUser> {
               widget.userModel.role=="Shop Keeper".toUpperCase()
                   ? Text(snapshot!["designation"].isNotEmpty ? "${snapshot!["designation"]}":"No Shop Assigned")
                   :area.isEmpty?const Text("No Area Assigned"):showAreaList(),
+              widget.userModel.role=="Company".toUpperCase()
+                  ?const Align(
+                alignment: AlignmentDirectional.bottomStart,
+                child: Text(
+                  "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
+              ):const SizedBox(),
+              widget.userModel.role=="Company".toUpperCase()
+                  ?showRights():const SizedBox(),
             ],
           ),
         ),
-      ),
+    );
+  }
+  Widget showRights(){
+    return Column(
+      children: rights.map((e) => Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 5),
+          child: Text("$e"),
+        ),
+      )).toList(),
     );
   }
   Widget showAreaList(){
