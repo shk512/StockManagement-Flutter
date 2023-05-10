@@ -85,8 +85,6 @@ class _SignupState extends State<Signup> {
   void initState() {
     super.initState();
     getCompanyDetails();
-    getShops();
-    print(shopsList);
   }
 
   getCompanyDetails() async {
@@ -95,145 +93,112 @@ class _SignupState extends State<Signup> {
       _companyModel.fromJson(snapshot);
     });
   }
-  getShops()async{
-    await ShopDB(companyId: _companyModel.companyId, shopId: "").getShops().then((value){
-      setState(() {
-        shopStream=value;
-      });
-      shopStream?.listen((snapshot) {
-        if(shopStream==null){
-        }else{
-          for(DocumentSnapshot snaps in snapshot){
-            shopsList.add("${snaps["shopName"]}-${snaps["areaId"]}");
-          }
-        }
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: isLoading
           ?const Center(child: CircularProgressIndicator(),)
-          :SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Align(
-                  alignment: AlignmentDirectional.topStart,
-                  child: GestureDetector(
-                    onTap: (){
-                      Navigator.pop(context);
-                    },
-                    child: const Icon(CupertinoIcons.back,),
+          :FutureBuilder(
+          future: getCompanyDetails(),
+          builder: (context,index){
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Align(
+                        alignment: AlignmentDirectional.topStart,
+                        child: GestureDetector(
+                          onTap: (){
+                            Navigator.pop(context);
+                          },
+                          child: const Icon(CupertinoIcons.back,),
+                        ),
+                      ),
+                      const SizedBox(height: 10,),
+                      const Image(image: AssetImage("image/signup.png")),
+                      Center(child: Text(_companyModel.companyName,style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 25),)),
+                      const SizedBox(height: 20,),
+                      TxtField(labelTxt: "Email",
+                          hintTxt: "john@gmail.com",
+                          ctrl: mail,
+                          icon: const Icon(Icons.mail)),
+                      const SizedBox(height: 20,),
+                      TxtField(labelTxt: "Name",
+                          hintTxt: "Your Name",
+                          ctrl: name,
+                          icon: const Icon(Icons.perm_identity)),
+                      const SizedBox(height: 20,),
+                      NumField(labelTxt: "Contact",
+                          hintTxt: "03001234567",
+                          ctrl: contact,
+                          icon: const Icon(Icons.phone)),
+                      const SizedBox(height: 20,),
+                      TxtField(labelTxt: "Password",
+                          hintTxt: "Enter your password",
+                          ctrl: pass,
+                          icon: const Icon(Icons.password)),
+                      const SizedBox(height: 20,),
+                      TxtField(labelTxt: "Confirm Password",
+                          hintTxt: "Retype your password",
+                          ctrl: cPass,
+                          icon: const Icon(Icons.password)),
+                      const SizedBox(height: 20,),
+                      const Align(
+                        alignment: AlignmentDirectional.bottomStart,
+                        child: Text(
+                          "Role:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
+                      ),
+                      radioButtons("Company", UserRole.company),
+                      radioButtons("Employee", UserRole.employee),
+                      radioButtons("Shop Keeper", UserRole.shopKeeper),
+                      _role==UserRole.shopKeeper || _role==UserRole.company
+                          ? Container()
+                          : NumField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon: const Icon(Icons.onetwothree)),
+                      const SizedBox(height: 20,),
+                      _role==UserRole.employee
+                          ? TxtField(labelTxt: "Designation", hintTxt: "Employee's Designation", ctrl: designation, icon: const Icon(CupertinoIcons.star_circle))
+                          :const SizedBox(),
+                      const SizedBox(height: 20,),
+                      _role==UserRole.company
+                          ?const SizedBox()
+                          :const Align(
+                        alignment: AlignmentDirectional.bottomStart,
+                        child: Text(
+                          "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
+                      ),
+                      _role==UserRole.company
+                          ?const SizedBox()
+                          :checkBoxLists(),
+                      const SizedBox(height: 20,),
+                      ElevatedButton(onPressed: (){
+                        if(_role==UserRole.employee){
+                          role="Employee".toUpperCase();
+                        }else if(_role==UserRole.shopKeeper){
+                          role="Shop Keeper".toUpperCase();
+                          salary.text="0";
+                        }else if(_role==UserRole.company){
+                          role="Company".toUpperCase();
+                          salary.text="0";
+                          rights.add("all".toLowerCase());
+                        }
+                        if(pass.text==cPass.text){
+                          signup();
+                        }else{
+                          showSnackbar(context, Colors.red, "Oops! Password doesn't match");
+                        }
+                      }, child: const Text("Register",style: TextStyle(color: Colors.white),)),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 10,),
-                const Image(image: AssetImage("image/signup.png")),
-                Center(child: Text(_companyModel.companyName,style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 25),)),
-                const SizedBox(height: 20,),
-                TxtField(labelTxt: "Email",
-                    hintTxt: "john@gmail.com",
-                    ctrl: mail,
-                    icon: const Icon(Icons.mail)),
-                const SizedBox(height: 20,),
-                TxtField(labelTxt: "Name",
-                    hintTxt: "Your Name",
-                    ctrl: name,
-                    icon: const Icon(Icons.perm_identity)),
-                const SizedBox(height: 20,),
-                NumField(labelTxt: "Contact",
-                    hintTxt: "03001234567",
-                    ctrl: contact,
-                    icon: const Icon(Icons.phone)),
-                const SizedBox(height: 20,),
-                TxtField(labelTxt: "Password",
-                    hintTxt: "Enter your password",
-                    ctrl: pass,
-                    icon: const Icon(Icons.password)),
-                const SizedBox(height: 20,),
-                TxtField(labelTxt: "Confirm Password",
-                    hintTxt: "Retype your password",
-                    ctrl: cPass,
-                    icon: const Icon(Icons.password)),
-                const SizedBox(height: 20,),
-                const Align(
-                  alignment: AlignmentDirectional.bottomStart,
-                  child: Text(
-                    "Role:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
-                ),
-                radioButtons("Company", UserRole.company),
-                radioButtons("Employee", UserRole.employee),
-                radioButtons("Shop Keeper", UserRole.shopKeeper),
-                /*_role==UserRole.shopKeeper
-                    ? StreamBuilder(
-                    stream: shopStream,
-                    builder: (context, snapshot){
-                      if(snapshot.hasError){
-                        return Text('Something went wrong! ${snapshot.error}');
-                      }else if (snapshot.hasData) {
-                        return DropdownButton<String>(
-
-                          items: shopsList!,
-                          onChanged: (String value) {
-                            setState(() {
-                              designation.text=value;
-                            });
-                          },
-
-                        );
-                      } else {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    })
-                    :const SizedBox(),*/
-                _role==UserRole.shopKeeper || _role==UserRole.company
-                    ? Container()
-                    : NumField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon: const Icon(Icons.onetwothree)),
-                const SizedBox(height: 20,),
-                _role==UserRole.employee
-                    ? TxtField(labelTxt: "Designation", hintTxt: "Employee's Designation", ctrl: designation, icon: const Icon(CupertinoIcons.star_circle))
-                    :const SizedBox(),
-                const SizedBox(height: 20,),
-                _role==UserRole.company
-                    ?const SizedBox()
-                    :const Align(
-                  alignment: AlignmentDirectional.bottomStart,
-                  child: Text(
-                    "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
-                ),
-                _role==UserRole.company
-                    ?const SizedBox()
-                    :checkBoxLists(),
-                const SizedBox(height: 20,),
-                ElevatedButton(onPressed: (){
-                  if(_role==UserRole.employee){
-                    role="Employee".toUpperCase();
-                  }else if(_role==UserRole.shopKeeper){
-                    role="Shop Keeper".toUpperCase();
-                    salary.text="0";
-                  }else if(_role==UserRole.company){
-                    role="Company".toUpperCase();
-                    salary.text="0";
-                    rights.add("all".toLowerCase());
-                  }
-                  if(pass.text==cPass.text){
-                    signup();
-                  }else{
-                    showSnackbar(context, Colors.red, "Oops! Password doesn't match");
-                  }
-                }, child: const Text("Register",style: TextStyle(color: Colors.white),)),
-              ],
-            ),
-          ),
-        ),
-      )
+              ),
+            );
+          }),
     );
   }
   Widget radioButtons(String name, UserRole role) {
@@ -258,19 +223,19 @@ class _SignupState extends State<Signup> {
         isLoading=true;
       });
       await auth.createUser(mail.text, pass.text).then((value)async{
-        _userModel.userId=FirebaseAuth.instance.currentUser!.uid;
-        _userModel.companyId=_companyModel.companyId;
-        _userModel.designation=designation.text.toUpperCase();
-        _userModel.name=name.text;
-        _userModel.mail=mail.text;
-        _userModel.isDeleted=false;
-        _userModel.wallet=0;
-        _userModel.role=role;
-        _userModel.phone=contact.text;
-        _userModel.salary=int.parse(salary.text);
-        _userModel.area=[];
-        _userModel.rights=[];
-          await UserDb(id: FirebaseAuth.instance.currentUser!.uid).saveUser(_userModel.toJson()).then((value){
+          await UserDb(id: FirebaseAuth.instance.currentUser!.uid).saveUser(_userModel.toJson(
+              userId: FirebaseAuth.instance.currentUser!.uid,
+              name: name.text,
+              salary: int.parse(salary.text),
+              mail: mail.text,
+              companyId: widget.companyId,
+              phone: contact.text,
+              role: role,
+              designation: designation.text,
+              wallet: 0,
+              isDeleted: false,
+              rights: rights,
+              area: [])).then((value){
                 SPF.saveUserLogInStatus(true);
                 setState(() {
                   isLoading=false;

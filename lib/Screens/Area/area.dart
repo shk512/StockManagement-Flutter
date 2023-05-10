@@ -50,22 +50,21 @@ class _AreaState extends State<Area> {
         title: const Text("Area",style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
-      body: area.isEmpty
-        ? const Center(
-        child:  Text(
-          'No area assigned yet!',
-          style: TextStyle(color: Colors.black45,fontWeight: FontWeight.bold),),)
-        :ListView.builder(
-          itemCount:area.length ,
-          itemBuilder: (context,index){
-                return ListTile(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>AreaShop(areaName: area[index], companyModel: widget.companyModel,userModel: widget.userModel,)));
-                  },
-                  title: Text(area[index]),
-                );
-          }
-      )
+      body: FutureBuilder(
+          future: getAreaList(),
+          builder: (context,index){
+            return ListView.builder(
+                itemCount:area.length ,
+                itemBuilder: (context,index){
+                  return ListTile(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>AreaShop(areaName: area[index], companyModel: widget.companyModel,userModel: widget.userModel,)));
+                    },
+                    title: Text(area[index]),
+                  );
+                }
+            );
+          })
     );
   }
 }

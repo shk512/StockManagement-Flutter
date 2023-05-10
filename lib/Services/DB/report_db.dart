@@ -1,3 +1,5 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ReportDb{
@@ -10,18 +12,20 @@ class ReportDb{
 
   //increment report
   Future increment(num quantity, String date) async{
-    await companyCollection.doc(companyId).collection("report").doc(productId).set({
-      "productId":productId,
-      "$date": FieldValue.increment(quantity),
+    await companyCollection.doc(companyId).collection("report").doc(date).update({
+      "$productId":FieldValue.increment(quantity),
+    }).onError((error, stackTrace)async{
+      await companyCollection.doc(companyId).collection("report").doc(date).set({
+        "$productId":quantity,
+      });
     });
     return true;
   }
 
   //decrement report
   Future decrement(num quantity,String date)async{
-    await companyCollection.doc(companyId).collection("report").doc(productId).update({
-      "productId":productId,
-      "$date":FieldValue.increment(-quantity),
+    await companyCollection.doc(companyId).collection("report").doc(date).update({
+      "$productId":FieldValue.increment(-quantity),
     });
     return true;
   }

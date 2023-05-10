@@ -10,7 +10,19 @@ import '../Screens/Splash_Error/error.dart';
 import '../Services/DB/company_db.dart';
 
 updateUserData(BuildContext context,UserModel _userModel) async{
-  await UserDb(id: _userModel.userId).updateUser(_userModel.toJson()).then((value){
+  await UserDb(id: _userModel.userId).updateUser(_userModel.toJson(
+      userId: _userModel.userId,
+      name: _userModel.name,
+      salary: _userModel.salary,
+      mail: _userModel.mail,
+      companyId: _userModel.companyId,
+      phone: _userModel.phone,
+      role: _userModel.role,
+      designation: _userModel.designation,
+      wallet: _userModel.wallet,
+      isDeleted: _userModel.isDeleted,
+      rights: _userModel.rights,
+      area: _userModel.area)).then((value){
     showSnackbar(context, Colors.cyan, "Updated");
   }).onError((error, stackTrace) {
     Navigator.push(context, MaterialPageRoute(

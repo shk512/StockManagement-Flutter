@@ -28,15 +28,10 @@ class UserDb{
   }
 
   //update user wallet
-  Future addWalletBalance(num amount)async{
+  Future updateWalletBalance(num amount)async{
     await userCollection.doc(id).update({
       "wallet":FieldValue.increment(amount)
     });
-}
-
-  //debit the wallet
-  Future debitWalletBalance(num amount)async{
-    await userCollection.doc(id).update({"wallet":FieldValue.increment(-amount)});
   }
 
   //update area list

@@ -29,6 +29,13 @@ class ShopDB{
     return true;
   }
 
+  //update wallet
+  Future updateWallet(num amount) async{
+    await companyCollection.doc(companyId).collection("shop").doc(shopId).update({
+      "wallet":FieldValue.increment(amount)
+    });
+  }
+
   //Delete Shop
   Future deleteShop()async {
     await companyCollection.doc(companyId).collection("shop")

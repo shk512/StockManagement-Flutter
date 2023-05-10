@@ -147,7 +147,7 @@ class _CompanyDetailsState extends State<CompanyDetails> {
                   onPressed: (){
                     Navigator.pop(context);
                   },
-                  child: const Text("Cancel")),
+                  child: const Text("Cancel",style: TextStyle(color: Colors.white),)),
               ElevatedButton(
                   onPressed: (){
                     if(areaName.text.isNotEmpty){
@@ -157,7 +157,7 @@ class _CompanyDetailsState extends State<CompanyDetails> {
                       Navigator.pop(context);
                       showSnackbar(context, Colors.red, "Not saved as field was empty");
                     }
-                  }, child: const Text("Save")),
+                  }, child: const Text("Save",style: TextStyle(color: Colors.white),)),
             ],
           );
         });

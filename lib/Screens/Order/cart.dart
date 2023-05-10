@@ -3,16 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stock_management/Functions/location.dart';
-import 'package:stock_management/Functions/update_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Screens/Area/area.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
+import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Models/order_model.dart';
 import '../../Models/user_model.dart';
 import '../../Services/DB/product_db.dart';
+import '../../Services/DB/shop_db.dart';
 
 class Cart extends StatefulWidget {
   final String shopId;
@@ -85,7 +86,6 @@ class _CartState extends State<Cart> {
                     return const Center(child: Text("Cart is Empty"),);
                   }else{
                     return ListTile(
-                      leading: Text("$index"),
                       title: Text("${OrderModel.products[index]["productName"]}-${OrderModel.products[index]["description"]}"),
                       subtitle: Text("Detail: ${OrderModel.products[index]["totalQuantity"]}x${OrderModel.products[index]["minPrice"]}=${OrderModel.products[index]["totalPrice"]}"),
                       trailing: IconButton(
@@ -95,8 +95,8 @@ class _CartState extends State<Cart> {
                               setState(() {
                                 OrderModel.totalAmount-=OrderModel.products[index]["totalPrice"];
                               });
+                              OrderModel.products.removeAt(index);
                             });
-                            OrderModel.products.removeAt(index);
                             setState(() {
                             });
                           },
@@ -170,15 +170,17 @@ class _CartState extends State<Cart> {
         location: LatLng(lat, lng),
         deliverId: ''
     )
-    ).then((value) {
+    ).then((value)async {
       if (value == true) {
-        widget.userModel.wallet=advanceAmount;
-        updateUserData(context,widget.userModel);
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>Area(companyModel: widget.companyModel, userModel: widget.userModel)), (route) => false);
-        showSnackbar(context, Colors.cyan, "Order has been placed");
-        setState(() {
-          OrderModel.products=[];
-          OrderModel.totalAmount=0;
+        await UserDb(id: widget.userModel.userId).updateWalletBalance(advanceAmount).then((value) async{
+          await ShopDB(companyId: widget.companyModel.companyId, shopId: widget.shopId).updateWallet(OrderModel.totalAmount-advanceAmount).then((value){
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>Area(companyModel: widget.companyModel, userModel: widget.userModel)), (route) => false);
+            showSnackbar(context, Colors.cyan, "Order has been placed");
+            setState(() {
+              OrderModel.products=[];
+              OrderModel.totalAmount=0;
+            });
+          });
         });
       } else {
         setState(() {

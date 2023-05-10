@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel{
   String _userId="";
@@ -14,7 +13,21 @@ class UserModel{
   List _rights=[];
   bool _isDeleted=false;
 
-  Map<String,dynamic> toJson(){
+  Map<String,dynamic> toJson(
+  {
+    required String userId,
+    required String name,
+    required num salary,
+    required String mail,
+    required String companyId,
+    required String phone,
+    required String role,
+    required String designation,
+    required num wallet,
+    required bool isDeleted,
+    required List rights,
+    required List area
+    }){
     return {
       "userId":userId,
       "name":name,
@@ -29,21 +42,6 @@ class UserModel{
       "right":rights,
       "area":area
     };
-  }
-
-  Future fromJson(DocumentSnapshot snapshot)async{
-    userId=snapshot["userId"];
-    companyId=snapshot["companyId"];
-    name=snapshot["name"];
-    salary=snapshot["salary"];
-    mail=snapshot["mail"];
-    phone=snapshot["phone"];
-    wallet=snapshot["wallet"];
-    role=snapshot["role"];
-    designation=snapshot["designation"];
-    isDeleted=snapshot["isDeleted"];
-    area=List.from(snapshot["area"]);
-    rights=List.from(snapshot["right"]);
   }
 
   String get userId => _userId;

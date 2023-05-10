@@ -83,7 +83,7 @@ class _ViewUserState extends State<ViewUser> {
               const SizedBox(height: 10),
               RowInfoDisplay(label:"Contact", value: snapshot!["phone"]),
               const SizedBox(height: 10),
-              snapshot!["designation"].isNotEmpty?RowInfoDisplay(label: "Designation", value: snapshot!["designation"]):const SizedBox(),
+              snapshot!["designation"].isNotEmpty&&snapshot!["role"]!="Shop Keeper".toUpperCase()?RowInfoDisplay(label: "Designation", value: snapshot!["designation"]):const SizedBox(),
               const SizedBox(height: 10),
               snapshot!["salary"]!=0?RowInfoDisplay(label: "Salary", value:snapshot!["salary"].toString()):const SizedBox(),
               const SizedBox(height: 10),
@@ -91,20 +91,25 @@ class _ViewUserState extends State<ViewUser> {
                   ?Container()
                   : Row(
                 children: [
-                  const Expanded(child: Text("Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.cyan),)),
+                  Expanded(child: Text(snapshot!["role"]=="Shop Keeper".toUpperCase()?"Shop":"Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.cyan),)),
                   widget.userModel.rights.contains(Rights.addArea) || widget.userModel.rights.contains(Rights.all)
                       ? Expanded(
-                    child: IconButton(
+                    child: snapshot!["role"]!="Shop Keeper".toUpperCase()
+                        ?IconButton(
                       onPressed: (){
-                        showDialogueBox();
+                        if(snapshot!["role"]!="Shop Keeper".toUpperCase()){
+                          showAreaDialogueBox();
+                        }
                       },
                       icon: const Icon(Icons.add,color: Colors.cyan,) ,
-                    ),
+                    ):const SizedBox(),
                   ): const SizedBox()
                 ],
               ),
               const SizedBox(height: 5),
-              area.isEmpty?const Text("No Area Assigned"):showAreaList(),
+              widget.userModel.role=="Shop Keeper".toUpperCase()
+                  ? Text(snapshot!["designation"].isNotEmpty ? "${snapshot!["designation"]}":"No Shop Assigned")
+                  :area.isEmpty?const Text("No Area Assigned"):showAreaList(),
             ],
           ),
         ),
@@ -145,13 +150,20 @@ class _ViewUserState extends State<ViewUser> {
       )).toList(),
     );
   }
-  showDialogueBox(){
+  showAreaDialogueBox(){
     return showDialog(
         context: context,
         builder: (context){
           return AlertDialog(
-            title: const Text("Tap to add area"),
+            title: const Text("Tap on area name to add in user's area list"),
             content: showCompanyList(),
+            actions: [
+              ElevatedButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                    },
+                  child: const Text("Cancel",style:  TextStyle(color: Colors.white),))
+            ],
           );
         });
   }

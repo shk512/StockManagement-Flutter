@@ -6,6 +6,7 @@ import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Shop/edit_shop.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 
+import '../../Constants/rights.dart';
 import '../../utils/snack_bar.dart';
 import '../Splash_Error/error.dart';
 
@@ -162,12 +163,15 @@ class _ShopState extends State<Shop> {
   listTile(DocumentSnapshot snapshot){
     return ListTile(
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>EditShop(shopId: snapshot["shopId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
+        if(widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all)){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>EditShop(shopId: snapshot["shopId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
+        }
       },
       leading: tab=="all".toUpperCase()?Icon(Icons.brightness_1,size: 10,color: snapshot["isActive"]?Colors.green:Colors.red,):const SizedBox(),
       title: Text("${snapshot["shopName"]}-${snapshot["areaId"]}"),
       subtitle: Text("${snapshot["ownerName"]}\t${snapshot["contact"]}"),
-      trailing: widget.userModel.rights.contains("changeShopStatus".toLowerCase())
+      isThreeLine: true,
+      trailing: widget.userModel.rights.contains(Rights.changeShopStatus)|| widget.userModel.rights.contains(Rights.all)
           ?  ElevatedButton(
         child: Text(snapshot["isActive"]?"Inactive":"Active",style: const TextStyle(color: Colors.white),),
         onPressed: () {
