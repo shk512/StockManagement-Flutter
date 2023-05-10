@@ -14,21 +14,6 @@ class CompanyModel{
   List _area=[];
   GeoPoint _location=GeoPoint(0, 0);
 
-  Future fromJson(DocumentSnapshot snapshot)async{
-    imageUrl=snapshot["imageUrl"];
-    companyId=snapshot['companyId'];
-    contact=snapshot['contact'];
-    isPackageActive= snapshot['isPackageActive'];
-    packageEndsDate= snapshot['packageEndsDate'];
-    companyName= snapshot['companyName'];
-    area=snapshot['area'];
-    wallet=snapshot['wallet'];
-    packageType=snapshot["packageType"];
-    whatsApp=snapshot["whatsApp"];
-    city=snapshot["city"];
-    location=snapshot["geoLocation"];
-  }
-
   Map<String,dynamic> toJson()
   {
     return<String,dynamic>{

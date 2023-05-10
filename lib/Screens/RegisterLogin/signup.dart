@@ -3,12 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
-import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
-import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/Services/shared_preferences/spf.dart';
 import 'package:stock_management/Widgets/text_field.dart';
@@ -40,9 +38,7 @@ class _SignupState extends State<Signup> {
   UserRole _role = UserRole.company;
   Auth auth=Auth();
   bool isLoading=false;
-  List shopsList=[];
-  Stream? shopStream;
-  CompanyModel _companyModel=CompanyModel();
+  DocumentSnapshot? snapshot;
   UserModel _userModel=UserModel();
   /*
   * RIGHTS BOOLEAN
@@ -88,21 +84,20 @@ class _SignupState extends State<Signup> {
   }
 
   getCompanyDetails() async {
-    DocumentSnapshot snapshot=await CompanyDb(id: widget.companyId).getData();
-    setState(() {
-      _companyModel.fromJson(snapshot);
-    });
+   await CompanyDb(id: widget.companyId).getData().then((value){
+     setState(() {
+       snapshot=value;
+     });
+   }).onError((error, stackTrace) =>Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isLoading
+      body: isLoading || snapshot==null
           ?const Center(child: CircularProgressIndicator(),)
-          :FutureBuilder(
-          future: getCompanyDetails(),
-          builder: (context,index){
-            return SingleChildScrollView(
+          :SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                 child: Form(
@@ -122,7 +117,7 @@ class _SignupState extends State<Signup> {
                       ),
                       const SizedBox(height: 10,),
                       const Image(image: AssetImage("image/signup.png")),
-                      Center(child: Text(_companyModel.companyName,style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 25),)),
+                      Center(child: Text(snapshot!["companyName"],style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 25),)),
                       const SizedBox(height: 20,),
                       TxtField(labelTxt: "Email",
                           hintTxt: "john@gmail.com",
@@ -197,8 +192,7 @@ class _SignupState extends State<Signup> {
                   ),
                 ),
               ),
-            );
-          }),
+            )
     );
   }
   Widget radioButtons(String name, UserRole role) {
@@ -240,7 +234,7 @@ class _SignupState extends State<Signup> {
                 setState(() {
                   isLoading=false;
                 });
-                Navigator.pushNamed(context, Routes.dashboard);
+                Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
           }).onError((error, stackTrace){
             setState(() {
               isLoading=false;

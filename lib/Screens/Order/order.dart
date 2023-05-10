@@ -179,7 +179,8 @@ class _OrderState extends State<Order> {
                             if(widget.userModel.rights.contains(Rights.all)){
                               if(tab.toUpperCase()=="All".toUpperCase()){
                                 return  listTile(snapshot.data.docs[index]);
-                              }else{
+                              }
+                              else{
                                 if(snapshot.data.docs[index]["status"]==tab.toUpperCase()){
                                   return  listTile(snapshot.data.docs[index]);
                                 }else{
@@ -190,7 +191,7 @@ class _OrderState extends State<Order> {
                             /*
                               * ENTERTAINS EMPLOYEE
                               * */
-                            else if(snapshot.data.docs[index]["userId"]==widget.userModel.userId){
+                            else if(snapshot.data.docs[index]["orderBy"]==widget.userModel.userId||snapshot.data.docs[index]["deliverBy"]==widget.userModel.userId||snapshot.data.docs[index]["shopId"]==widget.userModel.designation){
                               if(tab.toUpperCase()=="All".toUpperCase()){
                                 return  listTile(snapshot.data.docs[index]);
                               }else{
@@ -227,7 +228,7 @@ class _OrderState extends State<Order> {
                               /*
                               * ENTERTAINS EMPLOYEE
                               * */
-                              else if(snapshot.data.docs[index]["orderBy"]==widget.userModel.userId||snapshot.data.docs[index]["deliverBy"]==widget.userModel.userId||snapshot.data.docs[index]["shopId"]==widget.userModel.userId){
+                              else if(snapshot.data.docs[index]["orderBy"]==widget.userModel.userId||snapshot.data.docs[index]["shopId"]==widget.userModel.designation||snapshot.data.docs[index]["deliverBy"]==widget.userModel.userId){
                                 if(tab.toUpperCase()=="All".toUpperCase()){
                                   return  listTile(snapshot.data.docs[index]);
                                 }else{
@@ -242,7 +243,7 @@ class _OrderState extends State<Order> {
                                 return const SizedBox();
                               }
                             }else{
-                              const Center(child: Text("Not Found"),);
+                              return const Center(child: Text("Not Found"),);
                             }
                           }
                         }

@@ -5,7 +5,6 @@ import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
 import '../Models/company_model.dart';
-import '../Models/geolocation_model.dart';
 import '../Screens/Splash_Error/error.dart';
 import '../Services/DB/company_db.dart';
 

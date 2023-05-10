@@ -67,59 +67,62 @@ class _ViewUserState extends State<ViewUser> {
           widget.userModel.rights.contains(Rights.editUser) || widget.userModel.rights.contains(Rights.all) || widget.userModel.userId==widget.userId
               ? IconButton(
               onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>EditUser(userId: widget.userId)));
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>EditUser(userId: widget.userId,userModel: widget.userModel,)));
               }, icon: const Icon(Icons.edit,color: Colors.white,))
               :const SizedBox()
         ],
       ),
       body: SingleChildScrollView(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              RowInfoDisplay(label: "Email", value: snapshot!["mail"].toLowerCase()),
-              const SizedBox(height: 10),
-              RowInfoDisplay(label: "Name", value: snapshot!["name"].toUpperCase()),
-              const SizedBox(height: 10),
-              RowInfoDisplay(label:"Contact", value: snapshot!["phone"]),
-              const SizedBox(height: 10),
-              snapshot!["designation"].isNotEmpty&&snapshot!["role"]!="Shop Keeper".toUpperCase()?RowInfoDisplay(label: "Designation", value: snapshot!["designation"]):const SizedBox(),
-              const SizedBox(height: 10),
-              snapshot!["role"]!="Company".toUpperCase()?RowInfoDisplay(label: "Salary", value:snapshot!["salary"].toString()):const SizedBox(),
-              const SizedBox(height: 10),
-              snapshot!["role"]=="shop keeper".toUpperCase()
-                  ?Container()
-                  : Row(
-                children: [
-                  Expanded(child: Text(snapshot!["role"]=="Shop Keeper".toUpperCase()?"Shop":"Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.cyan),)),
-                  widget.userModel.rights.contains(Rights.addArea) || widget.userModel.rights.contains(Rights.all)
-                      ? Expanded(
-                    child: snapshot!["role"]!="Shop Keeper".toUpperCase()
-                        ?IconButton(
-                      onPressed: (){
-                        if(snapshot!["role"]!="Shop Keeper".toUpperCase()){
-                          showAreaDialogueBox();
-                        }
-                      },
-                      icon: const Icon(Icons.add,color: Colors.cyan,) ,
-                    ):const SizedBox(),
-                  ): const SizedBox()
-                ],
-              ),
-              const SizedBox(height: 5),
-              widget.userModel.role=="Shop Keeper".toUpperCase()
-                  ? Text(snapshot!["designation"].isNotEmpty ? "${snapshot!["designation"]}":"No Shop Assigned")
-                  :area.isEmpty?const Text("No Area Assigned"):showAreaList(),
-              widget.userModel.role=="Company".toUpperCase()
-                  ?const Align(
-                alignment: AlignmentDirectional.bottomStart,
-                child: Text(
-                  "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
-              ):const SizedBox(),
-              widget.userModel.role=="Company".toUpperCase()
-                  ?showRights():const SizedBox(),
-            ],
-          ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowInfoDisplay(label: "Email", value: snapshot!["mail"].toLowerCase()),
+                const SizedBox(height: 10),
+                RowInfoDisplay(label: "Name", value: snapshot!["name"].toUpperCase()),
+                const SizedBox(height: 10),
+                RowInfoDisplay(label:"Contact", value: snapshot!["phone"]),
+                const SizedBox(height: 10),
+                snapshot!["designation"].isNotEmpty&&snapshot!["role"]!="Shop Keeper".toUpperCase()?RowInfoDisplay(label: "Designation", value: snapshot!["designation"]):const SizedBox(),
+                const SizedBox(height: 10),
+                snapshot!["role"]=="Employee".toUpperCase()?RowInfoDisplay(label: "Salary", value:snapshot!["salary"].toString()):const SizedBox(),
+                const SizedBox(height: 10),
+                snapshot!["role"]=="shop keeper".toUpperCase()
+                    ?Container()
+                    : Row(
+                  children: [
+                    Expanded(child: Text(snapshot!["role"]=="Shop Keeper".toUpperCase()?"Shop":"Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.cyan),)),
+                    widget.userModel.rights.contains(Rights.addArea) || widget.userModel.rights.contains(Rights.all)
+                        ? Expanded(
+                      child: snapshot!["role"]!="Shop Keeper".toUpperCase()
+                          ?IconButton(
+                        onPressed: (){
+                          if(snapshot!["role"]!="Shop Keeper".toUpperCase()){
+                            showAreaDialogueBox();
+                          }
+                        },
+                        icon: const Icon(Icons.add,color: Colors.cyan,) ,
+                      ):const SizedBox(),
+                    ): const SizedBox()
+                  ],
+                ),
+                const SizedBox(height: 5),
+                snapshot!["role"]=="Shop Keeper".toUpperCase()
+                    ? Text(snapshot!["designation"]=="" ? "${snapshot!["designation"]}":"No Shop Assigned")
+                    :area.isEmpty?const Text("No Area Assigned"):showAreaList(),
+                widget.userModel.rights.contains(Rights.editUser)||widget.userModel.rights.contains(Rights.all)
+                    ?const Align(
+                  alignment: AlignmentDirectional.bottomStart,
+                  child: Text(
+                    "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
+                ):const SizedBox(),
+                snapshot!["role"]!="Company".toUpperCase()
+                    ?showRights():const SizedBox(),
+              ],
+            ),
+        ),
         ),
     );
   }

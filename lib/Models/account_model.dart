@@ -1,11 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AccountModel{
-  static String transactionId='';
-  static String desc='';
-  static num amount=0;
-  static String type='';
-  static String dateTime='';
 
   static Map<String,dynamic> toJson({
     required String transactionId,
@@ -27,11 +22,4 @@ class AccountModel{
     };
   }
 
-  static fromJson(DocumentSnapshot snapshot){
-    transactionId=snapshot["transactionId"];
-    type=snapshot["type"];
-    desc=snapshot["description"];
-    amount=snapshot["amount"];
-    dateTime=snapshot["date"];
-  }
 }

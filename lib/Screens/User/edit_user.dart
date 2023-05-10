@@ -1,17 +1,19 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Screens/User/asign_shop.dart';
+import 'package:stock_management/Screens/User/assign_shop.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/Widgets/text_field.dart';
+import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Constants/rights.dart';
+import '../../Models/user_model.dart';
 import '../../Widgets/num_field.dart';
 import '../Splash_Error/error.dart';
 
 class EditUser extends StatefulWidget {
+  final UserModel userModel;
   final String userId;
-  const EditUser({Key? key,required this.userId}) : super(key: key);
+  const EditUser({Key? key,required this.userId,required this.userModel}) : super(key: key);
 
   @override
   State<EditUser> createState() => _EditUserState();
@@ -194,7 +196,7 @@ class _EditUserState extends State<EditUser> {
       ),
       floatingActionButton: FloatingActionButton.extended(
           onPressed: (){
-            updateDate();
+            updateData();
           }, label: Text("Update",style: TextStyle(color: Colors.white),)),
       body: SingleChildScrollView(
         child: Padding(
@@ -205,7 +207,7 @@ class _EditUserState extends State<EditUser> {
                 children: [
                   TxtField(labelTxt: "Name", hintTxt: "Enter your name", ctrl: name, icon: const Icon(Icons.person_outline)),
                   NumField(labelTxt: "Contact", hintTxt: "03001234567", ctrl: contact, icon: const Icon(Icons.phone)),
-                  role!="Company".toUpperCase()?NumField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon:const Icon(Icons.onetwothree)):const SizedBox(),
+                  role=="Employee".toUpperCase()?NumField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon:const Icon(Icons.onetwothree)):const SizedBox(),
                   role=="Shop Keeper".toUpperCase()
                       ?Column(
                     children: [
@@ -213,36 +215,38 @@ class _EditUserState extends State<EditUser> {
                       SizedBox(height: 10,),
                       ElevatedButton(
                           onPressed: (){
-                            Navigator.push(context,MaterialPageRoute(builder: (context)=>AssignShop(userId: widget.userId)));
+                            if(widget.userModel.rights.contains(Rights.editUser)||widget.userModel.rights.contains(Rights.all)){
+                              Navigator.push(context,MaterialPageRoute(builder: (context)=>AssignShop(userId: widget.userId)));
+                            }
                           },
-                          child: Text("Change Shop"))
+                          child: Text("Update Shop",style: TextStyle(color: Colors.white),))
                     ],
                   )
                       :TxtField(labelTxt: "Designation", hintTxt: "Employee's designation", ctrl: designation, icon: const Icon(CupertinoIcons.star_circle)),
-                  role=="Company".toUpperCase()
-                      ?const SizedBox()
-                      :const Align(
+                  widget.userModel.rights.contains(Rights.editUser)||rights.contains(Rights.all)
+                      ?const Align(
                     alignment: AlignmentDirectional.bottomStart,
                     child: Text(
                       "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
-                  ),
-                  role=="Company".toUpperCase()
-                      ?const SizedBox()
-                      :checkBoxLists(),
+                  ):const SizedBox(),
+                  widget.userModel.rights.contains(Rights.editUser)||rights.contains(Rights.all)
+                      ?checkBoxLists()
+                      :const SizedBox(),
                 ],
               )),
         ),
       )
     );
   }
-  updateDate()async{
+  updateData()async{
     await UserDb(id: widget.userId).updateUser({
       "name":name.text,
       "phone":contact.text,
       "designation":designation.text,
       "salary":salary.text
     }).then((value){
-
+      showSnackbar(context, Colors.cyan, "Updated");
+      Navigator.pop(context);
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
     });

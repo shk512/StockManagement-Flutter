@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Product/add_product.dart';
@@ -20,15 +21,14 @@ class Product extends StatefulWidget {
 
 class _ProductState extends State<Product> {
   Stream? products;
-  CompanyModel _companyModel=CompanyModel();
-  UserModel _userModel=UserModel();
+
   @override
   void initState() {
     super.initState();
     getProducts();
   }
   getProducts()async{
-    await ProductDb(companyId: _companyModel.companyId, productId: "").getProducts().then((value){
+    await ProductDb(companyId: widget.companyModel.companyId, productId: "").getProducts().then((value){
       setState(() {
         products=value;
       });
@@ -75,11 +75,13 @@ class _ProductState extends State<Product> {
                     }else{
                       return ListTile(
                         onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProduct(productId: snapshot.data.docs[index]["productId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
+                          if(widget.userModel.rights.contains(Rights.editProduct)){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProduct(productId: snapshot.data.docs[index]["productId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
+                          }
                         },
                         title: Text(snapshot.data.docs[index]["productName"]),
                         subtitle: Text("Price: ${snapshot.data.docs[index]["totalPrice"]} Rs."),
-                        trailing: _userModel.role=="manager".toUpperCase()
+                        trailing: widget.userModel.rights.contains(Rights.deleteProduct)
                             ?InkWell(
                             onTap:(){
                               showWarning(snapshot.data.docs[index]["productId"]);
@@ -117,7 +119,7 @@ class _ProductState extends State<Product> {
     );
   }
   deleteProduct(String productId)async{
-    await ProductDb(companyId: _companyModel.companyId, productId: productId).deleteProduct().then((value){
+    await ProductDb(companyId: widget.companyModel.companyId, productId: productId).deleteProduct().then((value){
       if(value==true){
         showSnackbar(context,Colors.cyan,"Deleted");
       }else{
