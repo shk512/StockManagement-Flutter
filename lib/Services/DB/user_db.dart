@@ -22,6 +22,13 @@ class UserDb{
     await userCollection.doc(id).set(mapData);
   }
 
+  //delete User
+  Future deleteUser()async{
+    await userCollection.doc(id).update({
+      "isDeleted":true
+    });
+  }
+
   //update user
   Future updateUser(Map<String,dynamic> mapData)async{
     await userCollection.doc(id).update(mapData);

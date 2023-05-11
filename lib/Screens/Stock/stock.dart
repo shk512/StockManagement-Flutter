@@ -6,6 +6,7 @@ import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/product_db.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
+import '../../Constants/rights.dart';
 import '../../Models/user_model.dart';
 
 class Stock extends StatefulWidget {
@@ -64,7 +65,7 @@ class _StockState extends State<Stock> {
                     return ListTile(
                       title: Text(snapshot.data.docs[index]["productName"]),
                       subtitle: Text(snapshot.data.docs[index]["totalQuantity"].toString()),
-                      trailing:  widget.userModel.role == "manager".toUpperCase()
+                      trailing:  widget.userModel.rights.contains(Rights.updateStock)||widget.userModel.rights.contains(Rights.all)
                           ? InkWell(
                           onTap: () {
                             showStockInputDialogue(

@@ -5,6 +5,7 @@ import 'package:stock_management/Constants/narration.dart';
 import 'package:stock_management/Functions/open_map.dart';
 import 'package:stock_management/Models/order_model.dart';
 import 'package:stock_management/Screens/Order/edit_order.dart';
+import 'package:stock_management/Screens/Order/edit_user_id.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
@@ -33,6 +34,8 @@ class ViewOrder extends StatefulWidget {
 class _ViewOrderState extends State<ViewOrder> {
   DocumentSnapshot? orderSnapshot;
   DocumentSnapshot? shopSnapshot;
+  String orderBookerName="";
+  String deliveryManName="";
   GeoPoint orderLocation=GeoPoint(0,0);
   GeoPoint shopLocation=GeoPoint(0, 0);
 
@@ -49,7 +52,19 @@ class _ViewOrderState extends State<ViewOrder> {
         OrderModel.totalAmount=value["totalAmount"];
         orderLocation=value["geoLocation"];
       });
-      await ShopDB(companyId: widget.companyModel.companyId, shopId: value["shopId"]).getShopDetails().then((value){
+      await UserDb(id: value["orderBy"]).getData().then((value){
+        setState(() {
+          orderBookerName="${value["name"]}\t${value["phone"]}";
+        });
+      });
+      if(value["deliverBy"].toString().isNotEmpty){
+        await UserDb(id: value["deliverBy"]).getData().then((value){
+          setState(() {
+            deliveryManName="${value["name"]}\t${value["phone"]}";
+          });
+        });
+      }
+      await ShopDB(companyId: widget.companyModel.companyId, shopId: value["shopId"]).getShopDetails().then((value)async{
         setState(() {
           shopSnapshot=value;
           shopLocation=value["geoLocation"];
@@ -111,7 +126,7 @@ class _ViewOrderState extends State<ViewOrder> {
                 :const SizedBox(),
             IconButton(
                 onPressed: (){
-
+                  //generatePdf();
                 },
                 icon: Icon(Icons.download,color: Colors.white,),
             )
@@ -121,7 +136,7 @@ class _ViewOrderState extends State<ViewOrder> {
             ?FloatingActionButton.extended(
           onPressed: (){
             if(widget.userModel.rights.contains(Rights.dispatchOrder)||widget.userModel.rights.contains(Rights.all)){
-              updateOrderStatus("Dispatch");
+              updateOrderStatus("Dispatch".toUpperCase());
             }
           },
           label: const Text("Dispatch",style: TextStyle(color: Colors.white),),
@@ -136,7 +151,9 @@ class _ViewOrderState extends State<ViewOrder> {
           label: const Text("Deliver",style: TextStyle(color: Colors.white),),
         )
             :const SizedBox(),
-        body: Column(
+        body: orderBookerName.isEmpty
+            ? const Center(child: CircularProgressIndicator(),)
+            :Column(
             children:[
               Expanded(
                 child: Padding(
@@ -150,6 +167,8 @@ class _ViewOrderState extends State<ViewOrder> {
                       RowInfoDisplay(value: orderSnapshot!["advanceAmount"].toString(), label: "Receive Amount"),
                       RowInfoDisplay(value: orderSnapshot!["concessionAmount"].toString(), label: "Concession Amount"),
                       RowInfoDisplay(value: orderSnapshot!["balanceAmount"].toString(), label: "Balance Amount"),
+                      RowInfoDisplay(value: orderBookerName, label: "Order By"),
+                      RowInfoDisplay(value: deliveryManName, label: "Deliver By"),
                     ],
                   ),
                 ),
@@ -157,7 +176,6 @@ class _ViewOrderState extends State<ViewOrder> {
               const SizedBox(height: 5,),
               Expanded(
                 child: ListView.builder(
-                  shrinkWrap: true,
                     itemCount: OrderModel.products.length,
                     itemBuilder: (context,index){
                       if(OrderModel.products.isEmpty){
@@ -177,8 +195,6 @@ class _ViewOrderState extends State<ViewOrder> {
                               child: Text(
                                 "${OrderModel.products[index]["totalQuantity"]}",style: TextStyle(fontSize:16,fontWeight: FontWeight.w900,color: Colors.white),),
                             ),
-                            //Icon(Icons.brightness_1_outlined,size: 30,semanticLabel:"${OrderModel.products[index]["totalQuantity"]}" ,)
-                            //Text("${OrderModel.products[index]["totalQuantity"]}",style: TextStyle(fontWeight: FontWeight.w900),),
                       ),
                           )));
                       }
@@ -198,8 +214,12 @@ class _ViewOrderState extends State<ViewOrder> {
           OrderModel.products=[];
           OrderModel.totalAmount=0;
         });
-        Navigator.pop(context);
-        showSnackbar(context, Colors.cyan, status);
+        if(status=="Dispatch".toUpperCase()){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>EditUserId(orderId: widget.orderId, companyModel: widget.companyModel,userModel: widget.userModel,)));
+        }else{
+          Navigator.pop(context);
+          showSnackbar(context, Colors.cyan, status);
+        }
       }else{
         showSnackbar(context, Colors.red, "Error");
       }
@@ -329,4 +349,112 @@ class _ViewOrderState extends State<ViewOrder> {
       Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
     });
   }
+ /* generatePdf()async{
+    final pdf=pw.Document();
+    pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context){
+            return pw.Padding(
+                padding:  pw.EdgeInsets.all(5),
+              child: pw.Column(
+                mainAxisAlignment: pw.MainAxisAlignment.center,
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  pw.Text(widget.companyModel.companyName,style: pw.TextStyle(fontSize: 24,fontWeight: pw.FontWeight.bold)),
+                  pw.SizedBox(height: 5),
+                  pw.Text("Invoice# ${orderSnapshot!["orderId"]}"),
+                  pw.SizedBox(height: 5),
+                  OrderDetails(orderSnapshot!["shopDetails"], "Shop Details"),
+                  OrderDetails(orderSnapshot!["dateTime"],  "Order Date"),
+                  OrderDetails(orderSnapshot!["remarks"], "Remarks"),
+                  OrderDetails(orderSnapshot!["remarks"], "Remarks"),
+                  OrderDetails(orderBookerName, "Order By"),
+                  OrderDetails(deliveryManName, "Deliver By"),
+                pw.Row(
+                    children: [
+                      pw.Expanded(
+                        flex: 2,
+                        child: pw.Text("Product Description"),
+                      ),
+                      pw.Expanded(
+                        flex: 1,
+                        child: pw.Text("Quantity"),
+                      ),
+                      pw.Expanded(
+                        flex: 1,
+                        child: pw.Text("Price"),
+                      ),
+                      pw.Expanded(
+                        flex: 1,
+                        child: pw.Text("Total Amount"),
+                      ),
+                    ]
+                ),
+                  pw.Expanded(
+                    child: pw.ListView.builder(
+                        itemCount: OrderModel.products.length,
+                        itemBuilder: (context,index){
+                          if(OrderModel.products.isEmpty){
+                            return pw.Center(child: pw.Text("Cart is Empty"),);
+                          }else {
+                            return pw.Row(
+                                children: [
+                                  pw.Expanded(
+                                    flex: 2,
+                                    child: pw.Text("${OrderModel
+                                        .products[index]["productName"]}-${OrderModel
+                                        .products[index]["description"]}"),
+                                  ),
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Text("${OrderModel
+                                        .products[index]["totalQuantity"]}"),
+                                  ),
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Text("${OrderModel
+                                        .products[index]["minPrice"]}"),
+                                  ),
+                                  pw.Expanded(
+                                    flex: 1,
+                                    child: pw.Text("${OrderModel
+                                        .products[index]["totalPrice"]}"),
+                                  ),
+                                ]
+                            );
+                          }
+                        }
+                    ),
+                  ),
+                  OrderDetails(orderSnapshot!["totalAmount"].toString(),"Total Amount"),
+                  OrderDetails(orderSnapshot!["advanceAmount"].toString(), "Receive Amount"),
+                  OrderDetails(orderSnapshot!["concessionAmount"].toString(), "Concession Amount"),
+                  OrderDetails(orderSnapshot!["balanceAmount"].toString(), "Balance Amount"),
+                ]
+              )
+            );
+        }
+    ));
+
+    final file = File("${orderSnapshot!["orderId"]}.pdf");
+    await file.writeAsBytes(await pdf.save());
+  }
+  pw.Widget OrderDetails(String value,String label){
+    return  pw.Padding(
+      padding: pw.EdgeInsets.all(5),
+      child: pw.Row(
+        children: [
+          pw.Expanded(
+              flex: 1,
+              child: pw.Text(label,style: pw.TextStyle(fontWeight: pw.FontWeight.bold),)
+          ),
+          pw.Expanded(
+              flex: 3,
+              child: pw.Text(value)
+          ),
+        ],
+      ),
+    );
+  }*/
 }

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
@@ -217,8 +216,9 @@ class _SignupState extends State<Signup> {
         isLoading=true;
       });
       await auth.createUser(mail.text, pass.text).then((value)async{
-          await UserDb(id: FirebaseAuth.instance.currentUser!.uid).saveUser(_userModel.toJson(
-              userId: FirebaseAuth.instance.currentUser!.uid,
+        if(value.toString().isNotEmpty){
+          await UserDb(id: value.toString()).saveUser(_userModel.toJson(
+              userId: value.toString(),
               name: name.text,
               salary: int.parse(salary.text),
               mail: mail.text,
@@ -230,23 +230,23 @@ class _SignupState extends State<Signup> {
               isDeleted: false,
               rights: rights,
               area: [])).then((value){
-                SPF.saveUserLogInStatus(true);
-                setState(() {
-                  isLoading=false;
-                });
-                Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+            SPF.saveUserLogInStatus(true);
+            setState(() {
+              isLoading=false;
+            });
+            Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
           }).onError((error, stackTrace){
             setState(() {
               isLoading=false;
             });
             Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
           });
-      }).onError((error, stackTrace){
-        setState(() {
-          isLoading=false;
+        }}).onError((error, stackTrace){
+          setState(() {
+            isLoading=false;
+          });
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
         });
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
-      });
     }
   }
   Widget checkBoxLists(){

@@ -45,7 +45,7 @@ class _AreaShopState extends State<AreaShop> {
         title: Text(widget.areaName,style: const TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
-      floatingActionButton: widget.userModel.rights.contains(Rights.addShop)
+      floatingActionButton: widget.userModel.rights.contains(Rights.addShop)||widget.userModel.rights.contains(Rights.all)
           ?FloatingActionButton.extended(
           onPressed: (){
             Navigator.push(context, MaterialPageRoute(builder: (context)=>AddShop(areaName: widget.areaName, userModel: widget.userModel, companyModel: widget.companyModel,)));
@@ -69,7 +69,7 @@ class _AreaShopState extends State<AreaShop> {
                   return ListView.builder(
                       itemCount: snapshot.data.docs.length,
                       itemBuilder: (context,index) {
-                          if(snapshot.data.docs[index]["areaId"]==widget.areaName && snapshot.data.docs[index]["isDeleted"]==false&& snapshot.data.docs[index]["isActive"]==false){
+                          if(snapshot.data.docs[index]["areaId"]==widget.areaName && snapshot.data.docs[index]["isDeleted"]==false&& snapshot.data.docs[index]["isActive"]==true){
                             return ListTile(
                               onTap: (){
                                 Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: snapshot.data.docs[index]["shopId"], companyModel: widget.companyModel,userModel: widget.userModel,)));

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Screens/User/assign_shop.dart';
+import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/Widgets/text_field.dart';
 import 'package:stock_management/utils/snack_bar.dart';
@@ -25,6 +26,7 @@ class _EditUserState extends State<EditUser> {
   TextEditingController designation=TextEditingController();
   TextEditingController salary=TextEditingController();
   String role="";
+  String shopName="";
   final formKey=GlobalKey<FormState>();
   List rights=[];
   /*
@@ -70,7 +72,7 @@ class _EditUserState extends State<EditUser> {
     getUserData();
   }
   getUserData()async{
-    await UserDb(id: widget.userId).getData().then((snapshot) {
+    await UserDb(id: widget.userId).getData().then((snapshot) async{
       setState(() {
         name.text=snapshot["name"];
         contact.text=snapshot["phone"];
@@ -180,6 +182,13 @@ class _EditUserState extends State<EditUser> {
           viewReport=true;
         }
       });
+      if(role=="Shop Keeper"){
+      await ShopDB(companyId: widget.userModel.companyId, shopId: snapshot["designation"]).getShopDetails().then((value){
+        setState(() {
+          shopName="${value["shopName"]}-${value["areaId"]}";
+        });
+      });
+    }
     });
   }
   @override
@@ -207,35 +216,41 @@ class _EditUserState extends State<EditUser> {
                 children: [
                   TxtField(labelTxt: "Name", hintTxt: "Enter your name", ctrl: name, icon: const Icon(Icons.person_outline)),
                   NumField(labelTxt: "Contact", hintTxt: "03001234567", ctrl: contact, icon: const Icon(Icons.phone)),
+                  role=="Employee".toUpperCase()?TxtField(labelTxt: "Designation", hintTxt: "Employee's designation", ctrl: designation, icon: Icon(CupertinoIcons.star_circle)):const SizedBox(),
                   role=="Employee".toUpperCase()?NumField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon:const Icon(Icons.onetwothree)):const SizedBox(),
-                  role=="Shop Keeper".toUpperCase()
+                  role=="Company".toUpperCase()
+                      ?const SizedBox()
+                      : role=="Shop Keeper".toUpperCase()
                       ?Column(
                     children: [
-                      Text(designation.text),
-                      SizedBox(height: 10,),
-                      ElevatedButton(
+                      Text(shopName),
+                      const SizedBox(height: 10),
+                      widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all)
+                          ? ElevatedButton(
                           onPressed: (){
-                            if(widget.userModel.rights.contains(Rights.editUser)||widget.userModel.rights.contains(Rights.all)){
                               Navigator.push(context,MaterialPageRoute(builder: (context)=>AssignShop(userId: widget.userId)));
-                            }
                           },
                           child: Text("Update Shop",style: TextStyle(color: Colors.white),))
+                          :const SizedBox()
                     ],
                   )
                       :TxtField(labelTxt: "Designation", hintTxt: "Employee's designation", ctrl: designation, icon: const Icon(CupertinoIcons.star_circle)),
-                  widget.userModel.rights.contains(Rights.editUser)||rights.contains(Rights.all)
-                      ?const Align(
-                    alignment: AlignmentDirectional.bottomStart,
-                    child: Text(
-                      "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
-                  ):const SizedBox(),
-                  widget.userModel.rights.contains(Rights.editUser)||rights.contains(Rights.all)
-                      ?checkBoxLists()
-                      :const SizedBox(),
+                  widget.userModel.role=="Company".toUpperCase()
+                      ?Column(
+                    children: [
+                      const Align(
+                        alignment: AlignmentDirectional.bottomStart,
+                        child: Text(
+                          "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
+                      ),
+                      checkBoxLists()
+                    ],
+                  ):const SizedBox()
                 ],
-              )),
+              ),
+          )
         ),
-      )
+      ),
     );
   }
   updateData()async{

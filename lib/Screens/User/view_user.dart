@@ -5,6 +5,7 @@ import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/User/edit_user.dart';
+import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 
 import '../../Widgets/row_info_display.dart';
@@ -23,6 +24,8 @@ class ViewUser extends StatefulWidget {
 
 class _ViewUserState extends State<ViewUser> {
   DocumentSnapshot? snapshot;
+  String shopName="";
+  String shopId="";
   List area=[];
   List rights=[];
   @override
@@ -31,13 +34,21 @@ class _ViewUserState extends State<ViewUser> {
     getData();
   }
   getData() async{
-    await UserDb(id: widget.userId).getData().then((value){
+    await UserDb(id: widget.userId).getData().then((value)async{
       setState(() {
         snapshot=value;
         area=List.from(snapshot!["area"]);
         rights=List.from(snapshot!["right"]);
+        shopId=snapshot!["designation"];
       });
-    });
+      if(snapshot!["role"]=="Shop Keeper".toUpperCase()&&shopId.isNotEmpty){
+        await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).getShopDetails().then((value){
+          setState(() {
+            shopName="${value["shopName"]}-${value["areaId"]}";
+          });
+        }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+      }
+    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
   }
   @override
   Widget build(BuildContext context) {
@@ -51,11 +62,13 @@ class _ViewUserState extends State<ViewUser> {
           },
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
-        title: Text(widget.userModel.userId==widget.userId?"Profile":snapshot!["role"],style: TextStyle(color: Colors.white),),
+        title: Text(snapshot!["userId"]==widget.userModel.userId?"Profile":snapshot!["role"],style: TextStyle(color: Colors.white),),
         actions: [
           IconButton(
               onPressed: (){
-
+                if(widget.userModel.rights.contains(Rights.addTransaction)||widget.userModel.rights.contains(Rights.all)){
+                  createTransaction();
+                }
               }, icon: const Icon(Icons.account_balance_wallet_outlined,color: Colors.white,)),
           Align(
             alignment: Alignment.center,
@@ -80,50 +93,47 @@ class _ViewUserState extends State<ViewUser> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 RowInfoDisplay(label: "Email", value: snapshot!["mail"].toLowerCase()),
-                const SizedBox(height: 10),
                 RowInfoDisplay(label: "Name", value: snapshot!["name"].toUpperCase()),
-                const SizedBox(height: 10),
                 RowInfoDisplay(label:"Contact", value: snapshot!["phone"]),
-                const SizedBox(height: 10),
-                snapshot!["designation"].isNotEmpty&&snapshot!["role"]!="Shop Keeper".toUpperCase()?RowInfoDisplay(label: "Designation", value: snapshot!["designation"]):const SizedBox(),
-                const SizedBox(height: 10),
+                snapshot!["role"]=="Employee".toUpperCase()?RowInfoDisplay(label: "Designation", value: snapshot!["designation"]):const SizedBox(),
                 snapshot!["role"]=="Employee".toUpperCase()?RowInfoDisplay(label: "Salary", value:snapshot!["salary"].toString()):const SizedBox(),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
                 snapshot!["role"]=="shop keeper".toUpperCase()
-                    ?Container()
-                    : Row(
-                  children: [
-                    Expanded(child: Text(snapshot!["role"]=="Shop Keeper".toUpperCase()?"Shop":"Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.cyan),)),
-                    widget.userModel.rights.contains(Rights.addArea) || widget.userModel.rights.contains(Rights.all)
-                        ? Expanded(
-                      child: snapshot!["role"]!="Shop Keeper".toUpperCase()
-                          ?IconButton(
-                        onPressed: (){
-                          if(snapshot!["role"]!="Shop Keeper".toUpperCase()){
-                            showAreaDialogueBox();
-                          }
-                        },
-                        icon: const Icon(Icons.add,color: Colors.cyan,) ,
-                      ):const SizedBox(),
-                    ): const SizedBox()
-                  ],
-                ),
+                      ?Text("Shop",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.cyan))
+                      :Row(
+                        children: [
+                          Expanded(child: Text("Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.cyan),)),
+                            widget.userModel.rights.contains(Rights.addArea) || widget.userModel.rights.contains(Rights.all)
+                            ? Expanded(
+                              child :IconButton(
+                                onPressed: (){
+                                  showAreaDialogueBox();
+                              },
+                              icon: const Icon(Icons.add,color: Colors.cyan,) ,
+                              ),
+                            ): const SizedBox()
+                        ],
+                      ),
                 const SizedBox(height: 5),
                 snapshot!["role"]=="Shop Keeper".toUpperCase()
-                    ? Text(snapshot!["designation"]=="" ? "${snapshot!["designation"]}":"No Shop Assigned")
-                    :area.isEmpty?const Text("No Area Assigned"):showAreaList(),
-                widget.userModel.rights.contains(Rights.editUser)||widget.userModel.rights.contains(Rights.all)
-                    ?const Align(
-                  alignment: AlignmentDirectional.bottomStart,
-                  child: Text(
-                    "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
-                ):const SizedBox(),
-                snapshot!["role"]!="Company".toUpperCase()
-                    ?showRights():const SizedBox(),
+                      ? Text(snapshot!["designation"].toString().isNotEmpty ? shopName : "No Shop Assigned")
+                      :area.isEmpty?const Text("No Area Assigned"):showAreaList(),
+                const SizedBox(height: 10,),
+                widget.userModel.role=="Company".toUpperCase()
+                    ?Column(
+                      children: [
+                        const Align(
+                          alignment: AlignmentDirectional.bottomStart,
+                          child: Text(
+                          "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
+                      ),
+                    showRights()
+                  ],
+                ):const SizedBox()
               ],
             ),
         ),
-        ),
+      ),
     );
   }
   Widget showRights(){
@@ -176,7 +186,7 @@ class _ViewUserState extends State<ViewUser> {
         context: context,
         builder: (context){
           return AlertDialog(
-            title: const Text("Tap on area name to add in user's area list"),
+            title: const Text("Tap on area to add"),
             content: showCompanyList(),
             actions: [
               ElevatedButton(
@@ -238,5 +248,8 @@ class _ViewUserState extends State<ViewUser> {
           );
         }
     );
+  }
+  createTransaction(){
+
   }
 }

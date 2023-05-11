@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Company/company_details.dart';
@@ -72,7 +73,7 @@ class _DashboardState extends State<Dashboard> {
         _companyModel.isPackageActive= snapshot['isPackageActive'];
         _companyModel.packageEndsDate= snapshot['packageEndsDate'];
         _companyModel.companyName= snapshot['companyName'];
-        _companyModel.area=snapshot['area'];
+        _companyModel.area=List.from(snapshot['area']);
         _companyModel.wallet=snapshot['wallet'];
         _companyModel.packageType=snapshot["packageType"];
         _companyModel.whatsApp=snapshot["whatsApp"];
@@ -86,69 +87,94 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    if(_companyModel.companyName.isEmpty){
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if(_userModel.isDeleted){
+      return ErrorScreen(error: "Your account is inactive.\nContact your company.\nIf you are a company then contact developer.");
+    }
+    if(!_companyModel.isPackageActive){
+      return ErrorScreen(error: "Oops! Company package has been expired.");
+    }
+    else{
+      DateTime dateTime=DateTime.parse(DateFormat("yyyy-MM-dd").format(DateTime.now()));
+      if(_companyModel.packageEndsDate.isNotEmpty){
+        DateTime packageEndDate=DateTime.parse(_companyModel.packageEndsDate);
+        if(packageEndDate.isBefore(dateTime)){
+          changePackageStatus();
+        }
+      }
       return _companyModel.companyName.isEmpty
           ? const Center(child: CircularProgressIndicator(),)
           :Scaffold(
-        appBar: AppBar(
-          leading: GestureDetector(
-            onTap: (){
-              if(_userModel.rights.contains(Rights.viewCompany)||_userModel.rights.contains(Rights.all)){
-                Navigator.push(context,MaterialPageRoute(builder: (context)=>CompanyDetails(userModel: _userModel,companyModel: _companyModel,)));
-              }
-            },
-            child: CircleAvatar(
-              backgroundColor: Colors.cyan,
-              child: _companyModel.imageUrl.isNotEmpty?Image.network(_companyModel.imageUrl):const Icon(Icons.warehouse_outlined,color: Colors.white,),)
-          ),
-          title:  Text(_companyModel.companyName,style: const TextStyle(color: Colors.white),),
-          actions: [
-            PopupMenuButton(
-              color: Colors.white,
-              onSelected: (value){
-                if(value==0){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewUser(userId: _userModel.userId, userModel: _userModel, companyModel: _companyModel)));
-                }
-                if(value==1){
-                  signOut(context);
-                }
-              },
-                itemBuilder: (context){
-                  return [
-                    PopupMenuItem(
-                      value: 0,
-                      child: Row(children: const [Icon(CupertinoIcons.person_crop_circle), SizedBox(width: 5,),Text("View Profile")],),
-                    ),
-                    PopupMenuItem(
-                      value: 1,
-                      child: Row(children: const [Icon(Icons.logout_outlined),SizedBox(width: 5,),Text("SignOut")],),
-                    ),
-                  ];
-                }
+          appBar: AppBar(
+            leading: GestureDetector(
+                onTap: (){
+                  if(_userModel.rights.contains(Rights.viewCompany)||_userModel.rights.contains(Rights.all)){
+                    Navigator.push(context,MaterialPageRoute(builder: (context)=>CompanyDetails(userModel: _userModel,companyModel: _companyModel,)));
+                  }
+                },
+                child: CircleAvatar(
+                  backgroundColor: Colors.cyan,
+                  child: _companyModel.imageUrl.isNotEmpty?Image.network(_companyModel.imageUrl):const Icon(Icons.warehouse_outlined,color: Colors.white,),)
             ),
-          ],
-        ),
-        body: SingleChildScrollView(
-            child: Column(
-                children: [
-                  _userModel.rights.contains(Rights.viewOrder)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Track Order", route: Order(userModel: _userModel,companyModel: _companyModel,), icon: Icons.directions, clr: Colors.cyan.shade200):const SizedBox(),
-                  _userModel.rights.contains(Rights.placeOrder)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Place Order", route: Area(companyModel: _companyModel,userModel: _userModel,), icon:Icons.add_shopping_cart, clr: Colors.cyan.shade200):const SizedBox(),
-                  _userModel.rights.contains(Rights.viewStock)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Stock", route: Stock(userModel: _userModel,companyModel: _companyModel,), icon: Icons.cached_outlined, clr: Colors.cyan.shade200):const SizedBox(),
-                  _userModel.rights.contains(Rights.viewUser)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "User", route: Employee(companyModel: _companyModel,userModel: _userModel,), icon: CupertinoIcons.person_2, clr: Colors.cyan.shade200):const SizedBox(),
-                  _userModel.rights.contains(Rights.viewProduct)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Product", route: Product(userModel: _userModel,companyModel: _companyModel,), icon: Icons.add_circle_outline, clr: Colors.cyan.shade200):const SizedBox(),
-                  _userModel.rights.contains(Rights.viewShop)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Shop", route: Shop(userModel: _userModel,companyModel: _companyModel,), icon:Icons.storefront, clr: Colors.cyan.shade200):const SizedBox(),
-                  _userModel.rights.contains(Rights.viewReport)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Report", route: Report(), icon:Icons.description, clr: Colors.cyan.shade200):const SizedBox(),
-                  _userModel.rights.contains(Rights.viewTransactions)||_userModel.rights.contains(Rights.all)
-                      ? DashboardMenu(name: "Accounts", route: Accounts(), icon: Icons.account_balance_outlined, clr: Colors.cyan.shade200):const SizedBox(),
-                ],
+            title:  Text(_companyModel.companyName,style: const TextStyle(color: Colors.white),),
+            actions: [
+              PopupMenuButton(
+                  color: Colors.white,
+                  onSelected: (value){
+                    if(value==0){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewUser(userId: _userModel.userId, userModel: _userModel, companyModel: _companyModel)));
+                    }
+                    if(value==1){
+                      signOut(context);
+                    }
+                  },
+                  itemBuilder: (context){
+                    return [
+                      PopupMenuItem(
+                        value: 0,
+                        child: Row(children: const [Icon(CupertinoIcons.person_crop_circle), SizedBox(width: 5,),Text("View Profile")],),
+                      ),
+                      PopupMenuItem(
+                        value: 1,
+                        child: Row(children: const [Icon(Icons.logout_outlined),SizedBox(width: 5,),Text("SignOut")],),
+                      ),
+                    ];
+                  }
               ),
-            )
+            ],
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                _userModel.rights.contains(Rights.viewOrder)||_userModel.rights.contains(Rights.all)
+                    ? DashboardMenu(name: "Track Order", route: Order(userModel: _userModel,companyModel: _companyModel,), icon: Icons.directions, clr: Colors.cyan.shade300):const SizedBox(),
+                _userModel.rights.contains(Rights.placeOrder)||_userModel.rights.contains(Rights.all)
+                    ? DashboardMenu(name: "Place Order", route: Area(companyModel: _companyModel,userModel: _userModel,), icon:Icons.add_shopping_cart, clr: Colors.cyan.shade300):const SizedBox(),
+                _userModel.rights.contains(Rights.viewStock)||_userModel.rights.contains(Rights.all)
+                    ? DashboardMenu(name: "Stock", route: Stock(userModel: _userModel,companyModel: _companyModel,), icon: Icons.cached_outlined, clr: Colors.cyan.shade300):const SizedBox(),
+                _userModel.rights.contains(Rights.viewUser)||_userModel.rights.contains(Rights.all)
+                    ? DashboardMenu(name: "User", route: Employee(companyModel: _companyModel,userModel: _userModel,), icon: CupertinoIcons.person_2, clr: Colors.cyan.shade300):const SizedBox(),
+                _userModel.rights.contains(Rights.viewProduct)||_userModel.rights.contains(Rights.all)
+                    ? DashboardMenu(name: "Product", route: Product(userModel: _userModel,companyModel: _companyModel,), icon: Icons.add_circle_outline, clr: Colors.cyan.shade300):const SizedBox(),
+                _userModel.rights.contains(Rights.viewShop)||_userModel.rights.contains(Rights.all)
+                    ? DashboardMenu(name: "Shop", route: Shop(userModel: _userModel,companyModel: _companyModel,), icon:Icons.storefront, clr: Colors.cyan.shade300):const SizedBox(),
+                _userModel.rights.contains(Rights.viewReport)||_userModel.rights.contains(Rights.all)
+                    ? DashboardMenu(name: "Report", route: Report(), icon:Icons.description, clr: Colors.cyan.shade300):const SizedBox(),
+                _userModel.rights.contains(Rights.viewTransactions)||_userModel.rights.contains(Rights.all)
+                    ? DashboardMenu(name: "Accounts", route: Accounts(), icon: Icons.account_balance_outlined, clr: Colors.cyan.shade300):const SizedBox(),
+              ],
+            ),
+          )
       );
+    }
+  }
+  changePackageStatus()async{
+    await CompanyDb(id: _companyModel.companyId).updateCompany({"isPackageActive":false}).then((value){
+      getUserAndCompanyData();
+    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
   }
 }

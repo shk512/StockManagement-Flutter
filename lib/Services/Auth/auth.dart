@@ -11,10 +11,8 @@ class Auth{
       User user = (await firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: pass))
           .user!;
-      if (user != null) {
-        return true;
-      }else{
-        return false;
+      if (user.uid.isNotEmpty) {
+        return user.uid;
       }
     } on FirebaseAuthException catch (e) {
       return e.message;
@@ -37,7 +35,7 @@ class Auth{
 
   Future updateNewPass(String newPass) async {
     try {
-      await firebaseAuth.currentUser?.updatePassword(newPass);
+      await firebaseAuth.currentUser!.updatePassword(newPass);
       return true;
     } on FirebaseAuthException catch (e) {
       return e.message;
@@ -54,13 +52,4 @@ class Auth{
     }
   }
 
-  //DELETE
-  Future deleteUser() async {
-    try {
-      await firebaseAuth.currentUser!.delete();
-      return true;
-    } on FirebaseAuthException catch (e) {
-      return e.message;
-    }
-  }
 }

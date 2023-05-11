@@ -7,8 +7,6 @@ import '../utils/snack_bar.dart';
 
 signOut(BuildContext context)async{
   Auth auth=Auth();
-  await SPF.saveUserId("");
-  await SPF.saveCompanyId("");
   await SPF.saveUserLogInStatus(false);
   await auth.signOut().then((value){
     Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);

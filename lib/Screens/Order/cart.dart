@@ -2,11 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:stock_management/Functions/location.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Screens/Area/area.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
+import 'package:stock_management/Services/DB/report_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
@@ -90,15 +92,17 @@ class _CartState extends State<Cart> {
                       subtitle: Text("Detail: ${OrderModel.products[index]["totalQuantity"]}x${OrderModel.products[index]["minPrice"]}=${OrderModel.products[index]["totalPrice"]}"),
                       trailing: IconButton(
                           onPressed: ()async{
-                            await ProductDb(companyId: widget.companyModel.companyId, productId: OrderModel.products[index]["productId"]).increment(OrderModel.products[index]["totalQuantity"]).then((value){
-                              showSnackbar(context, Colors.red, "Removed");
-                              setState(() {
-                                OrderModel.totalAmount-=OrderModel.products[index]["totalPrice"];
+                            await ProductDb(companyId: widget.companyModel.companyId, productId: OrderModel.products[index]["productId"]).increment(OrderModel.products[index]["totalQuantity"]).then((value)async{
+                              String formattedDate=DateFormat("yyyy-MM-dd").format(DateTime.now());
+                              await ReportDb(companyId: widget.companyModel.companyId, productId: OrderModel.products[index]["productId"]).decrement(OrderModel.products[index]["totalQuantity"], formattedDate).then((value){
+                                setState(() {
+                                  OrderModel.totalAmount=OrderModel.totalAmount-OrderModel.products[index]["totalPrice"];
+                                  OrderModel.products.removeAt(index);
+                                });
+                                showSnackbar(context, Colors.cyan, "Removed");
                               });
-                              OrderModel.products.removeAt(index);
                             });
-                            setState(() {
-                            });
+
                           },
                           icon: const Icon(Icons.remove_circle,color: Colors.red,)),
                     );

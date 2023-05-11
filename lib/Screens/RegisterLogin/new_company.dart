@@ -29,11 +29,11 @@ class _NewCompanyState extends State<NewCompany> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              NumField(labelTxt: "License Key", hintTxt: "Your company's license key....", ctrl: license, icon: const Icon(Icons.warehouse_outlined)),
+              NumField(labelTxt: "License Key", hintTxt: "Your company's license key....", ctrl: license, icon: const Icon(Icons.key)),
               const SizedBox(height: 30),
               ElevatedButton(onPressed: (){
                 licenseCheck();
-              }, child: const Text("Submit"),
+              }, child: const Text("Submit",style: TextStyle(color: Colors.white),),
               ),
               const SizedBox(height: 30),
               const Text("For any issue or assistance,\nPlease contact or whatsApp \n0310-7136172",
