@@ -13,7 +13,6 @@ import '../../Constants/rights.dart';
 import '../../Functions/sign_out.dart';
 import '../../Services/DB/company_db.dart';
 import '../../Services/DB/user_db.dart';
-import '../Accounts/account.dart';
 import '../Area/area.dart';
 import '../Order/order.dart';
 import '../Product/product.dart';
@@ -21,6 +20,7 @@ import '../Report/report.dart';
 import '../Shop/shop.dart';
 import '../Splash_Error/error.dart';
 import '../Stock/stock.dart';
+import '../Transaction/transaction.dart';
 import '../User/user.dart';
 
 class Dashboard extends StatefulWidget {
@@ -165,7 +165,7 @@ class _DashboardState extends State<Dashboard> {
                 _userModel.rights.contains(Rights.viewReport)||_userModel.rights.contains(Rights.all)
                     ? DashboardMenu(name: "Report", route: Report(), icon:Icons.description, clr: Colors.cyan.shade300):const SizedBox(),
                 _userModel.rights.contains(Rights.viewTransactions)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Accounts", route: Accounts(), icon: Icons.account_balance_outlined, clr: Colors.cyan.shade300):const SizedBox(),
+                    ? DashboardMenu(name: "Accounts", route: Accounts(companyModel: _companyModel, userModel: _userModel,), icon: Icons.account_balance_outlined, clr: Colors.cyan.shade300):const SizedBox(),
               ],
             ),
           )

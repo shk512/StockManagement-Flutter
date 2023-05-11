@@ -89,47 +89,50 @@ class _ViewOrderState extends State<ViewOrder> {
           ),
           title: Text(orderSnapshot!["orderId"],style: const TextStyle(color: Colors.white),),
           actions: [
-            orderSnapshot!["status"]!="deliver".toUpperCase()
-                ?IconButton(
+            IconButton(
                 onPressed: (){
-                  if(widget.userModel.rights.contains(Rights.editOrder)||widget.userModel.rights.contains(Rights.all)){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>EditOrder(orderId: widget.orderId,companyModel: widget.companyModel,)));
-                    }
-                },
-                icon: const Icon(Icons.edit,color: Colors.white,))
-                :const SizedBox(),
-            orderSnapshot!["status"]=="Processing".toUpperCase()
-                ?IconButton(
-              tooltip: "Navigate Order",
-                onPressed: (){
-                  try{
-                    if(widget.userModel.rights.contains(Rights.orderNavigation)||widget.userModel.rights.contains(Rights.all))
-                    openMap(orderLocation.latitude, orderLocation.longitude);
-                  }catch(e){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: e.toString())));
+
+                }, icon: Icon(Icons.download,color: Colors.white,)),
+            orderSnapshot!["status"]=="Deliver".toUpperCase()
+                ?const SizedBox()
+                : PopupMenuButton(
+                color: Colors.white,
+                onSelected: (value){
+                  if(value==0&&(widget.userModel.rights.contains(Rights.editOrder)||widget.userModel.rights.contains(Rights.all))){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>EditOrder(orderId: widget.orderId, companyModel: widget.companyModel)));
                   }
-                },
-                icon: const Icon(Icons.navigation_outlined,color: Colors.white,))
-                :orderSnapshot!["status"]=="dispatch".toUpperCase()
-                  ?IconButton(
-                  tooltip: "Navigate Shop",
-                  onPressed: (){
+                  if(value==1&&(widget.userModel.rights.contains(Rights.shopNavigation)||widget.userModel.rights.contains(Rights.all))){
                     try{
-                     if(widget.userModel.rights.contains(Rights.orderNavigation)||widget.userModel.rights.contains(Rights.all)){
-                        openMap(shopLocation.latitude, shopLocation.longitude);
-                     }
+                      openMap(shopLocation.latitude, shopLocation.longitude);
                     }catch(e){
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: e.toString())));
                     }
-                  },
-                  icon: const Icon(Icons.navigation_outlined,color: Colors.white,))
-                :const SizedBox(),
-            IconButton(
-                onPressed: (){
-                  //generatePdf();
+                  }
+                  if(value==2&&(widget.userModel.rights.contains(Rights.orderNavigation)||widget.userModel.rights.contains(Rights.all))){
+                    try{
+                      openMap(shopLocation.latitude, shopLocation.longitude);
+                    }catch(e){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: e.toString())));
+                    }
+                  }
                 },
-                icon: Icon(Icons.download,color: Colors.white,),
-            )
+                itemBuilder: (context){
+                  return [
+                    PopupMenuItem(
+                      value: 0,
+                      child: Row(children: const [Icon(Icons.edit), SizedBox(width: 5,),Text("Edit")],),
+                    ),
+                    PopupMenuItem(
+                      value: 1,
+                      child: Row(children: const [Icon(Icons.navigation),SizedBox(width: 5,),Text("Shop")],),
+                    ),
+                    PopupMenuItem(
+                      value: 2,
+                      child: Row(children: const [Icon(Icons.navigation),SizedBox(width: 5,),Text("Order")],),
+                    ),
+                  ];
+                }
+            ),
           ],
         ),
         floatingActionButton: orderSnapshot!["status"]=="processing".toUpperCase()
@@ -314,7 +317,7 @@ class _ViewOrderState extends State<ViewOrder> {
                       "description":detail.text,
                       "deliverBy":widget.userModel.userId
                     }).then((value){
-                      createTransaction(shopSnapshot!["shopId"],orderSnapshot!["shopDetails"],Narration.plus, int.parse(amount.text),tempType);
+                      createTransaction(shopSnapshot!["shopId"],orderSnapshot!["shopDetails"],Narration.minus, int.parse(amount.text),tempType);
                     }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
                   },
                   child: const Text("Submit",style: TextStyle(color: Colors.white),)

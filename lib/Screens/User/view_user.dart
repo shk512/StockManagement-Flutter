@@ -95,6 +95,7 @@ class _ViewUserState extends State<ViewUser> {
                 RowInfoDisplay(label: "Email", value: snapshot!["mail"].toLowerCase()),
                 RowInfoDisplay(label: "Name", value: snapshot!["name"].toUpperCase()),
                 RowInfoDisplay(label:"Contact", value: snapshot!["phone"]),
+                RowInfoDisplay(label:"Status", value: snapshot!["isDeleted"]?"InActive":"Active"),
                 snapshot!["role"]=="Employee".toUpperCase()?RowInfoDisplay(label: "Designation", value: snapshot!["designation"]):const SizedBox(),
                 snapshot!["role"]=="Employee".toUpperCase()?RowInfoDisplay(label: "Salary", value:snapshot!["salary"].toString()):const SizedBox(),
                 const SizedBox(height: 5),

@@ -16,7 +16,7 @@ class AccountDb{
 
   //Get All transactions
   Future getTransaction()async{
-    return await companyCollection.doc(companyId).collection("transaction").snapshots();
+    return await companyCollection.doc(companyId).collection("transaction").orderBy("date",descending: true).snapshots();
   }
 
   //Get Transaction Details

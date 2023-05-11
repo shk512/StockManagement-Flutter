@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,12 +7,18 @@ import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Screens/User/view_user.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
+import 'package:stock_management/Services/DB/company_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/Services/shared_preferences/spf.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
+import '../../Constants/narration.dart';
 import '../../Constants/rights.dart';
 import '../../Constants/routes.dart';
+import '../../Models/account_model.dart';
+import '../../Services/DB/account_db.dart';
+import '../../Widgets/num_field.dart';
+import '../../utils/enum.dart';
 import '../RegisterLogin/signup.dart';
 
 class Employee extends StatefulWidget {
@@ -72,20 +79,37 @@ class _EmployeeState extends State<Employee> {
             return ListView.builder(
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context,index){
-                  if(widget.companyModel.companyId==snapshot.data.docs[index]["companyId"]&&snapshot.data.docs[index]["isDeleted"]==false){
+                  if(widget.companyModel.companyId==snapshot.data.docs[index]["companyId"]){
                     return ListTile(
                       onTap: (){
                         Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewUser(userId: snapshot.data.docs[index]["userId"], userModel: widget.userModel,companyModel: widget.companyModel,)));
                       },
                         title: Text("${snapshot.data.docs[index]["name"]}"),
                         subtitle: Text("${snapshot.data.docs[index]["phone"]}"),
-                        trailing: widget.userModel.rights.contains(Rights.deleteUser)||widget.userModel.rights.contains(Rights.all)
+                        leading: widget.userModel.rights.contains(Rights.deleteUser)||widget.userModel.rights.contains(Rights.all)
                             ?IconButton(
-                            onPressed: (){
-                              showWarningDialogue(snapshot.data.docs[index]["userId"]);
+                            onPressed: ()async{
+                              await UserDb(id: snapshot.data.docs[index]["userId"]).deleteUser(!snapshot.data.docs[index]["isDeleted"]).then((value)async{
+                                if(snapshot.data.docs[index]["userId"]==FirebaseAuth.instance.currentUser!.uid){
+                                  await SPF.saveUserLogInStatus(false);
+                                  Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+                                }else{
+                                  setState(() {
+                                    isLoading=false;
+                                  });
+                                  showSnackbar(context, Colors.cyan, "Updated");
+                                }
+                              }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
                             },
-                            icon: Icon(Icons.delete,color: Colors.red,))
-                            :const SizedBox()
+                            icon: Icon(Icons.notifications_active,color: snapshot.data.docs[index]["isDeleted"]?Colors.red:Colors.green,))
+                            :const SizedBox(),
+                      trailing: ElevatedButton.icon(
+                          onPressed: (){
+                            showTransactionDialogue(snapshot.data.docs[index]["userId"],"${snapshot.data.docs[index]["name"]}-${snapshot.data.docs[index]["designation"]}");
+                          },
+                          icon: Icon(Icons.wallet,color: Colors.white,),
+                          label: Text("${snapshot.data.docs[index]["wallet"]}")
+                      ),
                     );
                   }else{
                     return const SizedBox();
@@ -99,44 +123,117 @@ class _EmployeeState extends State<Employee> {
       ),
     );
   }
-  showWarningDialogue(String userId){
+  showTransactionDialogue(String userId,String userName){
+    final formKey=GlobalKey<FormState>();
+    TextEditingController amount=TextEditingController();
+    TransactionType type=TransactionType.cash;
+    String narration=Narration.plus;
     return showDialog(
         context: context,
         builder: (context){
           return AlertDialog(
-            title: Text("Warning"),
-            content: Text("Are you sure to delete this user?"),
+            title: const Text("Transaction Form"),
+            content: Form(
+              key: formKey,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ListTile(
+                            title: Text(
+                              "Cash",
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            leading: Radio(
+                                value: TransactionType.cash,
+                                groupValue: type,
+                                onChanged: (value) {
+                                  setState(() {
+                                    type = value!;
+                                  });
+                                })
+                        ),
+                      ),
+                      Expanded(
+                        child: ListTile(
+                            title: Text(
+                              "Online",
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            leading: Radio(
+                                value: TransactionType.online,
+                                groupValue: type,
+                                onChanged: (value) {
+                                  setState(() {
+                                    type = value!;
+                                  });
+                                })
+                        ),
+                      )
+                    ],
+                  ),
+                  NumField(icon: Icon(Icons.currency_ruble_outlined), ctrl: amount, hintTxt: "In digits", labelTxt: "Amount Received")
+                ],
+              ),
+            ),
             actions: [
-              IconButton(
-                  onPressed: (){
+              ElevatedButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                }, child: const Text("Cancel",style: TextStyle(color: Colors.white),),
+              ),
+              ElevatedButton(
+                onPressed: (){
+                  if(formKey.currentState!.validate()){
+                    String tempType="";
+                    if(type==TransactionType.cash){
+                      tempType="Cash";
+                    }else{
+                      tempType="Online";
+                    }
+                    createTransaction(userId, userName, narration, int.parse(amount.text),tempType);
                     Navigator.pop(context);
-                  },
-                  icon: Icon(Icons.cancel,color: Colors.red,)),
-              IconButton(
-                  onPressed: (){
-                    Navigator.pop(context);
-                    deleteUser(userId);
-                    setState(() {
-                      isLoading=true;
-                    });
-                  },
-                  icon: Icon(Icons.check_circle_rounded,color: Colors.green,)),
+                  }
+                }, child: Text("Save",style: TextStyle(color: Colors.white),),
+              ),
             ],
           );
-        }
-    );
-  }
-  deleteUser(String userId)async{
-    await UserDb(id: userId).deleteUser().then((value)async{
-      await SPF.saveUserLogInStatus(false);
-      if(userId==FirebaseAuth.instance.currentUser!.uid){
-        Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
-      }else{
-        setState(() {
-          isLoading=false;
         });
-        showSnackbar(context, Colors.cyan, "Deleted");
+  }
+  createTransaction(String userId,String userName,String narration,num amount,String type) async{
+    String transactionId=DateTime.now().microsecondsSinceEpoch.toString();
+    await AccountDb(companyId: widget.companyModel.companyId, transactionId: transactionId).saveTransaction(
+        AccountModel.toJson(
+            transactionId: transactionId,
+            transactionBy: widget.userModel.userId,
+            desc: userName,
+            narration: narration,
+            amount: amount,
+            type: type,
+            dateTime: DateTime.now().toString()
+        )
+    ).then((value)async{
+      if(value==true){
+        await UserDb(id: userId).updateWalletBalance(-amount).then((value)async{
+          await CompanyDb(id: widget.companyModel.companyId).updateCompany({
+            "wallet":FieldValue.increment(amount)
+          }).then((value) {
+            showSnackbar(context, Colors.cyan, "Saved");
+            setState(() {
+
+            });
+          }).onError((error, stackTrace){
+            Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+          });
+        }).onError((error, stackTrace){
+          Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+        });
+      }else{
+        showSnackbar(context, Colors.red, value.toString());
       }
-    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+    }).onError((error, stackTrace) {
+      Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+    });
   }
 }

@@ -23,9 +23,9 @@ class UserDb{
   }
 
   //delete User
-  Future deleteUser()async{
+  Future deleteUser(bool value)async{
     await userCollection.doc(id).update({
-      "isDeleted":true
+      "isDeleted":value
     });
   }
 

@@ -4,14 +4,17 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:stock_management/Functions/location.dart';
+import 'package:stock_management/Models/account_model.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Screens/Area/area.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
+import 'package:stock_management/Services/DB/account_db.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
 import 'package:stock_management/Services/DB/report_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
+import '../../Constants/narration.dart';
 import '../../Models/order_model.dart';
 import '../../Models/user_model.dart';
 import '../../Services/DB/product_db.dart';
@@ -55,7 +58,6 @@ class _CartState extends State<Cart> {
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
         title: const Text("Cart",style: TextStyle(color: Colors.white),),
-        centerTitle: true,
       ),
       floatingActionButton: InkWell(
         onTap: (){
@@ -177,14 +179,26 @@ class _CartState extends State<Cart> {
     ).then((value)async {
       if (value == true) {
         await UserDb(id: widget.userModel.userId).updateWalletBalance(advanceAmount).then((value) async{
-          await ShopDB(companyId: widget.companyModel.companyId, shopId: widget.shopId).updateWallet(OrderModel.totalAmount-advanceAmount).then((value){
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>Area(companyModel: widget.companyModel, userModel: widget.userModel)), (route) => false);
-            showSnackbar(context, Colors.cyan, "Order has been placed");
-            setState(() {
-              OrderModel.products=[];
-              OrderModel.totalAmount=0;
+          await ShopDB(companyId: widget.companyModel.companyId, shopId: widget.shopId).updateWallet(OrderModel.totalAmount-advanceAmount).then((value)async{
+            String tId=DateTime.now().microsecondsSinceEpoch.toString();
+            await AccountDb(companyId: widget.companyModel.companyId, transactionId: tId).saveTransaction(
+                AccountModel.toJson(
+                    transactionId: tId,
+                    transactionBy: widget.userModel.userId,
+                    desc: widget.shopDetails,
+                    narration: Narration.minus,
+                    amount: advanceAmount,
+                    type: "Cash",
+                    dateTime: DateTime.now().toString())).then((value){
+              Navigator.pop(context);
+              Navigator.pop(context);
+              showSnackbar(context, Colors.cyan, "Order has been placed");
+              setState(() {
+                OrderModel.products=[];
+                OrderModel.totalAmount=0;
+              });
             });
-          });
+            });
         });
       } else {
         setState(() {
