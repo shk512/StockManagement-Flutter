@@ -88,27 +88,17 @@ class _EmployeeState extends State<Employee> {
                         subtitle: Text("${snapshot.data.docs[index]["phone"]}"),
                         leading: widget.userModel.rights.contains(Rights.deleteUser)||widget.userModel.rights.contains(Rights.all)
                             ?IconButton(
-                            onPressed: ()async{
-                              await UserDb(id: snapshot.data.docs[index]["userId"]).deleteUser(!snapshot.data.docs[index]["isDeleted"]).then((value)async{
-                                if(snapshot.data.docs[index]["userId"]==FirebaseAuth.instance.currentUser!.uid){
-                                  await SPF.saveUserLogInStatus(false);
-                                  Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
-                                }else{
-                                  setState(() {
-                                    isLoading=false;
-                                  });
-                                  showSnackbar(context, Colors.cyan, "Updated");
-                                }
-                              }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+                            onPressed: (){
+                              showWarningDialogue(snapshot.data.docs[index]);
                             },
-                            icon: Icon(Icons.notifications_active,color: snapshot.data.docs[index]["isDeleted"]?Colors.red:Colors.green,))
+                            icon: Icon(Icons.brightness_1,color: snapshot.data.docs[index]["isDeleted"]?Colors.red:Colors.green,))
                             :const SizedBox(),
                       trailing: ElevatedButton.icon(
                           onPressed: (){
                             showTransactionDialogue(snapshot.data.docs[index]["userId"],"${snapshot.data.docs[index]["name"]}-${snapshot.data.docs[index]["designation"]}");
                           },
                           icon: Icon(Icons.wallet,color: Colors.white,),
-                          label: Text("${snapshot.data.docs[index]["wallet"]}")
+                          label: Text("Rs. ${snapshot.data.docs[index]["wallet"]}",style: TextStyle(color: Colors.white),)
                       ),
                     );
                   }else{
@@ -122,6 +112,40 @@ class _EmployeeState extends State<Employee> {
         },
       ),
     );
+  }
+  showWarningDialogue(DocumentSnapshot snapshot){
+    return showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+            title: Text("Warning"),
+            content: Text("Are you sure to perform this action?"),
+            actions: [
+              IconButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                }, icon: Icon(Icons.cancel,color: Colors.red),),
+              IconButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                  updateStatus(snapshot);
+                }, icon: Icon(Icons.check_circle_rounded,color: Colors.green),),
+            ],
+          );
+        });
+  }
+  updateStatus(DocumentSnapshot snapshot)async{
+    await UserDb(id: snapshot["userId"]).deleteUser(!snapshot["isDeleted"]).then((value)async{
+      if(snapshot["userId"]==FirebaseAuth.instance.currentUser!.uid){
+        await SPF.saveUserLogInStatus(false);
+        Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+      }else{
+        setState(() {
+          isLoading=false;
+        });
+        showSnackbar(context, Colors.cyan, "Updated");
+      }
+    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
   }
   showTransactionDialogue(String userId,String userName){
     final formKey=GlobalKey<FormState>();
@@ -216,12 +240,10 @@ class _EmployeeState extends State<Employee> {
     ).then((value)async{
       if(value==true){
         await UserDb(id: userId).updateWalletBalance(-amount).then((value)async{
-          await CompanyDb(id: widget.companyModel.companyId).updateCompany({
-            "wallet":FieldValue.increment(amount)
-          }).then((value) {
+          await CompanyDb(id: widget.companyModel.companyId).updateWallet(amount).then((value) {
             showSnackbar(context, Colors.cyan, "Saved");
             setState(() {
-
+              widget.companyModel.wallet=amount;
             });
           }).onError((error, stackTrace){
             Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
+import 'package:stock_management/Screens/User/assign_shop.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
@@ -217,6 +218,7 @@ class _SignupState extends State<Signup> {
       });
       await auth.createUser(mail.text, pass.text).then((value)async{
         if(value.toString().isNotEmpty){
+
           await UserDb(id: value.toString()).saveUser(_userModel.toJson(
               userId: value.toString(),
               name: name.text,
@@ -230,11 +232,15 @@ class _SignupState extends State<Signup> {
               isDeleted: false,
               rights: rights,
               area: [])).then((value){
-            SPF.saveUserLogInStatus(true);
             setState(() {
               isLoading=false;
             });
-            Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+            if(_role==UserRole.shopKeeper){
+              Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=>AssignShop(userId: value.toString(), companyId: widget.companyId)), (route) => false);
+            }else{
+              Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
+            }
+            SPF.saveUserLogInStatus(true);
           }).onError((error, stackTrace){
             setState(() {
               isLoading=false;

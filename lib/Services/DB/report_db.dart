@@ -17,6 +17,7 @@ class ReportDb{
     }).onError((error, stackTrace)async{
       await companyCollection.doc(companyId).collection("report").doc(date).set({
         "$productId":quantity,
+        "date":date
       });
     });
     return true;
@@ -28,5 +29,10 @@ class ReportDb{
       "$productId":FieldValue.increment(-quantity),
     });
     return true;
+  }
+
+  //GET REPORT
+  Future getReport()async{
+    return await companyCollection.doc(companyId).collection("report").snapshots();
   }
 }

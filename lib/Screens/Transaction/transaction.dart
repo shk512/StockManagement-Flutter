@@ -10,6 +10,7 @@ import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Models/account_model.dart';
 import '../../Services/DB/account_db.dart';
+import '../../Services/DB/company_db.dart';
 import '../../Widgets/num_field.dart';
 import '../../utils/enum.dart';
 
@@ -238,11 +239,17 @@ class _AccountsState extends State<Accounts> {
             amount: amount,
             type: type,
             dateTime: DateTime.now().toString()
-        )).then((value){
-          showSnackbar(context, Colors.cyan, "Saved");
-          setState(() {
+        )).then((value)async{
+          num tempAmount=amount;
+          if(narration==Narration.minus){
+            tempAmount=-amount;
+          }
+          await CompanyDb(id: widget.companyModel.companyId).updateWallet(tempAmount).then((value){
+            showSnackbar(context, Colors.cyan, "Saved");
+            setState(() {
 
-          });
+            });
+          }).onError((error, stackTrace) => Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
     }).onError((error, stackTrace) {
       Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
     });

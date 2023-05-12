@@ -79,7 +79,12 @@ class _ProductState extends State<Product> {
                             Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProduct(productId: snapshot.data.docs[index]["productId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
                           }
                         },
-                        title: Text(snapshot.data.docs[index]["productName"]),
+                        leading: CircleAvatar(
+                          child: snapshot.data.docs[index]["imageUrl"].toString().isEmpty
+                              ?Icon(Icons.image)
+                              :Image.network(snapshot.data.docs[index]["imageUrl"]),
+                        ),
+                        title: Text("${snapshot.data.docs[index]["productName"]}-${snapshot.data.docs[index]["description"]}"),
                         subtitle: Text("Price: ${snapshot.data.docs[index]["totalPrice"]} Rs."),
                         trailing: widget.userModel.rights.contains(Rights.deleteProduct)
                             ?InkWell(
@@ -88,6 +93,7 @@ class _ProductState extends State<Product> {
                             },
                             child: const Icon(Icons.delete,color: Colors.red,))
                             :const SizedBox(height: 0,),
+                        isThreeLine: true,
                       );
                     }
                   });

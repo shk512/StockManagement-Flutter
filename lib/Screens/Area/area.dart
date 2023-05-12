@@ -37,7 +37,7 @@ class _AreaState extends State<Area> {
   @override
   Widget build(BuildContext context) {
     return widget.userModel.role=="Shop Keeper".toUpperCase()
-        ?AreaShop(areaName: widget.userModel.designation, companyModel: widget.companyModel, userModel: widget.userModel,)
+        ?AreaShop(areaName: widget.userModel.name, companyModel: widget.companyModel, userModel: widget.userModel,)
         :Scaffold(
       appBar: AppBar(
         elevation: 0,

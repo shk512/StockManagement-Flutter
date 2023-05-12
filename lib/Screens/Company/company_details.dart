@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
+import 'package:stock_management/Functions/image_upload.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Screens/Company/edit_company.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
@@ -72,8 +73,26 @@ class _CompanyDetailsState extends State<CompanyDetails> {
           padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              InkWell(
+                onTap: (){
+                  try{
+                    uploadImage().then((value){
+                      widget.companyModel.imageUrl=value;
+                    });
+                  }catch(e){
+                    showSnackbar(context, Colors.red, e);
+                  }
+                },
+                child: CircleAvatar(
+                  radius: 70,
+                  child: widget.companyModel.imageUrl.isEmpty
+                      ?const Icon(Icons.image)
+                      :Image.network(widget.companyModel.imageUrl),
+                ),
+              ),
+              SizedBox(height: 10,),
               RowInfoDisplay(label: "Status", value:widget.companyModel.isPackageActive?"Active":"InActive"),
               const SizedBox(height: 5),
               widget.companyModel.packageType=="LifeTime".toUpperCase()||widget.companyModel.packageEndsDate==""

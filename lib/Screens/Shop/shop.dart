@@ -28,6 +28,7 @@ class _ShopState extends State<Shop> {
   Stream? shops;
   String address='';
   String tab="all".toUpperCase();
+  int quantityOfShops=0;
 
   @override
   void initState() {
@@ -74,6 +75,7 @@ class _ShopState extends State<Shop> {
                       onTap: (){
                         setState(() {
                           tab="all".toUpperCase();
+                          quantityOfShops=0;
                         });
                       },
                       child: Container(
@@ -92,6 +94,7 @@ class _ShopState extends State<Shop> {
                       onTap: (){
                         setState(() {
                           tab="active".toUpperCase();
+                          quantityOfShops=0;
                         });
                       },
                       child: Container(
@@ -110,6 +113,7 @@ class _ShopState extends State<Shop> {
                       onTap: (){
                         setState(() {
                           tab="Inactive".toUpperCase();
+                          quantityOfShops=0;
                         });
                       },
                       child: Container(
@@ -173,14 +177,18 @@ class _ShopState extends State<Shop> {
         }
       },
       leading: tab=="all".toUpperCase()
-          ? IconButton(
+          ? ElevatedButton.icon(
+        style: ButtonStyle(
+          backgroundColor: MaterialStatePropertyAll(Colors.white)
+        ),
         onPressed: (){
           if(widget.userModel.rights.contains(Rights.changeShopStatus)|| widget.userModel.rights.contains(Rights.all)){
-            updateStatus(snapshot);
+            showWarningDialogue(snapshot);
           }
         },
-        icon: Icon(Icons.brightness_1,size: 10,color: snapshot["isActive"]?Colors.green:Colors.red,)
-      ):const SizedBox(),
+          label: Text("${++quantityOfShops}",style: TextStyle(fontWeight: FontWeight.bold),),
+          icon: Icon(Icons.brightness_1,size: 10,color: snapshot["isActive"]?Colors.green:Colors.red,)
+      ):Text("${++quantityOfShops}",style: TextStyle(fontWeight: FontWeight.bold),),
       title: Text("${snapshot["shopName"]}-${snapshot["areaId"]}"),
       subtitle: Text("${snapshot["ownerName"]}\t${snapshot["contact"]}"),
       isThreeLine: true,
@@ -192,15 +200,32 @@ class _ShopState extends State<Shop> {
         },
         icon: Icon(Icons.wallet,color: Colors.white,),
         label: Text("${snapshot["wallet"]}",style: TextStyle(color: Colors.white),),
-      )
+      ),
     );
+  }
+  showWarningDialogue(DocumentSnapshot snapshot){
+    return showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+           title: Text("Warning"),
+           content: Text("Are you sure to perform this action?"),
+           actions: [
+             IconButton(
+               onPressed: (){
+                 Navigator.pop(context);
+               }, icon: Icon(Icons.cancel,color: Colors.red),),
+             IconButton(
+               onPressed: (){
+                 Navigator.pop(context);
+                 updateStatus(snapshot);
+               }, icon: Icon(Icons.check_circle_rounded,color: Colors.green),),
+           ],
+          );
+        });
   }
   updateStatus(DocumentSnapshot snapshot)async{
     await ShopDB(companyId: widget.companyModel.companyId, shopId: snapshot["shopId"]).updateShop({
-      "shopName":snapshot["shopName"],
-      "ownerName":snapshot["ownerName"],
-      "contact":snapshot["contact"],
-      "nearBy":snapshot["nearBy"],
       "isActive":!snapshot["isActive"]
     }).then((value){
       if(value==true){

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/utils/snack_bar.dart';
@@ -8,8 +9,9 @@ import 'package:stock_management/utils/snack_bar.dart';
 import '../../Services/DB/shop_db.dart';
 
 class AssignShop extends StatefulWidget {
+  final companyId;
   final userId;
-  const AssignShop({Key? key,required this.userId}) : super(key: key);
+  const AssignShop({Key? key,required this.userId,required this.companyId}) : super(key: key);
 
   @override
   State<AssignShop> createState() => _AssignShopState();
@@ -17,23 +19,15 @@ class AssignShop extends StatefulWidget {
 
 class _AssignShopState extends State<AssignShop> {
   Stream? shops;
-  DocumentSnapshot? snapshot;
+  DocumentSnapshot? userSnapshot;
 
   @override
   void initState() {
     super.initState();
     getShops();
-    getUserDetails();
-  }
-  getUserDetails()async{
-    await UserDb(id: widget.userId).getData().then((value){
-      setState(() {
-        snapshot=value;
-      });
-    });
   }
   getShops()async{
-    await ShopDB(companyId: snapshot!["companyId"], shopId: "").getShops().then((value){
+    await ShopDB(companyId: widget.companyId, shopId: "").getShops().then((value){
       setState(() {
         shops=value;
       });
@@ -52,6 +46,29 @@ class _AssignShopState extends State<AssignShop> {
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
         title: Text("Shop",style: const TextStyle(color: Colors.white),),
+      ),
+      body: shops==null
+          ? const Center(child: CircularProgressIndicator(),)
+          :StreamBuilder(
+        stream: shops,
+        builder: (context,snapshot){
+          if(snapshot.connectionState==ConnectionState.waiting){
+            return const Center(child: CircularProgressIndicator(),);
+          }
+          if(snapshot.hasError){
+            return const Center(child: Text("Error"),);
+          }
+          if(!snapshot.hasData){
+            return const Center(child: Text("No Data"),);
+          }
+          else{
+            return ListView.builder(
+                itemCount: snapshot.data.docs.length,
+                itemBuilder: (context,index){
+                  return listTile(snapshot.data.docs[index]);
+                });
+          }
+        },
       ),
     );
   }

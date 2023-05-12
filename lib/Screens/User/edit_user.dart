@@ -228,7 +228,7 @@ class _EditUserState extends State<EditUser> {
                       widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all)
                           ? ElevatedButton(
                           onPressed: (){
-                              Navigator.push(context,MaterialPageRoute(builder: (context)=>AssignShop(userId: widget.userId)));
+                              Navigator.push(context,MaterialPageRoute(builder: (context)=>AssignShop(userId: widget.userId,companyId: widget.userModel.companyId,)));
                           },
                           child: Text("Update Shop",style: TextStyle(color: Colors.white),))
                           :const SizedBox()

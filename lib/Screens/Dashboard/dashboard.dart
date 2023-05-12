@@ -16,7 +16,7 @@ import '../../Services/DB/user_db.dart';
 import '../Area/area.dart';
 import '../Order/order.dart';
 import '../Product/product.dart';
-import '../Report/report.dart';
+import '../Report/display_product.dart';
 import '../Shop/shop.dart';
 import '../Splash_Error/error.dart';
 import '../Stock/stock.dart';
@@ -52,7 +52,7 @@ class _DashboardState extends State<Dashboard> {
         _userModel.userId=snapshot["userId"];
         _userModel.companyId=snapshot["companyId"];
         _userModel.name=snapshot["name"];
-        _userModel.salary=snapshot["salary"];
+        _userModel.salary=int.parse(snapshot["salary"]);
         _userModel.mail=snapshot["mail"];
         _userModel.phone=snapshot["phone"];
         _userModel.wallet=snapshot["wallet"];
@@ -163,7 +163,7 @@ class _DashboardState extends State<Dashboard> {
                 _userModel.rights.contains(Rights.viewShop)||_userModel.rights.contains(Rights.all)
                     ? DashboardMenu(name: "Shop", route: Shop(userModel: _userModel,companyModel: _companyModel,), icon:Icons.storefront, clr: Colors.cyan.shade300):const SizedBox(),
                 _userModel.rights.contains(Rights.viewReport)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Report", route: Report(), icon:Icons.description, clr: Colors.cyan.shade300):const SizedBox(),
+                    ? DashboardMenu(name: "Report", route: DisplayProduct(companyModel: _companyModel,), icon:Icons.description, clr: Colors.cyan.shade300):const SizedBox(),
                 _userModel.rights.contains(Rights.viewTransactions)||_userModel.rights.contains(Rights.all)
                     ? DashboardMenu(name: "Accounts", route: Accounts(companyModel: _companyModel, userModel: _userModel,), icon: Icons.account_balance_outlined, clr: Colors.cyan.shade300):const SizedBox(),
               ],

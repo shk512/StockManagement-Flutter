@@ -33,28 +33,28 @@ class _AreaShopState extends State<AreaShop> {
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        leading: GestureDetector(
-          onTap: (){
-            Navigator.pop(context);
-          },
-          child: const Icon(CupertinoIcons.back,color: Colors.white,),
-        ),
-        title: Text(widget.areaName,style: const TextStyle(color: Colors.white),),
-        centerTitle: true,
-      ),
-      floatingActionButton: widget.userModel.rights.contains(Rights.addShop)||widget.userModel.rights.contains(Rights.all)
-          ?FloatingActionButton.extended(
-          onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>AddShop(areaName: widget.areaName, userModel: widget.userModel, companyModel: widget.companyModel,)));
-          },
-          icon: const Icon(Icons.add,color: Colors.white,),
-          label: const Text("Shop",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
-      )
-        :const SizedBox(),
-      body: StreamBuilder(
+      return Scaffold(
+          appBar: AppBar(
+            elevation: 0,
+            leading: GestureDetector(
+              onTap: (){
+                Navigator.pop(context);
+              },
+              child: const Icon(CupertinoIcons.back,color: Colors.white,),
+            ),
+            title: Text(widget.areaName,style: const TextStyle(color: Colors.white),),
+            centerTitle: true,
+          ),
+          floatingActionButton: widget.userModel.rights.contains(Rights.addShop)||widget.userModel.rights.contains(Rights.all)
+              ?FloatingActionButton.extended(
+              onPressed: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>AddShop(areaName: widget.areaName, userModel: widget.userModel, companyModel: widget.companyModel,)));
+              },
+              icon: const Icon(Icons.add,color: Colors.white,),
+              label: const Text("Shop",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
+          )
+              :const SizedBox(),
+          body: StreamBuilder(
               stream: shops,
               builder: (context,AsyncSnapshot snapshot){
                 if(snapshot.connectionState==ConnectionState.waiting){
@@ -67,24 +67,24 @@ class _AreaShopState extends State<AreaShop> {
                   return const Center(child: Text("No Data Found"),);
                 }else{
                   return ListView.builder(
-                      itemCount: snapshot.data.docs.length,
-                      itemBuilder: (context,index) {
-                          if(snapshot.data.docs[index]["areaId"]==widget.areaName && snapshot.data.docs[index]["isDeleted"]==false&& snapshot.data.docs[index]["isActive"]==true){
-                            return ListTile(
-                              onTap: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: snapshot.data.docs[index]["shopId"], companyModel: widget.companyModel,userModel: widget.userModel,)));
-                              },
-                              title: Text("${snapshot.data.docs[index]["shopName"]}"),
-                              subtitle: Text("${snapshot.data.docs[index]["ownerName"]}\t${snapshot.data.docs[index]["contact"]}"),
-                            );
-                        }else{
-                            return const SizedBox(height: 0,);
-                          }
+                    itemCount: snapshot.data.docs.length,
+                    itemBuilder: (context,index) {
+                      if((snapshot.data.docs[index]["areaId"]==widget.areaName && snapshot.data.docs[index]["isDeleted"]==false&& snapshot.data.docs[index]["isActive"]==true)||widget.userModel.designation==snapshot.data.docs[index]["shopId"]){
+                        return ListTile(
+                          onTap: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: snapshot.data.docs[index]["shopId"], companyModel: widget.companyModel,userModel: widget.userModel,)));
                           },
+                          title: Text("${snapshot.data.docs[index]["shopName"]}"),
+                          subtitle: Text("${snapshot.data.docs[index]["ownerName"]}\t${snapshot.data.docs[index]["contact"]}"),
+                        );
+                      }else{
+                        return const SizedBox(height: 0,);
+                      }
+                    },
                   );
                 }
               }
-    )
-    );
+          )
+      );
   }
 }
