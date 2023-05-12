@@ -52,7 +52,7 @@ class _DashboardState extends State<Dashboard> {
         _userModel.userId=snapshot["userId"];
         _userModel.companyId=snapshot["companyId"];
         _userModel.name=snapshot["name"];
-        _userModel.salary=int.parse(snapshot["salary"]);
+        _userModel.salary=snapshot["salary"];
         _userModel.mail=snapshot["mail"];
         _userModel.phone=snapshot["phone"];
         _userModel.wallet=snapshot["wallet"];

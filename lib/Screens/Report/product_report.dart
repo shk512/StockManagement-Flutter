@@ -89,15 +89,7 @@ class _ProductReportState extends State<ProductReport> {
                         return ListView.builder(
                             itemCount: snapshot.data.docs.length,
                             itemBuilder: (context, index){
-                              if(from.text.isEmpty||to.text.isEmpty){
-                                return RowInfoDisplay(value: '${snapshot.data.docs[index]["${widget.productId}"]}', label: "${snapshot.data.docs[index]["date"]}",);
-                              }else{
-                                if(DateTime.parse(snapshot.data.docs[index]["date"]).isAfter(DateTime.parse(from.text))&&DateTime.parse(snapshot.data.docs[index]["date"]).isBefore(DateTime.parse(to.text))){
-                                return RowInfoDisplay(value: '${snapshot.data.docs[index]["${widget.productId}"]}', label: "${snapshot.data.docs[index]["date"]}",);
-                                }else{
-                                  return const SizedBox();
-                                }
-                              }
+                              return display("${snapshot.data.docs[index]["date"]}", '${snapshot.data.docs[index]["${widget.productId}"]}');
                             });
                       }
                     })
