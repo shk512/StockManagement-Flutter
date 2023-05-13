@@ -6,7 +6,6 @@ import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Screens/User/view_user.dart';
-import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/Services/shared_preferences/spf.dart';
@@ -91,13 +90,15 @@ class _EmployeeState extends State<Employee> {
                             onPressed: (){
                               showWarningDialogue(snapshot.data.docs[index]);
                             },
-                            icon: Icon(Icons.brightness_1,color: snapshot.data.docs[index]["isDeleted"]?Colors.red:Colors.green,))
+                            icon: Icon(Icons.brightness_1,size: 15,color: snapshot.data.docs[index]["isDeleted"]?Colors.red:Colors.green,))
                             :const SizedBox(),
                       trailing: ElevatedButton.icon(
                           onPressed: (){
-                            showTransactionDialogue(snapshot.data.docs[index]["userId"],"${snapshot.data.docs[index]["name"]}-${snapshot.data.docs[index]["designation"]}");
+                            if(snapshot.data.docs[index]["wallet"]!=0){
+                              showTransactionDialogue(snapshot.data.docs[index]["userId"],"${snapshot.data.docs[index]["name"]}-${snapshot.data.docs[index]["designation"]}");
+                            }
                           },
-                          icon: Icon(Icons.wallet,color: Colors.white,),
+                          icon: Icon(Icons.account_balance_wallet_outlined,color: Colors.white,),
                           label: Text("Rs. ${snapshot.data.docs[index]["wallet"]}",style: TextStyle(color: Colors.white),)
                       ),
                     );
@@ -134,7 +135,7 @@ class _EmployeeState extends State<Employee> {
           );
         });
   }
-  updateStatus(DocumentSnapshot snapshot)async{
+  Future updateStatus(DocumentSnapshot snapshot)async{
     await UserDb(id: snapshot["userId"]).deleteUser(!snapshot["isDeleted"]).then((value)async{
       if(snapshot["userId"]==FirebaseAuth.instance.currentUser!.uid){
         await SPF.saveUserLogInStatus(false);
@@ -143,7 +144,7 @@ class _EmployeeState extends State<Employee> {
         setState(() {
           isLoading=false;
         });
-        showSnackbar(context, Colors.cyan, "Updated");
+        showSnackbar(context, Colors.green.shade300, "Updated");
       }
     }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
   }
@@ -241,7 +242,7 @@ class _EmployeeState extends State<Employee> {
       if(value==true){
         await UserDb(id: userId).updateWalletBalance(-amount).then((value)async{
           await CompanyDb(id: widget.companyModel.companyId).updateWallet(amount).then((value) {
-            showSnackbar(context, Colors.cyan, "Saved");
+            showSnackbar(context, Colors.green.shade300, "Saved");
             setState(() {
               widget.companyModel.wallet=amount;
             });
@@ -252,7 +253,7 @@ class _EmployeeState extends State<Employee> {
           Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
         });
       }else{
-        showSnackbar(context, Colors.red, value.toString());
+        showSnackbar(context, Colors.red.shade400, value.toString());
       }
     }).onError((error, stackTrace) {
       Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));

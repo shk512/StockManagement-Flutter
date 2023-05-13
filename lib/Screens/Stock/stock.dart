@@ -72,7 +72,7 @@ class _StockState extends State<Stock> {
                                 snapshot.data.docs[index]["productId"], snapshot.data.docs[index]["totalQuantity"],
                                 snapshot.data.docs[index]["productName"]);
                           },
-                          child: const Icon(Icons.cached_outlined, color: Colors.cyan,))
+                          child: const Icon(Icons.cached_outlined, color: Colors.brown,))
                           : const SizedBox(height: 0,),
                     );
                   }else{
@@ -121,12 +121,12 @@ class _StockState extends State<Stock> {
   updateStock(num quantity,String productId)async{
     await ProductDb(companyId:  widget.companyModel.companyId, productId: productId).increment(quantity).then((value){
       if(value==true){
-        showSnackbar(context,Colors.cyan, "Updated");
+        showSnackbar(context,Colors.green.shade300, "Updated");
         setState(() {
 
         });
       }else{
-        showSnackbar(context, Colors.red, "Error");
+        showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace) {
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));

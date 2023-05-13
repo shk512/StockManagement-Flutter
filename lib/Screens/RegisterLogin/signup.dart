@@ -147,7 +147,7 @@ class _SignupState extends State<Signup> {
                       const Align(
                         alignment: AlignmentDirectional.bottomStart,
                         child: Text(
-                          "Role:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
+                          "Role:", style: TextStyle(color:Colors.brown,letterSpacing:2,fontWeight: FontWeight.bold,fontSize: 20),),
                       ),
                       radioButtons("Company", UserRole.company),
                       radioButtons("Employee", UserRole.employee),
@@ -165,7 +165,7 @@ class _SignupState extends State<Signup> {
                           :const Align(
                         alignment: AlignmentDirectional.bottomStart,
                         child: Text(
-                          "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
+                          "Rights:", style: TextStyle(color:Colors.brown,letterSpacing:2,fontWeight: FontWeight.bold,fontSize: 20),),
                       ),
                       _role==UserRole.company
                           ?const SizedBox()
@@ -185,7 +185,7 @@ class _SignupState extends State<Signup> {
                         if(pass.text==cPass.text){
                           signup();
                         }else{
-                          showSnackbar(context, Colors.red, "Oops! Password doesn't match");
+                          showSnackbar(context, Colors.red.shade400, "Oops! Password doesn't match");
                         }
                       }, child: const Text("Register",style: TextStyle(color: Colors.white),)),
                     ],
@@ -218,11 +218,10 @@ class _SignupState extends State<Signup> {
       });
       await auth.createUser(mail.text, pass.text).then((value)async{
         if(value.toString().isNotEmpty){
-
           await UserDb(id: value.toString()).saveUser(_userModel.toJson(
               userId: value.toString(),
               name: name.text,
-              salary: int.parse(salary.text),
+              salary: _role==UserRole.shopKeeper||_role==UserRole.company?0:int.parse(salary.text),
               mail: mail.text,
               companyId: widget.companyId,
               phone: contact.text,

@@ -45,13 +45,17 @@ class _EditCompanyState extends State<EditCompany> {
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
         title: Text(widget.companyModel.companyName,style: const TextStyle(color: Colors.white),),
-        centerTitle: true,
+        actions: [
+          ElevatedButton(
+            onPressed: (){
+              if(formKey.currentState!.validate()){
+                update();
+              }
+            },
+            child: const Text("Update",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-          onPressed: (){
-            update();
-          },
-          label: Text("Update",style: TextStyle(color: Colors.white),)),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -82,16 +86,16 @@ class _EditCompanyState extends State<EditCompany> {
       widget.companyModel.city=city.text;
       widget.companyModel.imageUrl=imageUrl;
       await CompanyDb(id: widget.companyModel.companyId).updateCompany(widget.companyModel.toJson()).then((value)async{
-        showSnackbar(context, Colors.cyan, "Updated");
+        showSnackbar(context, Colors.green.shade300, "Updated");
         Navigator.pop(context);
       }).onError((error, stackTrace){
-        showSnackbar(context, Colors.red, error.toString());
+        showSnackbar(context, Colors.red.shade400, error.toString());
       });
         }else{
           setState(() {
             isLoading=false;
           });
-          showSnackbar(context, Colors.red, "Error. Please Try Again!");
+          showSnackbar(context, Colors.red.shade400, "Error. Please Try Again!");
         }
   }
 }

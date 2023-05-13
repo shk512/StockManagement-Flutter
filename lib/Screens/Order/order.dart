@@ -47,13 +47,14 @@ class _OrderState extends State<Order> {
     child: const Icon(CupertinoIcons.back,color: Colors.white,),
     ),
     title: TextField(
+      cursorColor: Colors.white,
+      style: TextStyle(color: Colors.white),
         controller: searchController,
         decoration: InputDecoration(
-          icon: Icon(Icons.search),
+          prefixIcon:Icon(Icons.search,color: Colors.white,) ,
           border: InputBorder.none,
-          hintText: "\t Search here...",
+          hintText: "Search here...",
           hintStyle: TextStyle(color: Colors.white),
-          labelStyle: TextStyle(color: Colors.white),
         ),
     ),
     ),
@@ -83,9 +84,9 @@ class _OrderState extends State<Order> {
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
-                              color: tab=="processing".toUpperCase()?Colors.red:Colors.cyan.withOpacity(0.8),
+                              color: tab=="processing".toUpperCase()?Colors.brown :Colors.brown.shade200,
                             ),
-                            child:const Text("In-Process",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
+                            child:const Text("In-PROCESS",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
                           ),
                         ),
                       ),
@@ -100,7 +101,7 @@ class _OrderState extends State<Order> {
                           child: Container(
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: tab=="dispatch".toUpperCase()?Colors.amber:Colors.cyan.withOpacity(0.8)
+                              color: tab=="dispatch".toUpperCase()?Colors.brown :Colors.brown.shade200
                             ),
                             child: const Text("In-Route",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
                           ),
@@ -118,9 +119,9 @@ class _OrderState extends State<Order> {
                           child: Container(
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: tab=="deliver".toUpperCase()?Colors.green:Colors.cyan.withOpacity(0.8),
+                              color: tab=="deliver".toUpperCase()?Colors.brown :Colors.brown.shade200,
                             ),
-                            child: const Text("Deliver",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
+                            child: const Text("DELIVERED",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -137,9 +138,9 @@ class _OrderState extends State<Order> {
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               borderRadius: const BorderRadius.only(topRight: Radius.circular(18),bottomRight: Radius.circular(18)),
-                              color: tab=="all".toUpperCase()?Colors.black38:Colors.cyan.withOpacity(0.8),
+                              color: tab=="all".toUpperCase()?Colors.brown :Colors.brown.shade200,
                             ),
-                            child: const Text("All",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
+                            child: const Text("ALL",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),),

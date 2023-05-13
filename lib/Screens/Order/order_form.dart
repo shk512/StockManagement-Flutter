@@ -243,7 +243,7 @@ class _OrderFormState extends State<OrderForm> {
                        String formattedDate=DateFormat("yyyy-MM-dd").format(DateTime.now());
                        await ReportDb(companyId: widget.companyModel.companyId, productId: snapshot["productId"]).increment(quantity, formattedDate).then((value){
                          Navigator.pop(context);
-                         showSnackbar(context, Colors.cyan, "Added to cart");
+                         showSnackbar(context, Colors.green.shade300, "Added to cart");
                          setState(() {
                            OrderModel.totalAmount+=totalPrice;
                          });

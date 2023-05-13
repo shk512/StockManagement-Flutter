@@ -60,7 +60,7 @@ class _NewCompanyState extends State<NewCompany> {
           setState(() {
             isLoading=false;
           });
-          showSnackbar(context, Colors.red, "Oops! no valid license");
+          showSnackbar(context, Colors.red.shade400, "Oops! no valid license");
         }
       });
     }

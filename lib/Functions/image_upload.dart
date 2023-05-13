@@ -4,13 +4,13 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-uploadImage() async {
+uploadImage(String path) async {
   final _firebaseStorage = FirebaseStorage.instance;
   final _imagePicker = ImagePicker();
   var image;
   String imageUrl="";
   //Check Permissions
-  await Permission.storage.request();
+ // await Permission.storage.request();
 
   var permissionStatus = await Permission.storage.status;
 
@@ -22,12 +22,10 @@ uploadImage() async {
     if (image != null){
       //Upload to Firebase
       String imageId=DateTime.now().microsecondsSinceEpoch.toString();
-      var snapshot;
+      var snapshot=
       await _firebaseStorage.ref()
-          .child('images/$imageId')
-          .putFile(file).then((p0){
-         snapshot=p0;
-      });
+          .child('image/$path')
+          .putFile(file).whenComplete(() {});
       imageUrl= await snapshot.ref.getDownloadURL();
     }
     return imageUrl;
@@ -35,3 +33,18 @@ uploadImage() async {
     throw "Permission Denied";
   }
 }
+
+/*
+uploadImageFile() async {
+  File? image;
+  final picker = ImagePicker();
+  firebase_storage.FirebaseStorage storage =
+      firebase_storage.FirebaseStorage.instance;
+}
+  final pickedFile =
+  await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+  if (pickedFile != null) {
+    setState(() {
+      image = File(pickedFile.path);
+    });
+  }*/

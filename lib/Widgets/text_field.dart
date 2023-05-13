@@ -59,7 +59,7 @@ class _TxtFieldState extends State<TxtField> {
                   _hide=!_hide;
                 });
               },
-              child: Icon(Icons.remove_red_eye,color: _hide?Colors.grey:Colors.cyan),
+              child: Icon(Icons.remove_red_eye,color: _hide?Colors.grey:Colors.brown),
       )
           :const SizedBox(),
       ),

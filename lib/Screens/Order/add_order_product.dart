@@ -175,7 +175,7 @@ class _OrderProductState extends State<OrderProduct> {
                         await ReportDb(companyId: widget.companyModel.companyId, productId: snapshot["productId"]).increment(quantity, formattedDate).then((value)async{
                           await ShopDB(companyId: widget.companyModel.companyId, shopId: widget.shopId).updateWallet(totalPrice).then((value){
                             Navigator.pop(context);
-                            showSnackbar(context, Colors.cyan, "Added");
+                            showSnackbar(context, Colors.green.shade300, "Added");
                             setState(() {
                               OrderModel.totalAmount+=totalPrice;
                             });

@@ -82,9 +82,9 @@ class _ShopState extends State<Shop> {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
-                          color: tab=="all".toUpperCase()?Colors.black38:Colors.cyan.withOpacity(0.8),
+                          color: tab=="all".toUpperCase()?Colors.brown :Colors.brown.shade200,
                         ),
-                        child:const Text("All",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
+                        child:const Text("ALL",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
                       ),
                     ),
                   ),
@@ -100,9 +100,9 @@ class _ShopState extends State<Shop> {
                       child: Container(
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                            color: tab=="active".toUpperCase()?Colors.green:Colors.cyan.withOpacity(0.8)
+                            color: tab=="active".toUpperCase()?Colors.brown :Colors.brown.shade200,
                         ),
-                        child: const Text("Active",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
+                        child: const Text("ACTIVE",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -119,10 +119,10 @@ class _ShopState extends State<Shop> {
                       child: Container(
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: tab=="inactive".toUpperCase()?Colors.red:Colors.cyan.withOpacity(0.8),
+                          color: tab=="inactive".toUpperCase()?Colors.brown :Colors.brown.shade200,
                           borderRadius: const BorderRadius.only(topRight: Radius.circular(18),bottomRight: Radius.circular(18)),
                         ),
-                        child: const Text("In-Active",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
+                        child: const Text("InACTIVE",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -194,11 +194,11 @@ class _ShopState extends State<Shop> {
       isThreeLine: true,
       trailing: ElevatedButton.icon(
         onPressed: () {
-          if(widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all)||snapshot["wallet"]!=0){
+          if((widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all))&&snapshot["wallet"]!=0){
             showTransactionDialogue(snapshot["shopId"],"${snapshot["shopName"]}-${snapshot["areaId"]}");
           }
         },
-        icon: Icon(Icons.wallet,color: Colors.white,),
+        icon: Icon(Icons.account_balance_wallet_outlined,color: Colors.white,),
         label: Text("${snapshot["wallet"]}",style: TextStyle(color: Colors.white),),
       ),
     );
@@ -229,9 +229,9 @@ class _ShopState extends State<Shop> {
       "isActive":!snapshot["isActive"]
     }).then((value){
       if(value==true){
-        showSnackbar(context, Colors.cyan, "Updated");
+        showSnackbar(context, Colors.green.shade300, "Updated");
       }else{
-        showSnackbar(context, Colors.red, "Error");
+        showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
@@ -330,7 +330,7 @@ class _ShopState extends State<Shop> {
     ).then((value)async{
       if(value==true){
         await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).updateWallet(-amount).then((value){
-          showSnackbar(context, Colors.cyan, "Saved");
+          showSnackbar(context, Colors.green.shade300, "Saved");
           setState(() {
 
           });

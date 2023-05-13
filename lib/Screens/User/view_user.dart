@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
@@ -7,8 +8,13 @@ import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/User/edit_user.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
+import 'package:stock_management/Widgets/num_field.dart';
 
+import '../../Constants/routes.dart';
+import '../../Services/Auth/auth.dart';
+import '../../Services/shared_preferences/spf.dart';
 import '../../Widgets/row_info_display.dart';
+import '../../Widgets/text_field.dart';
 import '../../utils/snack_bar.dart';
 import '../Splash_Error/error.dart';
 
@@ -28,6 +34,7 @@ class _ViewUserState extends State<ViewUser> {
   String shopId="";
   List area=[];
   List rights=[];
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +56,10 @@ class _ViewUserState extends State<ViewUser> {
         }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
       }
     }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+  }
+  @override
+  void dispose() {
+    super.dispose();
   }
   @override
   Widget build(BuildContext context) {
@@ -82,6 +93,13 @@ class _ViewUserState extends State<ViewUser> {
               onPressed: (){
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>EditUser(userId: widget.userId,userModel: widget.userModel,)));
               }, icon: const Icon(Icons.edit,color: Colors.white,))
+              :const SizedBox(),
+          widget.userModel.userId==FirebaseAuth.instance.currentUser!.uid
+              ? IconButton(
+              onPressed: (){
+                showPasswordChangeDialogue();
+              },
+              icon: Icon(Icons.lock_reset,color: Colors.white,))
               :const SizedBox()
         ],
       ),
@@ -100,17 +118,17 @@ class _ViewUserState extends State<ViewUser> {
                 snapshot!["role"]=="Employee".toUpperCase()?RowInfoDisplay(label: "Salary", value:snapshot!["salary"].toString()):const SizedBox(),
                 const SizedBox(height: 5),
                 snapshot!["role"]=="shop keeper".toUpperCase()
-                      ?Text("Shop",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.cyan))
+                      ?Text("Shop",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.brown))
                       :Row(
                         children: [
-                          Expanded(child: Text("Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.cyan),)),
+                          Expanded(child: Text("Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.brown),)),
                             widget.userModel.rights.contains(Rights.addArea) || widget.userModel.rights.contains(Rights.all)
                             ? Expanded(
                               child :IconButton(
                                 onPressed: (){
                                   showAreaDialogueBox();
                               },
-                              icon: const Icon(Icons.add,color: Colors.cyan,) ,
+                              icon: const Icon(Icons.add,color: Colors.brown,) ,
                               ),
                             ): const SizedBox()
                         ],
@@ -126,7 +144,7 @@ class _ViewUserState extends State<ViewUser> {
                         const Align(
                           alignment: AlignmentDirectional.bottomStart,
                           child: Text(
-                          "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
+                          "Rights:", style: TextStyle(color:Colors.brown,fontWeight: FontWeight.bold,fontSize: 20),),
                       ),
                     showRights()
                   ],
@@ -136,6 +154,57 @@ class _ViewUserState extends State<ViewUser> {
         ),
       ),
     );
+  }
+  updatePassword(String password)async{
+    Auth auth=Auth();
+    await auth.updateNewPass(password).then((value){
+      if(value==true){
+        SPF.saveUserLogInStatus(false);
+        Navigator.pushNamedAndRemoveUntil(context,Routes.login, (route) => false);
+      }
+    });
+  }
+  showPasswordChangeDialogue(){
+    final formKey=GlobalKey<FormState>();
+    TextEditingController password=TextEditingController();
+    TextEditingController confirmPassword=TextEditingController();
+    TextEditingController key=TextEditingController();
+    return showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+            title: Text("Change Password"),
+            content: Form(
+              key: formKey,
+              child: Column(
+                children: [
+                  NumField(icon: Icon(Icons.key), ctrl: key, hintTxt: "Company's License key", labelTxt: "License key"),
+                  TxtField(labelTxt: "Password", hintTxt: "Type password", ctrl: password, icon: Icon(Icons.lock_outline_rounded)),
+                  TxtField(labelTxt: "Confirm Password", hintTxt: "Retype your password", ctrl: confirmPassword, icon: Icon(Icons.lock_outline_rounded)),
+                ],
+              ),
+            ),
+            actions: [
+              ElevatedButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel',style: TextStyle(color: Colors.white),)),
+              ElevatedButton(
+                  onPressed: ()async{
+                    if(formKey.currentState!.validate()){
+                      Navigator.pop(context);
+                      if((password.text==confirmPassword.text)&&(widget.companyModel.companyId==key.text)){
+                        updatePassword(password.text);
+                      }else{
+                        showSnackbar(context, Colors.red.shade400, "Password doesn't match");
+                      }
+                    }
+                  },
+                  child: Text('Confirm',style: TextStyle(color: Colors.white),)),
+            ],
+          );
+        });
   }
   Widget showRights(){
     return Column(
@@ -206,7 +275,7 @@ class _ViewUserState extends State<ViewUser> {
           area.add(areaName);
         });
       }else{
-        showSnackbar(context, Colors.red, "Area with same name already available");
+        showSnackbar(context, Colors.red.shade400, "Area with same name already available");
       }
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
@@ -215,12 +284,12 @@ class _ViewUserState extends State<ViewUser> {
   deleteArea(String areaName)async{
     await UserDb(id: snapshot!["userId"]).deleteUserArea(areaName).then((value){
       if(value==true){
-        showSnackbar(context, Colors.cyan, "Deleted");
+        showSnackbar(context, Colors.green.shade300, "Deleted");
         setState(() {
           area.remove(areaName);
         });
       }else{
-        showSnackbar(context, Colors.red, "Error");
+        showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace) {
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));

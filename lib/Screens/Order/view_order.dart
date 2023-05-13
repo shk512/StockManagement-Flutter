@@ -5,7 +5,7 @@ import 'package:stock_management/Constants/narration.dart';
 import 'package:stock_management/Functions/open_map.dart';
 import 'package:stock_management/Models/order_model.dart';
 import 'package:stock_management/Screens/Order/edit_order.dart';
-import 'package:stock_management/Screens/Order/edit_user_id.dart';
+import 'package:stock_management/Screens/Order/deliver_man.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
@@ -192,7 +192,7 @@ class _ViewOrderState extends State<ViewOrder> {
                             height: 30,
                             width: 30,
                             child: Material(
-                            color: Colors.cyan,
+                            color: Colors.brown,
                             child: Align(
                               alignment: Alignment.center,
                               child: Text(
@@ -221,10 +221,10 @@ class _ViewOrderState extends State<ViewOrder> {
           Navigator.push(context, MaterialPageRoute(builder: (context)=>EditUserId(orderId: widget.orderId, companyModel: widget.companyModel,userModel: widget.userModel,)));
         }else{
           Navigator.pop(context);
-          showSnackbar(context, Colors.cyan, status);
+          showSnackbar(context, Colors.green.shade300, status);
         }
       }else{
-        showSnackbar(context, Colors.red, "Error");
+        showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));

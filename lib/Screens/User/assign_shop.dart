@@ -20,6 +20,7 @@ class AssignShop extends StatefulWidget {
 class _AssignShopState extends State<AssignShop> {
   Stream? shops;
   DocumentSnapshot? userSnapshot;
+  bool isLoading=false;
 
   @override
   void initState() {
@@ -47,7 +48,7 @@ class _AssignShopState extends State<AssignShop> {
         ),
         title: Text("Shop",style: const TextStyle(color: Colors.white),),
       ),
-      body: shops==null
+      body: shops==null || isLoading
           ? const Center(child: CircularProgressIndicator(),)
           :StreamBuilder(
         stream: shops,
@@ -75,6 +76,9 @@ class _AssignShopState extends State<AssignShop> {
   listTile(DocumentSnapshot snapshot){
     return ListTile(
       onTap: (){
+        setState(() {
+          isLoading=true;
+        });
         updateShop(snapshot["shopId"]);
       },
       title: Text("${snapshot["shopName"]}-${snapshot["areaId"]}"),
@@ -85,8 +89,11 @@ class _AssignShopState extends State<AssignShop> {
     await UserDb(id: widget.userId).updateUser({
       "designation":shopId
     }).then((value){
+      setState(() {
+        isLoading=false;
+      });
       Navigator.pop(context);
-      showSnackbar(context, Colors.cyan, "Saved shop");
+      showSnackbar(context, Colors.green.shade300, "Saved shop");
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
     });

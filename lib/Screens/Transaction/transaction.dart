@@ -86,10 +86,10 @@ class _AccountsState extends State<Accounts> {
                     onTap: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewTransaction(transactionId: snapshot.data.docs[index]["transactionId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
                     },
-                    leading: Text("${snapshot.data.docs[index]["type"]}",style: TextStyle(color: Colors.cyan,fontWeight: FontWeight.bold),),
+                    leading: Text("${snapshot.data.docs[index]["type"]}",style: TextStyle(color: Colors.brown,fontWeight: FontWeight.bold),),
                     title: Text("${snapshot.data.docs[index]["description"]}"),
                     subtitle: Text("${snapshot.data.docs[index]["date"]}"),
-                    trailing: Text("Rs. ${snapshot.data.docs[index]["amount"]}",style: TextStyle(color: snapshot.data.docs[index]["narration"]==Narration.minus?Colors.red:Colors.green,)),
+                    trailing: Text("Rs. ${snapshot.data.docs[index]["amount"]}",style: TextStyle(color: snapshot.data.docs[index]["narration"]==Narration.minus?Colors.red:Colors.green,fontWeight: FontWeight.bold)),
                     isThreeLine : true,
                   );
                 }
@@ -245,7 +245,7 @@ class _AccountsState extends State<Accounts> {
             tempAmount=-amount;
           }
           await CompanyDb(id: widget.companyModel.companyId).updateWallet(tempAmount).then((value){
-            showSnackbar(context, Colors.cyan, "Saved");
+            showSnackbar(context, Colors.green.shade300, "Saved");
             setState(() {
 
             });

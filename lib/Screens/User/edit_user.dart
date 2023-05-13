@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Screens/User/assign_shop.dart';
+import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/Widgets/text_field.dart';
@@ -241,7 +243,7 @@ class _EditUserState extends State<EditUser> {
                       const Align(
                         alignment: AlignmentDirectional.bottomStart,
                         child: Text(
-                          "Rights:", style: TextStyle(color:Colors.cyan,fontWeight: FontWeight.bold,fontSize: 20),),
+                          "Rights:", style: TextStyle(color:Colors.brown,fontWeight: FontWeight.bold,fontSize: 20),),
                       ),
                       checkBoxLists()
                     ],
@@ -260,12 +262,13 @@ class _EditUserState extends State<EditUser> {
       "designation":designation.text,
       "salary":salary.text
     }).then((value){
-      showSnackbar(context, Colors.cyan, "Updated");
+      showSnackbar(context, Colors.green.shade300, "Updated");
       Navigator.pop(context);
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
     });
   }
+
   Widget checkBoxLists(){
     return Column(
       children: [

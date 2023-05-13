@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
       title: 'Stock Management',
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
-        primarySwatch: Colors.cyan,
+        primarySwatch: Colors.brown,
       ),
       //home: const Area(),
       initialRoute: Routes.splash,

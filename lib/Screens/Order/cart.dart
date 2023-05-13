@@ -58,24 +58,17 @@ class _CartState extends State<Cart> {
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
         title: const Text("Cart",style: TextStyle(color: Colors.white),),
-      ),
-      floatingActionButton: InkWell(
-        onTap: (){
-          placeOrder();
-          setState(() {
-            isLoading=true;
-          });
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: Colors.cyan
+        actions: [
+          ElevatedButton(
+            onPressed: (){
+              placeOrder();
+              setState(() {
+                isLoading=true;
+              });
+            },
+            child: const Text("Place Order",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
           ),
-          child: const Padding(
-            padding: EdgeInsets.all(10),
-            child: Text("CheckOut",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
-          ),
-        ),
+        ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator(),)
@@ -101,7 +94,7 @@ class _CartState extends State<Cart> {
                                   OrderModel.totalAmount=OrderModel.totalAmount-OrderModel.products[index]["totalPrice"];
                                   OrderModel.products.removeAt(index);
                                 });
-                                showSnackbar(context, Colors.cyan, "Removed");
+                                showSnackbar(context, Colors.green.shade300, "Removed");
                               });
                             });
 
@@ -192,7 +185,7 @@ class _CartState extends State<Cart> {
                     dateTime: DateTime.now().toString())).then((value){
               Navigator.pop(context);
               Navigator.pop(context);
-              showSnackbar(context, Colors.cyan, "Order has been placed");
+              showSnackbar(context, Colors.green.shade300, "Order has been placed");
               setState(() {
                 OrderModel.products=[];
                 OrderModel.totalAmount=0;
@@ -204,7 +197,7 @@ class _CartState extends State<Cart> {
         setState(() {
           isLoading=false;
         });
-        showSnackbar(context, Colors.red, "Error");
+        showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace) {
       Navigator.push(context, MaterialPageRoute(

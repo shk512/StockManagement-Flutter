@@ -54,15 +54,16 @@ class _AddShopState extends State<AddShop> {
           child: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
         title: Text(widget.areaName,style: const TextStyle(color: Colors.white),),
-        centerTitle: true,
-      ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: (){
-            if(formKey.currentState!.validate()){
-              saveShop();
-            }
-          },
-          child: const Text("Save",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+        actions: [
+          ElevatedButton(
+            onPressed: (){
+              if(formKey.currentState!.validate()){
+                saveShop();
+              }
+            },
+            child: const Text("Save",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Form(
@@ -100,7 +101,7 @@ class _AddShopState extends State<AddShop> {
         location: LatLng(lat,lng)
         )).then((value){
           Navigator.pop(context);
-          showSnackbar(context, Colors.cyan, "Saved");
+          showSnackbar(context, Colors.green.shade300, "Saved");
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
     });

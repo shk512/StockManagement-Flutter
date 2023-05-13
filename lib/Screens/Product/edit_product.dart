@@ -97,10 +97,10 @@ class _EditProductState extends State<EditProduct> {
           "quantityPerPiece":int.parse(quantityPerPiece.text),
         }).then((value){
       if(value==true){
-        showSnackbar(context, Colors.cyan, "Updated");
+        showSnackbar(context, Colors.green.shade300, "Updated");
         Navigator.pop(context);
       }else{
-        showSnackbar(context, Colors.red, "Error");
+        showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));

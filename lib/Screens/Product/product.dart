@@ -127,9 +127,9 @@ class _ProductState extends State<Product> {
   deleteProduct(String productId)async{
     await ProductDb(companyId: widget.companyModel.companyId, productId: productId).deleteProduct().then((value){
       if(value==true){
-        showSnackbar(context,Colors.cyan,"Deleted");
+        showSnackbar(context,Colors.green.shade300,"Deleted");
       }else{
-        showSnackbar(context, Colors.red, "Error");
+        showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));

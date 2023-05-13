@@ -88,7 +88,7 @@ class _EditOrderState extends State<EditOrder> {
                             OrderModel.totalAmount=OrderModel.totalAmount-OrderModel.products[index]["totalPrice"];
                             OrderModel.products.removeAt(index);
                           });
-                          showSnackbar(context, Colors.cyan, "Removed");
+                          showSnackbar(context, Colors.green.shade300, "Removed");
                         });
                       });
                     });
@@ -106,7 +106,7 @@ class _EditOrderState extends State<EditOrder> {
       "totalAmount":OrderModel.totalAmount
     }).then((value)async {
       if (value == true) {
-        showSnackbar(context, Colors.cyan, "Updated");
+        showSnackbar(context, Colors.green.shade300, "Updated");
         setState(() {
           OrderModel.products=[];
           OrderModel.totalAmount=0;
@@ -115,7 +115,7 @@ class _EditOrderState extends State<EditOrder> {
         setState(() {
           isLoading=false;
         });
-        showSnackbar(context, Colors.red, "Error");
+        showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace) {
       Navigator.push(context, MaterialPageRoute(

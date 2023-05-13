@@ -7,7 +7,7 @@ import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Screens/Company/edit_company.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
 
-import '../../Constants/routes.dart';
+import '../../Functions/update_data.dart';
 import '../../Models/user_model.dart';
 import '../../Widgets/row_info_display.dart';
 import '../../utils/snack_bar.dart';
@@ -76,19 +76,19 @@ class _CompanyDetailsState extends State<CompanyDetails> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               InkWell(
-                onTap: (){
+                onTap: ()async{
                   try{
-                    uploadImage().then((value){
-                      widget.companyModel.imageUrl=value;
-                    });
+                    widget.companyModel.imageUrl=await uploadImage("profile");
+                    updateCompanyData(context,widget.companyModel);
                   }catch(e){
                     showSnackbar(context, Colors.red, e);
                   }
                 },
                 child: CircleAvatar(
+                  backgroundColor: Colors.brown.shade300,
                   radius: 70,
                   child: widget.companyModel.imageUrl.isEmpty
-                      ?const Icon(Icons.image)
+                      ?const Icon(Icons.image,size: 50,color: Colors.white,)
                       :Image.network(widget.companyModel.imageUrl),
                 ),
               ),
@@ -109,14 +109,14 @@ class _CompanyDetailsState extends State<CompanyDetails> {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  const Expanded(child: Text("Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.cyan),)),
+                  const Expanded(child: Text("Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.brown),)),
                   widget.userModel.rights.contains(Rights.addArea) || widget.userModel.rights.contains(Rights.all)
                       ? Expanded(
                       child: IconButton(
                           onPressed: (){
                             showDialogueBox();
                           },
-                        icon: const Icon(Icons.add,color: Colors.cyan,) ,
+                        icon: const Icon(Icons.add,color: Colors.brown,) ,
                           ),
                   ): const SizedBox()
                 ],
@@ -174,7 +174,7 @@ class _CompanyDetailsState extends State<CompanyDetails> {
                       saveArea(areaName.text.toUpperCase());
                     }else{
                       Navigator.pop(context);
-                      showSnackbar(context, Colors.red, "Not saved as field was empty");
+                      showSnackbar(context, Colors.red.shade400, "Not saved as field was empty");
                     }
                   }, child: const Text("Save",style: TextStyle(color: Colors.white),)),
             ],
@@ -188,7 +188,7 @@ class _CompanyDetailsState extends State<CompanyDetails> {
           widget.companyModel.area.add(areaName);
         });
       }else{
-        showSnackbar(context, Colors.red, "Area with same name already available");
+        showSnackbar(context, Colors.red.shade400, "Area with same name already available");
       }
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
@@ -197,12 +197,12 @@ class _CompanyDetailsState extends State<CompanyDetails> {
   deleteArea(String areaName)async{
     await CompanyDb(id: widget.companyModel.companyId).deleteArea(areaName).then((value){
       if(value==true){
-        showSnackbar(context, Colors.cyan, "Deleted");
+        showSnackbar(context, Colors.green.shade300, "Deleted");
         setState(() {
           widget.companyModel.area.remove(areaName);
         });
       }else{
-        showSnackbar(context, Colors.red, "Error");
+        showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace) {
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));

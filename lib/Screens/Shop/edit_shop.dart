@@ -101,10 +101,10 @@ class _EditShopState extends State<EditShop> {
       "nearBy":nearBy.text,
     }).then((value){
       if(value==true){
-        showSnackbar(context, Colors.cyan, "Updated");
+        showSnackbar(context, Colors.green.shade300, "Updated");
         Navigator.pop(context);
       }else{
-        showSnackbar(context, Colors.red, "Error");
+        showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
@@ -113,12 +113,12 @@ class _EditShopState extends State<EditShop> {
   deleteShop(String shopId)async{
     await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).deleteShop().then((value) {
       if(value==true){
-        showSnackbar(context, Colors.cyan, "Deleted");
+        showSnackbar(context, Colors.green.shade300, "Deleted");
         setState(() {
 
         });
       }else{
-        showSnackbar(context, Colors.cyan, "Error");
+        showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace) {
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));

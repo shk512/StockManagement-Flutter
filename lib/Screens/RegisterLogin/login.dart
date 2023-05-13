@@ -55,7 +55,7 @@ class _LoginState extends State<Login> {
                         TextSpan(
                           text: "Don't have an account? ",
                           style: const TextStyle(
-                            color: Colors.cyan,
+                            color: Colors.brown,
                             fontWeight: FontWeight.bold,
                             fontStyle: FontStyle.italic,
                           ),
@@ -94,7 +94,7 @@ class _LoginState extends State<Login> {
           setState(() {
             isLoading=false;
           });
-          showSnackbar(context, Colors.red, value.toString());
+          showSnackbar(context, Colors.red.shade400, value.toString());
         }
       }).onError((error, stackTrace){
         setState(() {

@@ -66,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               Text(
                 "Developed By\n360 Tech",
                 textAlign:TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.cyan.withOpacity(0.8),letterSpacing: 2),)
+                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.brown.shade200,letterSpacing: 2),)
             ],
           ),
         ),

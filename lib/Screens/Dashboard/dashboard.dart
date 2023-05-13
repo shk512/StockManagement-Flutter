@@ -8,6 +8,7 @@ import 'package:stock_management/Screens/Company/company_details.dart';
 import 'package:stock_management/Screens/User/view_user.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Widgets/dashboard_menu.dart';
+import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Constants/rights.dart';
 import '../../Functions/sign_out.dart';
@@ -33,6 +34,7 @@ class _DashboardState extends State<Dashboard> {
   Auth auth=Auth();
   CompanyModel _companyModel=CompanyModel();
   UserModel _userModel=UserModel();
+  int selectedPage=0;
   @override
   void initState() {
     super.initState();
@@ -117,10 +119,10 @@ class _DashboardState extends State<Dashboard> {
                   }
                 },
                 child: CircleAvatar(
-                  backgroundColor: Colors.cyan,
+                  backgroundColor: Colors.brown,
                   child: _companyModel.imageUrl.isNotEmpty?Image.network(_companyModel.imageUrl):const Icon(Icons.warehouse_outlined,color: Colors.white,),)
             ),
-            title:  Text(_companyModel.companyName,style: const TextStyle(color: Colors.white),),
+            title:  Text(_companyModel.companyName,style: const TextStyle(fontWeight: FontWeight.w900,color: Colors.white),),
             actions: [
               PopupMenuButton(
                   color: Colors.white,
@@ -136,11 +138,11 @@ class _DashboardState extends State<Dashboard> {
                     return [
                       PopupMenuItem(
                         value: 0,
-                        child: Row(children: const [Icon(CupertinoIcons.person_crop_circle), SizedBox(width: 5,),Text("View Profile")],),
+                        child: Row(children: const [Icon(CupertinoIcons.person_crop_circle,color: Colors.black54,), SizedBox(width: 5,),Text("View Profile")],),
                       ),
                       PopupMenuItem(
                         value: 1,
-                        child: Row(children: const [Icon(Icons.logout_outlined),SizedBox(width: 5,),Text("SignOut")],),
+                        child: Row(children: const [Icon(Icons.logout_outlined,color: Colors.black54,),SizedBox(width: 5,),Text("SignOut")],),
                       ),
                     ];
                   }
@@ -151,21 +153,21 @@ class _DashboardState extends State<Dashboard> {
             child: Column(
               children: [
                 _userModel.rights.contains(Rights.viewOrder)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Track Order", route: Order(userModel: _userModel,companyModel: _companyModel,), icon: Icons.directions, clr: Colors.cyan.shade300):const SizedBox(),
+                    ? DashboardMenu(name: "Track Order", route: Order(userModel: _userModel,companyModel: _companyModel,), icon: Icons.directions, clr: Colors.brown.shade300):const SizedBox(),
                 _userModel.rights.contains(Rights.placeOrder)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Place Order", route: Area(companyModel: _companyModel,userModel: _userModel,), icon:Icons.add_shopping_cart, clr: Colors.cyan.shade300):const SizedBox(),
+                    ? DashboardMenu(name: "Place Order", route: Area(companyModel: _companyModel,userModel: _userModel,), icon:Icons.add_shopping_cart, clr: Colors.brown.shade300):const SizedBox(),
                 _userModel.rights.contains(Rights.viewStock)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Stock", route: Stock(userModel: _userModel,companyModel: _companyModel,), icon: Icons.cached_outlined, clr: Colors.cyan.shade300):const SizedBox(),
+                    ? DashboardMenu(name: "Stock", route: Stock(userModel: _userModel,companyModel: _companyModel,), icon: Icons.cached_outlined, clr: Colors.brown.shade300):const SizedBox(),
                 _userModel.rights.contains(Rights.viewUser)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "User", route: Employee(companyModel: _companyModel,userModel: _userModel,), icon: CupertinoIcons.person_2, clr: Colors.cyan.shade300):const SizedBox(),
+                    ? DashboardMenu(name: "User", route: Employee(companyModel: _companyModel,userModel: _userModel,), icon: CupertinoIcons.person_2, clr: Colors.brown.shade300):const SizedBox(),
                 _userModel.rights.contains(Rights.viewProduct)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Product", route: Product(userModel: _userModel,companyModel: _companyModel,), icon: Icons.add_circle_outline, clr: Colors.cyan.shade300):const SizedBox(),
+                    ? DashboardMenu(name: "Product", route: Product(userModel: _userModel,companyModel: _companyModel,), icon: Icons.add_circle_outline, clr: Colors.brown.shade300):const SizedBox(),
                 _userModel.rights.contains(Rights.viewShop)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Shop", route: Shop(userModel: _userModel,companyModel: _companyModel,), icon:Icons.storefront, clr: Colors.cyan.shade300):const SizedBox(),
+                    ? DashboardMenu(name: "Shop", route: Shop(userModel: _userModel,companyModel: _companyModel,), icon:Icons.storefront, clr: Colors.brown.shade300):const SizedBox(),
                 _userModel.rights.contains(Rights.viewReport)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Report", route: DisplayProduct(companyModel: _companyModel,), icon:Icons.description, clr: Colors.cyan.shade300):const SizedBox(),
+                    ? DashboardMenu(name: "Report", route: DisplayProduct(companyModel: _companyModel,), icon:Icons.description, clr: Colors.brown.shade300):const SizedBox(),
                 _userModel.rights.contains(Rights.viewTransactions)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Accounts", route: Accounts(companyModel: _companyModel, userModel: _userModel,), icon: Icons.account_balance_outlined, clr: Colors.cyan.shade300):const SizedBox(),
+                    ? DashboardMenu(name: "Accounts", route: Accounts(companyModel: _companyModel, userModel: _userModel,), icon: Icons.account_balance_outlined, clr: Colors.brown.shade300):const SizedBox(),
               ],
             ),
           )

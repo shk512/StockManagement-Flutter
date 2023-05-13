@@ -92,9 +92,9 @@ class _AddProductState extends State<AddProduct> {
     ).then((value){
       if(value==true){
         Navigator.pop(context);
-        showSnackbar(context, Colors.cyan, "Saved");
+        showSnackbar(context, Colors.green.shade300, "Saved");
       }else{
-        showSnackbar(context, Colors.red, "Error");
+        showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),)));
