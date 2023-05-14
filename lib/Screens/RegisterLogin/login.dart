@@ -34,50 +34,52 @@ class _LoginState extends State<Login> {
      return Scaffold(
         body: isLoading
             ?const Center(child: CircularProgressIndicator())
-            :Padding(
-              padding:  EdgeInsets.symmetric(horizontal: 10),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                    children:[
-                      const Image(image: AssetImage("image/login.png")),
-                      const SizedBox(height: 40),
-                      TxtField(labelTxt: "Email", hintTxt: "Enter your email", ctrl: mail, icon: const Icon(Icons.mail_outline_sharp)),
-                      const SizedBox(height: 20,),
-                      TxtField(labelTxt: "Password", hintTxt: "Enter Your Password", ctrl: pass, icon: const Icon(Icons.lock_outline_rounded)),
-                      const SizedBox(height: 20),
-                      ElevatedButton(onPressed: (){
-                        login();
-                      }, child: const Text('Login',style: TextStyle(color: Colors.white),)),
-                      const SizedBox(height: 20),
-                      Text.rich(
-                        TextSpan(
-                          text: "Don't have an account? ",
-                          style: const TextStyle(
-                            color: Colors.brown,
-                            fontWeight: FontWeight.bold,
-                            fontStyle: FontStyle.italic,
+            :SingleChildScrollView(
+              child: Padding(
+                padding:  EdgeInsets.symmetric(horizontal: 10,vertical: 50),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                      children:[
+                        const Image(image: AssetImage("image/login.png")),
+                        const SizedBox(height: 40),
+                        TxtField(labelTxt: "Email", hintTxt: "Enter your email", ctrl: mail, icon: const Icon(Icons.mail_outline_sharp)),
+                        const SizedBox(height: 20,),
+                        TxtField(labelTxt: "Password", hintTxt: "Enter Your Password", ctrl: pass, icon: const Icon(Icons.lock_outline_rounded)),
+                        const SizedBox(height: 20),
+                        ElevatedButton(onPressed: (){
+                          login();
+                        }, child: const Text('Login',style: TextStyle(color: Colors.white),)),
+                        const SizedBox(height: 20),
+                        Text.rich(
+                          TextSpan(
+                            text: "Don't have an account? ",
+                            style: const TextStyle(
+                              color: Colors.brown,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                            ),
+                            children: <TextSpan>[
+                              TextSpan(
+                                  text: "Register here",
+                                  style: const TextStyle(
+                                    color: Colors.black87,
+                                    fontStyle: FontStyle.italic,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.pushNamed(
+                                          context, Routes.newCompany);
+                                    })
+                            ],
                           ),
-                          children: <TextSpan>[
-                            TextSpan(
-                                text: "Register here",
-                                style: const TextStyle(
-                                  color: Colors.black87,
-                                  fontStyle: FontStyle.italic,
-                                  decoration: TextDecoration.underline,
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    Navigator.pushNamed(
-                                        context, Routes.newCompany);
-                                  })
-                          ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+              ),
             ),
       );
     }

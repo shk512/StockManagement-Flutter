@@ -4,13 +4,13 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-uploadImage(String path) async {
+uploadImage() async {
   final _firebaseStorage = FirebaseStorage.instance;
   final _imagePicker = ImagePicker();
   var image;
   String imageUrl="";
   //Check Permissions
- // await Permission.storage.request();
+ await Permission.storage.request();
 
   var permissionStatus = await Permission.storage.status;
 
@@ -24,7 +24,7 @@ uploadImage(String path) async {
       String imageId=DateTime.now().microsecondsSinceEpoch.toString();
       var snapshot=
       await _firebaseStorage.ref()
-          .child('image/$path')
+          .child('image/$imageId')
           .putFile(file).whenComplete(() {});
       imageUrl= await snapshot.ref.getDownloadURL();
     }

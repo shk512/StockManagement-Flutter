@@ -66,12 +66,11 @@ class _EditCompanyState extends State<EditCompany> {
             child: Column(
               children: [
                 TxtField(labelTxt: "Company Name", hintTxt: "e.g. Candy Land", ctrl: companyName, icon: const Icon(Icons.warehouse)),
-                const SizedBox(height: 20),
                 TxtField(labelTxt: "City", hintTxt: "City Name...", ctrl: city, icon: const Icon(Icons.location_city)),
-                const SizedBox(height: 20),
                 NumField(icon: const Icon((Icons.phone)), ctrl: phone, hintTxt: "03001234567", labelTxt: "Contact"),
               ],
-            ),),
+            ),
+          ),
         ),
       ),
     );
@@ -81,9 +80,9 @@ class _EditCompanyState extends State<EditCompany> {
       setState(() {
         isLoading=true;
       });
-      widget.companyModel.companyName=companyName.text;
+      widget.companyModel.companyName=companyName.text.toUpperCase();
       widget.companyModel.contact=phone.text;
-      widget.companyModel.city=city.text;
+      widget.companyModel.city=city.text.toUpperCase();
       widget.companyModel.imageUrl=imageUrl;
       await CompanyDb(id: widget.companyModel.companyId).updateCompany(widget.companyModel.toJson()).then((value)async{
         showSnackbar(context, Colors.green.shade300, "Updated");

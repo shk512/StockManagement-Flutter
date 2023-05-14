@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Functions/image_upload.dart';
 import 'package:stock_management/Models/company_model.dart';
@@ -78,38 +79,46 @@ class _CompanyDetailsState extends State<CompanyDetails> {
               InkWell(
                 onTap: ()async{
                   try{
-                    widget.companyModel.imageUrl=await uploadImage("profile");
+                    widget.companyModel.imageUrl=await uploadImage();
                     updateCompanyData(context,widget.companyModel);
                   }catch(e){
                     showSnackbar(context, Colors.red, e);
                   }
                 },
-                child: CircleAvatar(
+                child: widget.companyModel.imageUrl.isNotEmpty
+                    ?CircleAvatar(
+                  backgroundImage: NetworkImage(widget.companyModel.imageUrl),
                   backgroundColor: Colors.brown.shade300,
-                  radius: 70,
-                  child: widget.companyModel.imageUrl.isEmpty
-                      ?const Icon(Icons.image,size: 50,color: Colors.white,)
-                      :Image.network(widget.companyModel.imageUrl),
-                ),
+                  radius: 100,
+                )
+                    :Icon(Icons.image,size: 70,),
               ),
               SizedBox(height: 10,),
               RowInfoDisplay(label: "Status", value:widget.companyModel.isPackageActive?"Active":"InActive"),
-              const SizedBox(height: 5),
+              RowInfoDisplay(label: "Package", value: widget.companyModel.packageType),
               widget.companyModel.packageType=="LifeTime".toUpperCase()||widget.companyModel.packageEndsDate==""
                   ?const SizedBox()
                   :RowInfoDisplay(label: "Package Ends Date", value:widget.companyModel.packageEndsDate),
-              const SizedBox(height: 5),
               RowInfoDisplay(label: "Name", value:widget.companyModel.companyName),
-              const SizedBox(height: 5),
               RowInfoDisplay(label: "City", value:widget.companyModel.city),
-              const SizedBox(height: 5),
               RowInfoDisplay(label: "Contact", value: widget.companyModel.contact),
-              const SizedBox(height: 5),
-              RowInfoDisplay(label: "Package", value: widget.companyModel.packageType),
-              const SizedBox(height: 10),
+              const SizedBox(height: 10,),
+              widget.companyModel.location.latitude==0&&widget.companyModel.location.longitude==0
+                  ? RowInfoDisplay(value: "Not Set", label: "Location")
+                  : Container(
+                height: 300,
+                child: GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                      target: LatLng(widget.companyModel.location.latitude, widget.companyModel.location.longitude),
+                    zoom: 14.4746,
+                  ),
+
+                ),
+              ),
+              const SizedBox(height: 10,),
               Row(
                 children: [
-                  const Expanded(child: Text("Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.brown),)),
+                  const Expanded(child: Text("Area",style: TextStyle(fontSize: 22,fontWeight: FontWeight.w900,color: Colors.brown),)),
                   widget.userModel.rights.contains(Rights.addArea) || widget.userModel.rights.contains(Rights.all)
                       ? Expanded(
                       child: IconButton(

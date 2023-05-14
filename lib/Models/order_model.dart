@@ -4,6 +4,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class OrderModel{
   static List products=[];
   static num totalAmount=0;
+  static List cart=[];
+  static num calculate=0;
 
   static Map<String,dynamic> toJson({
     required String  orderId,

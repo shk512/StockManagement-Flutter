@@ -175,7 +175,6 @@ class _OrderFormState extends State<OrderForm> {
                        const SizedBox(width: 5,),
                        const Expanded(flex:1,child: Text("X")),
                         Expanded(
-                          flex: 1,
                             child: TextFormField(
                               keyboardType: TextInputType.number,
                               inputFormatters: <TextInputFormatter>[

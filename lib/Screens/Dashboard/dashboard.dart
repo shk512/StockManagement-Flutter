@@ -118,11 +118,15 @@ class _DashboardState extends State<Dashboard> {
                     Navigator.push(context,MaterialPageRoute(builder: (context)=>CompanyDetails(userModel: _userModel,companyModel: _companyModel,)));
                   }
                 },
-                child: CircleAvatar(
+                child: _companyModel.imageUrl.isNotEmpty
+                    ?CircleAvatar(
+                  backgroundImage: NetworkImage(_companyModel.imageUrl),
                   backgroundColor: Colors.brown,
-                  child: _companyModel.imageUrl.isNotEmpty?Image.network(_companyModel.imageUrl):const Icon(Icons.warehouse_outlined,color: Colors.white,),)
+                  radius: 3,
+                )
+                    :Icon(Icons.image)
             ),
-            title:  Text(_companyModel.companyName,style: const TextStyle(fontWeight: FontWeight.w900,color: Colors.white),),
+            title: Text(_companyModel.companyName,style: const TextStyle(fontWeight: FontWeight.w900,color: Colors.white),),
             actions: [
               PopupMenuButton(
                   color: Colors.white,

@@ -86,7 +86,7 @@ class _OrderState extends State<Order> {
                               borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
                               color: tab=="processing".toUpperCase()?Colors.brown :Colors.brown.shade200,
                             ),
-                            child:const Text("In-PROCESS",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
+                            child:const Text("PROCESS",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
                           ),
                         ),
                       ),
@@ -103,7 +103,7 @@ class _OrderState extends State<Order> {
                             decoration: BoxDecoration(
                               color: tab=="dispatch".toUpperCase()?Colors.brown :Colors.brown.shade200
                             ),
-                            child: const Text("In-Route",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
+                            child: const Text("DISPATCH",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),

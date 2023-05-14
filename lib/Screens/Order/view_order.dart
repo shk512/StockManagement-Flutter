@@ -38,6 +38,7 @@ class _ViewOrderState extends State<ViewOrder> {
   String deliveryManName="";
   GeoPoint orderLocation=GeoPoint(0,0);
   GeoPoint shopLocation=GeoPoint(0, 0);
+  TransactionType transactionType=TransactionType.cash;
 
   @override
   void initState() {
@@ -120,15 +121,15 @@ class _ViewOrderState extends State<ViewOrder> {
                   return [
                     PopupMenuItem(
                       value: 0,
-                      child: Row(children: const [Icon(Icons.edit), SizedBox(width: 5,),Text("Edit")],),
+                      child: Row(children: const [Icon(Icons.edit,color: Colors.black54,), SizedBox(width: 5,),Text("Edit")],),
                     ),
                     PopupMenuItem(
                       value: 1,
-                      child: Row(children: const [Icon(Icons.navigation),SizedBox(width: 5,),Text("Shop")],),
+                      child: Row(children: const [Icon(Icons.navigation,color: Colors.black54,),SizedBox(width: 5,),Text("Shop")],),
                     ),
                     PopupMenuItem(
                       value: 2,
-                      child: Row(children: const [Icon(Icons.navigation),SizedBox(width: 5,),Text("Order")],),
+                      child: Row(children: const [Icon(Icons.navigation,color: Colors.black54,),SizedBox(width: 5,),Text("Order")],),
                     ),
                   ];
                 }
@@ -159,6 +160,7 @@ class _ViewOrderState extends State<ViewOrder> {
             :Column(
             children:[
               Expanded(
+                flex: 7,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 5),
                   child: Column(
@@ -178,6 +180,7 @@ class _ViewOrderState extends State<ViewOrder> {
               ),
               const SizedBox(height: 5,),
               Expanded(
+                flex: 5,
                 child: ListView.builder(
                     itemCount: OrderModel.products.length,
                     itemBuilder: (context,index){
@@ -235,64 +238,57 @@ class _ViewOrderState extends State<ViewOrder> {
     TextEditingController concession=TextEditingController();
     TextEditingController detail=TextEditingController();
     final formKey=GlobalKey<FormState>();
-    TransactionType type=TransactionType.cash;
 
     return showDialog(
         context: context,
         builder: (context){
           return AlertDialog(
             title: const Text("Execute Order"),
-            content: Form(
-              key: formKey,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ListTile(
-                            title: Text(
-                              "Cash",
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            leading: Radio(
-                                value: TransactionType.cash,
-                                groupValue: type,
-                                onChanged: (value) {
-                                  setState(() {
-                                    type = value!;
-                                  });
-                                })
+            content: Expanded(
+              child: Form(
+                key: formKey,
+                child: Column(
+                  children: [
+                    ListTile(
+                        title: Text(
+                          "Cash",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                      ),
-                      Expanded(
-                        child: ListTile(
-                            title: Text(
-                              "Online",
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            leading: Radio(
-                                value: TransactionType.online,
-                                groupValue: type,
-                                onChanged: (value) {
-                                  setState(() {
-                                    type = value!;
-                                  });
-                                })
-                        ),
-                      )
-                    ],
-                  ),
-                  NumField(icon: Icon(Icons.onetwothree_outlined), ctrl: amount, hintTxt: "In digits", labelTxt: "Amount Received"),
-                  NumField(icon: Icon(Icons.onetwothree_outlined), ctrl: concession, hintTxt: "In digits", labelTxt: "Concession Amount"),
-                  TextField(
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Details (if-any)",
+                        leading: Radio(
+                            value: TransactionType.cash,
+                            groupValue: transactionType,
+                            onChanged: (value) {
+                              setState(() {
+                                transactionType = value!;
+                              });
+                            })
                     ),
-                    controller: detail,
-                  ),
-                ],
+                    ListTile(
+                        title: Text(
+                          "Online",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        leading: Radio(
+                            value: TransactionType.online,
+                            groupValue: transactionType,
+                            onChanged: (value) {
+                              setState(() {
+                                transactionType = value!;
+                              });
+                            })
+                    ),
+                    NumField(icon: Icon(Icons.onetwothree_outlined), ctrl: amount, hintTxt: "In digits", labelTxt: "Amount Received"),
+                    NumField(icon: Icon(Icons.onetwothree_outlined), ctrl: concession, hintTxt: "In digits", labelTxt: "Concession Amount"),
+                    TextField(
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: "Details (if-any)",
+                      ),
+                      controller: detail,
+                    ),
+                  ],
+                ),
               ),
             ),
             actions: [
@@ -305,7 +301,7 @@ class _ViewOrderState extends State<ViewOrder> {
                   onPressed: ()async{
                     Navigator.pop(context);
                     String tempType="";
-                    if(type==TransactionType.cash){
+                    if(transactionType==TransactionType.cash){
                       tempType="Cash";
                     }else{
                       tempType="Online";
