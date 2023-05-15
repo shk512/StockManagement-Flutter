@@ -15,11 +15,6 @@ void showSnackbar(context, color, message) {
       backgroundColor: color,
       duration: const Duration(seconds: 2),
       behavior: SnackBarBehavior.floating,
-      margin: EdgeInsets.only(
-        bottom: MediaQuery.of(context).size.height - 100,
-        left: 10,
-        right: 10
-      ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15)
       )

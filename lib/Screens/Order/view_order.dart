@@ -1,25 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Constants/narration.dart';
 import 'package:stock_management/Functions/open_map.dart';
 import 'package:stock_management/Models/order_model.dart';
+import 'package:stock_management/Screens/Order/deliver_form.dart';
 import 'package:stock_management/Screens/Order/edit_order.dart';
 import 'package:stock_management/Screens/Order/deliver_man.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
-import 'package:stock_management/Widgets/num_field.dart';
 import 'package:stock_management/Widgets/row_info_display.dart';
-import 'package:stock_management/utils/enum.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Constants/rights.dart';
-import '../../Models/account_model.dart';
 import '../../Models/company_model.dart';
 import '../../Models/user_model.dart';
-import '../../Services/DB/account_db.dart';
 
 class ViewOrder extends StatefulWidget {
   final String orderId;
@@ -38,41 +34,42 @@ class _ViewOrderState extends State<ViewOrder> {
   String deliveryManName="";
   GeoPoint orderLocation=GeoPoint(0,0);
   GeoPoint shopLocation=GeoPoint(0, 0);
-  TransactionType transactionType=TransactionType.cash;
+
 
   @override
   void initState() {
     super.initState();
     getOrderData();
   }
-  getOrderData() async{
-    await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderId).getOrderById().then((value)async{
-      setState(() {
-        orderSnapshot=value;
-        OrderModel.products=List.from(value["products"]);
-        OrderModel.totalAmount=value["totalAmount"];
-        orderLocation=value["geoLocation"];
-      });
-      await UserDb(id: value["orderBy"]).getData().then((value){
+    getOrderData() async{
+      await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderId).getOrderById().then((value)async{
         setState(() {
-          orderBookerName="${value["name"]}\t${value["phone"]}";
+          orderSnapshot=value;
+          OrderModel.products=List.from(value["products"]);
+          OrderModel.totalAmount=value["totalAmount"];
+          orderLocation=value["geoLocation"];
         });
-      });
-      if(value["deliverBy"].toString().isNotEmpty){
-        await UserDb(id: value["deliverBy"]).getData().then((value){
+        await UserDb(id: value["orderBy"]).getData().then((value){
           setState(() {
-            deliveryManName="${value["name"]}\t${value["phone"]}";
+            orderBookerName="${value["name"]}\t${value["phone"]}";
           });
         });
-      }
-      await ShopDB(companyId: widget.companyModel.companyId, shopId: value["shopId"]).getShopDetails().then((value)async{
-        setState(() {
-          shopSnapshot=value;
-          shopLocation=value["geoLocation"];
-        });
+        if(value["deliverBy"].toString().isNotEmpty){
+          await UserDb(id: value["deliverBy"]).getData().then((value){
+            setState(() {
+              deliveryManName="${value["name"]}\t${value["phone"]}";
+            });
+          });
+        }
+        await ShopDB(companyId: widget.companyModel.companyId, shopId: value["shopId"]).getShopDetails().then((value)async{
+          setState(() {
+            shopSnapshot=value;
+            shopLocation=value["geoLocation"];
+          });
+        }).onError((error, stackTrace)=>Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
       }).onError((error, stackTrace)=>Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
-    }).onError((error, stackTrace)=>Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
-  }
+    }
+
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +137,7 @@ class _ViewOrderState extends State<ViewOrder> {
             ?FloatingActionButton.extended(
           onPressed: (){
             if(widget.userModel.rights.contains(Rights.dispatchOrder)||widget.userModel.rights.contains(Rights.all)){
-              updateOrderStatus("Dispatch".toUpperCase());
+              updateOrderStatus();
             }
           },
           label: const Text("Dispatch",style: TextStyle(color: Colors.white),),
@@ -149,7 +146,7 @@ class _ViewOrderState extends State<ViewOrder> {
                 ?FloatingActionButton.extended(
           onPressed: (){
             if(widget.userModel.rights.contains(Rights.deliverOrder)||widget.userModel.rights.contains(Rights.all)){
-              deliverOrder();
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>DeliverForm(companyModel: widget.companyModel, userModel: widget.userModel, orderId: widget.orderId,)));
             }
           },
           label: const Text("Deliver",style: TextStyle(color: Colors.white),),
@@ -211,21 +208,16 @@ class _ViewOrderState extends State<ViewOrder> {
       );
     }
   }
-  updateOrderStatus(String status)async{
+  updateOrderStatus()async{
     await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderId).updateOrder({
-      "status": status.toUpperCase()
+      "status": "Dispatch".toUpperCase()
     }).then((value){
       if(value==true){
         setState(() {
           OrderModel.products=[];
           OrderModel.totalAmount=0;
         });
-        if(status=="Dispatch".toUpperCase()){
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>EditUserId(orderId: widget.orderId, companyModel: widget.companyModel,userModel: widget.userModel,)));
-        }else{
-          Navigator.pop(context);
-          showSnackbar(context, Colors.green.shade300, status);
-        }
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>EditUserId(orderId: widget.orderId, companyModel: widget.companyModel,userModel: widget.userModel,)));
       }else{
         showSnackbar(context, Colors.red.shade400, "Error");
       }
@@ -233,121 +225,7 @@ class _ViewOrderState extends State<ViewOrder> {
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
     });
   }
-  deliverOrder(){
-    TextEditingController amount=TextEditingController();
-    TextEditingController concession=TextEditingController();
-    TextEditingController detail=TextEditingController();
-    final formKey=GlobalKey<FormState>();
 
-    return showDialog(
-        context: context,
-        builder: (context){
-          return AlertDialog(
-            title: const Text("Execute Order"),
-            content: Expanded(
-              child: Form(
-                key: formKey,
-                child: Column(
-                  children: [
-                    ListTile(
-                        title: Text(
-                          "Cash",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        leading: Radio(
-                            value: TransactionType.cash,
-                            groupValue: transactionType,
-                            onChanged: (value) {
-                              setState(() {
-                                transactionType = value!;
-                              });
-                            })
-                    ),
-                    ListTile(
-                        title: Text(
-                          "Online",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        leading: Radio(
-                            value: TransactionType.online,
-                            groupValue: transactionType,
-                            onChanged: (value) {
-                              setState(() {
-                                transactionType = value!;
-                              });
-                            })
-                    ),
-                    NumField(icon: Icon(Icons.onetwothree_outlined), ctrl: amount, hintTxt: "In digits", labelTxt: "Amount Received"),
-                    NumField(icon: Icon(Icons.onetwothree_outlined), ctrl: concession, hintTxt: "In digits", labelTxt: "Concession Amount"),
-                    TextField(
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: "Details (if-any)",
-                      ),
-                      controller: detail,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            actions: [
-              ElevatedButton(
-                  onPressed: (){
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Cancel",style: TextStyle(color: Colors.white),)),
-              ElevatedButton(
-                  onPressed: ()async{
-                    Navigator.pop(context);
-                    String tempType="";
-                    if(transactionType==TransactionType.cash){
-                      tempType="Cash";
-                    }else{
-                      tempType="Online";
-                    }
-                    await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderId).updateOrder({
-                      "advanceAmount":orderSnapshot!["advanceAmount"]+int.parse(amount.text),
-                      "balanceAmount":orderSnapshot!["balanceAmount"]-int.parse(amount.text)-int.parse(concession.text),
-                      "concessionAmount": int.parse(concession.text),
-                      "description":detail.text,
-                      "deliverBy":widget.userModel.userId
-                    }).then((value){
-                      createTransaction(shopSnapshot!["shopId"],orderSnapshot!["shopDetails"],Narration.minus, int.parse(amount.text),tempType);
-                    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
-                  },
-                  child: const Text("Submit",style: TextStyle(color: Colors.white),)
-              )
-            ],
-          );
-        });
-  }
-  createTransaction(String shopId,String shopName,String narration,num amount,String type) async{
-    String transactionId=DateTime.now().microsecondsSinceEpoch.toString();
-    await AccountDb(companyId: widget.companyModel.companyId, transactionId: transactionId).saveTransaction(
-        AccountModel.toJson(
-            transactionId: transactionId,
-            transactionBy: widget.userModel.userId,
-            desc: shopName,
-            narration: narration,
-            amount: amount,
-            type: type,
-            dateTime: DateTime.now().toString()
-        )
-    ).then((value)async{
-      if(value==true){
-        await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).updateWallet(-amount).then((value)async{
-          updateOrderStatus("deliver".toUpperCase());
-        }).then((value)async{
-          await UserDb(id: widget.userModel.userId).updateWalletBalance(amount);
-        }).onError((error, stackTrace){
-          Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
-        });
-      }
-    }).onError((error, stackTrace) {
-      Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
-    });
-  }
  /* generatePdf()async{
     final pdf=pw.Document();
     pdf.addPage(
