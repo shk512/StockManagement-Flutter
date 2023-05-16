@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +38,7 @@ class _ViewOrderState extends State<ViewOrder> {
   String deliveryManName = "";
   GeoPoint orderLocation = GeoPoint(0, 0);
   GeoPoint shopLocation = GeoPoint(0, 0);
+  bool isLoading=false;
 
 
   @override
@@ -103,19 +106,28 @@ class _ViewOrderState extends State<ViewOrder> {
             style: const TextStyle(color: Colors.white),),
           actions: [
             IconButton(
-                onPressed: () {
-                  BuildPdf.generate(
-                      companyName: widget.companyModel.companyName,
-                      invoiceNo: widget.orderId,
-                      products: OrderModel.products,
-                      totalAmount: orderSnapshot!["totalAmount"].toString(),
-                      balanceAmount: orderSnapshot!["balanceAmount"].toString(),
-                      advanceAmount: orderSnapshot!["advanceAmount"].toString(),
-                      concessionAmount: orderSnapshot!["concessionAmount"].toString(),
-                      shopName: orderSnapshot!["shopDetails"],
-                      contactPerson: "${shopSnapshot!["ownerName"]}\t${shopSnapshot!["contact"]}").then((value){
-                        PdfApi.openFile(value);
+                onPressed: () async{
+                  setState(() {
+                    isLoading=true;
                   });
+                  if(orderSnapshot!=null && shopSnapshot!=null){
+                    await BuildPdf.generate(
+                        companyName: widget.companyModel.companyName,
+                        invoiceNo: widget.orderId,
+                        products: OrderModel.products,
+                        totalAmount: orderSnapshot!["totalAmount"].toString(),
+                        balanceAmount: orderSnapshot!["balanceAmount"].toString(),
+                        advanceAmount: orderSnapshot!["advanceAmount"].toString(),
+                        concessionAmount: orderSnapshot!["concessionAmount"].toString(),
+                        shopName: orderSnapshot!["shopDetails"],
+                        contactPerson: "${shopSnapshot!["ownerName"]}\t${shopSnapshot!["contact"]}").then((file){
+                    // PdfApi.saveFile(file)
+                      PdfApi.openFile(file);
+                      setState(() {
+                        isLoading=false;
+                      });
+                    });
+                  }
                 }, icon: Icon(Icons.download, color: Colors.white,)),
             orderSnapshot!["status"] == "Deliver".toUpperCase()
                 ? const SizedBox()
@@ -209,7 +221,7 @@ class _ViewOrderState extends State<ViewOrder> {
           label: const Text("Deliver", style: TextStyle(color: Colors.white),),
         )
             : const SizedBox(),
-        body: orderBookerName.isEmpty
+        body: orderBookerName.isEmpty || isLoading
             ? const Center(child: CircularProgressIndicator(),)
             : Column(
           children: [

@@ -116,11 +116,12 @@ class _CompanyDetailsState extends State<CompanyDetails> {
                           openMap(widget.companyModel.location.latitude, widget.companyModel.location.longitude);
                         },
                         child: Row(
+                          mainAxisAlignment:  MainAxisAlignment.center,
                           children: [
                             Text(
-                                "Navigate"
+                                "Navigate", style:  TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
                             ),
-                            Icon(Icons.navigation,color: Colors.white,)
+                            Icon(Icons.navigation_outlined,color: Colors.white,)
                           ],
                         ),
                       )
@@ -136,6 +137,7 @@ class _CompanyDetailsState extends State<CompanyDetails> {
                     ),
                   ),
                   Container(
+                    width: MediaQuery.of(context).size.width,
                     height: 50,
                     color: Colors.brown,
                     child: ElevatedButton.icon(
@@ -143,7 +145,7 @@ class _CompanyDetailsState extends State<CompanyDetails> {
 
                         },
                         icon: Icon(Icons.pin_drop_outlined),
-                        label: Text("Edit"))
+                        label: Text("Edit Location"))
                   ),
                 ],
               ),

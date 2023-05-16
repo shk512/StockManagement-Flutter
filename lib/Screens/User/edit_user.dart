@@ -217,8 +217,8 @@ class _EditUserState extends State<EditUser> {
                 children: [
                   TxtField(labelTxt: "Name", hintTxt: "Enter your name", ctrl: name, icon: const Icon(Icons.person_outline)),
                   NumField(labelTxt: "Contact", hintTxt: "03001234567", ctrl: contact, icon: const Icon(Icons.phone)),
-                  role=="Employee".toUpperCase()?TxtField(labelTxt: "Designation", hintTxt: "Employee's designation", ctrl: designation, icon: Icon(CupertinoIcons.star_circle)):const SizedBox(),
-                  role=="Employee".toUpperCase()?NumField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon:const Icon(Icons.onetwothree)):const SizedBox(),
+                  role=="Employee".toUpperCase()&&widget.userModel.role=="Company".toUpperCase()?TxtField(labelTxt: "Designation", hintTxt: "Employee's designation", ctrl: designation, icon: Icon(CupertinoIcons.star_circle)):const SizedBox(),
+                  role=="Employee".toUpperCase()&&widget.userModel.role=="Company".toUpperCase()?NumField(labelTxt: "Salary", hintTxt: "In digits", ctrl: salary, icon:const Icon(Icons.onetwothree)):const SizedBox(),
                   role=="Company".toUpperCase()
                       ?const SizedBox()
                       : role=="Shop Keeper".toUpperCase()
@@ -235,7 +235,7 @@ class _EditUserState extends State<EditUser> {
                           :const SizedBox()
                     ],
                   )
-                      :TxtField(labelTxt: "Designation", hintTxt: "Employee's designation", ctrl: designation, icon: const Icon(CupertinoIcons.star_circle)),
+                      :const SizedBox(),
                   widget.userModel.role=="Company".toUpperCase()
                       ?Column(
                     children: [
