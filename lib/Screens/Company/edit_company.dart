@@ -38,11 +38,11 @@ class _EditCompanyState extends State<EditCompany> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: GestureDetector(
-          onTap: (){
+        leading: IconButton(
+          onPressed: (){
             Navigator.pop(context);
           },
-          child: const Icon(CupertinoIcons.back,color: Colors.white,),
+          icon: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
         title: Text(widget.companyModel.companyName,style: const TextStyle(color: Colors.white),),
         actions: [

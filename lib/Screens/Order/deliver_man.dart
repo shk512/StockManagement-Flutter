@@ -39,11 +39,11 @@ class _EditUserIdState extends State<EditUserId> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        leading: GestureDetector(
-          onTap: (){
+        leading: IconButton(
+          onPressed: (){
             Navigator.pop(context);
           },
-          child: const Icon(CupertinoIcons.back,color: Colors.white,),
+          icon: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
         title: const Text("Delivery Man",style: TextStyle(color: Colors.white),),
       ),

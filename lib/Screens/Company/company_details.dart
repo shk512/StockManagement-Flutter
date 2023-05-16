@@ -44,11 +44,11 @@ class _CompanyDetailsState extends State<CompanyDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: GestureDetector(
-          onTap: (){
+        leading: IconButton(
+          onPressed: (){
             Navigator.pop(context);
           },
-          child: const Icon(CupertinoIcons.back,color: Colors.white,),
+          icon: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
         title: const Text("Company",style: TextStyle(color: Colors.white),),
         actions: [

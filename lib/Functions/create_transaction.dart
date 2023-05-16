@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../Constants/narration.dart';
 import '../Models/account_model.dart';
 import '../Screens/Splash_Error/error.dart';
 import '../Services/DB/account_db.dart';
-import '../Services/DB/company_db.dart';
-import '../utils/snack_bar.dart';
 
 Future accountTransaction(String narration,num amount,String type,String desc,String companyId,String userId, BuildContext context) async{
   String transactionId=DateTime.now().microsecondsSinceEpoch.toString();

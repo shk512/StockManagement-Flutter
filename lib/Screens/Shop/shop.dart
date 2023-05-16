@@ -46,11 +46,11 @@ class _ShopState extends State<Shop> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        leading: GestureDetector(
-          onTap: (){
+        leading: IconButton(
+          onPressed: (){
             Navigator.pop(context);
           },
-          child: const Icon(CupertinoIcons.back,color: Colors.white,),
+          icon: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
         title: const Text("Shop",style: const TextStyle(color: Colors.white),),
         centerTitle: true,
@@ -186,7 +186,7 @@ class _ShopState extends State<Shop> {
             showWarningDialogue(snapshot);
           }
         },
-          label: Text("${++quantityOfShops}",style: TextStyle(fontWeight: FontWeight.bold),),
+          label: Text("${++quantityOfShops}",style: TextStyle(color:Colors.black,fontWeight: FontWeight.bold),),
           icon: Icon(Icons.brightness_1,size: 10,color: snapshot["isActive"]?Colors.green:Colors.red,)
       ):Text("${++quantityOfShops}",style: TextStyle(fontWeight: FontWeight.bold),),
       title: Text("${snapshot["shopName"]}-${snapshot["areaId"]}"),
@@ -251,41 +251,33 @@ class _ShopState extends State<Shop> {
               key: formKey,
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                            child: ListTile(
-                                title: Text(
-                                  "Cash",
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                leading: Radio(
-                                    value: TransactionType.cash,
-                                    groupValue: type,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        type = value!;
-                                      });
-                                    })
-                            ),
+                    ListTile(
+                        title: Text(
+                          "Cash",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        Expanded(
-                          child: ListTile(
-                              title: Text(
-                                "Online",
-                                style: const TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              leading: Radio(
-                                  value: TransactionType.online,
-                                  groupValue: type,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      type = value!;
-                                    });
-                                  })
-                          ),
-                        )
-                      ],
+                        leading: Radio(
+                            value: TransactionType.cash,
+                            groupValue: type,
+                            onChanged: (value) {
+                              setState(() {
+                                type = value!;
+                              });
+                            })
+                    ),
+                    ListTile(
+                        title: Text(
+                          "Online",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        leading: Radio(
+                            value: TransactionType.online,
+                            groupValue: type,
+                            onChanged: (value) {
+                              setState(() {
+                                type = value!;
+                              });
+                            })
                     ),
                     NumField(icon: Icon(Icons.currency_ruble_outlined), ctrl: amount, hintTxt: "In digits", labelTxt: "Amount Received")
                   ],

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Screens/RegisterLogin/signup.dart';
 import 'package:stock_management/Services/DB/auth_db.dart';
@@ -29,6 +30,16 @@ class _NewCompanyState extends State<NewCompany> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Align(
+                alignment: AlignmentDirectional.topStart,
+                child: IconButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(CupertinoIcons.back,color: Colors.white,),
+                ),
+              ),
+              const SizedBox(height: 10,),
               NumField(labelTxt: "License Key", hintTxt: "Your company's license key....", ctrl: license, icon: const Icon(Icons.key)),
               const SizedBox(height: 30),
               ElevatedButton(onPressed: (){

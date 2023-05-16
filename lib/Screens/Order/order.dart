@@ -40,12 +40,12 @@ class _OrderState extends State<Order> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        leading: GestureDetector(
-        onTap: (){
-      Navigator.pop(context);
-    },
-    child: const Icon(CupertinoIcons.back,color: Colors.white,),
-    ),
+        leading: IconButton(
+          onPressed: (){
+            Navigator.pop(context);
+          },
+          icon: const Icon(CupertinoIcons.back,color: Colors.white,),
+        ),
     title: TextField(
       cursorColor: Colors.white,
       style: TextStyle(color: Colors.white),

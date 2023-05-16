@@ -95,7 +95,7 @@ class _DashboardState extends State<Dashboard> {
       );
     }
     if(_userModel.isDeleted){
-      return ErrorScreen(error: "Your account is inactive.\nContact your company.\nIf you are a company then contact developer.");
+      return ErrorScreen(error: "Oops! Your account is inactive.\nContact your company to activate.");
     }
     if(!_companyModel.isPackageActive){
       return ErrorScreen(error: "Oops! Company package has been expired.");

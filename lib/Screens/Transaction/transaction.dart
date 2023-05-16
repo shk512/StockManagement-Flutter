@@ -39,11 +39,10 @@ class _AccountsState extends State<Accounts> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        leading: GestureDetector(
-          onTap: (){
-            Navigator.pop(context);
-          },
-          child: const Icon(CupertinoIcons.back,color: Colors.white,),
+        leading: IconButton(
+            onPressed: (){
+              Navigator.pop(context);
+            }, icon: Icon(CupertinoIcons.back,color: Colors.white,)
         ),
         title: const Text("Transactions",style: TextStyle(color: Colors.white),),
         actions: [

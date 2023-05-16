@@ -35,11 +35,10 @@ class _DisplayProductState extends State<DisplayProduct> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        leading: GestureDetector(
-          onTap: (){
-            Navigator.pop(context);
-          },
-          child: const Icon(CupertinoIcons.back,color: Colors.white,),
+        leading: IconButton(
+            onPressed: (){
+              Navigator.pop(context);
+            }, icon: Icon(CupertinoIcons.back,color: Colors.white,)
         ),
         title: const Text("Products",style: TextStyle(color: Colors.white),),
         centerTitle: true,

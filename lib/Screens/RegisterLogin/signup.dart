@@ -108,11 +108,11 @@ class _SignupState extends State<Signup> {
                     children: [
                       Align(
                         alignment: AlignmentDirectional.topStart,
-                        child: GestureDetector(
-                          onTap: (){
+                        child: IconButton(
+                          onPressed: (){
                             Navigator.pop(context);
                           },
-                          child: const Icon(CupertinoIcons.back,),
+                          icon: const Icon(CupertinoIcons.back,color: Colors.white,),
                         ),
                       ),
                       const SizedBox(height: 10,),

@@ -37,11 +37,11 @@ class _AddProductState extends State<AddProduct> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        leading: GestureDetector(
-          onTap: (){
+        leading: IconButton(
+          onPressed: (){
             Navigator.pop(context);
           },
-          child: const Icon(CupertinoIcons.back,color: Colors.white,),
+          icon: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
         title: const Text("New Product",style: TextStyle(color: Colors.white),),
         centerTitle: true,

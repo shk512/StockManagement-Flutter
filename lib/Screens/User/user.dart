@@ -50,11 +50,10 @@ class _EmployeeState extends State<Employee> {
         ? const Center(child: CircularProgressIndicator(),)
         :Scaffold(
       appBar: AppBar(
-        leading: GestureDetector(
-          onTap: (){
-            Navigator.pop(context);
-          },
-          child: const Icon(CupertinoIcons.back,color: Colors.white,),
+        leading: IconButton(
+            onPressed: (){
+              Navigator.pop(context);
+            }, icon: Icon(CupertinoIcons.back,color: Colors.white,)
         ),
         title: const Text("Users",style: TextStyle(color: Colors.white),),
         centerTitle: true,

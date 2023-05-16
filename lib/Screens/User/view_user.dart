@@ -67,11 +67,10 @@ class _ViewUserState extends State<ViewUser> {
         ?const Center(child: CircularProgressIndicator(),)
         :Scaffold(
       appBar: AppBar(
-        leading: GestureDetector(
-          onTap: (){
-            Navigator.pop(context);
-          },
-          child: const Icon(CupertinoIcons.back,color: Colors.white,),
+        leading: IconButton(
+            onPressed: (){
+              Navigator.pop(context);
+            }, icon: Icon(CupertinoIcons.back,color: Colors.white,)
         ),
         title: Text(snapshot!["userId"]==widget.userModel.userId?"Profile":snapshot!["role"],style: TextStyle(color: Colors.white),),
         actions: [
