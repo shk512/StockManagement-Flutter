@@ -80,9 +80,7 @@ class _DeliverFormState extends State<DeliverForm> {
                 };
                 updateOrderDetails(context, mapData, widget.companyModel.companyId, widget.orderId).then((value){
                   accountTransaction(narration, int.parse(amount.text), transactionType, orderSnapshot!["shopDetails"],widget.companyModel.companyId,widget.userModel.userId,context).then((value){
-                    widget.companyModel.wallet=widget.companyModel.wallet-orderSnapshot!["totalAmount"];
                     widget.userModel.wallet+=int.parse(amount.text);
-                    updateCompanyData(context, widget.companyModel);
                     updateUserData(context, widget.userModel).then((value)async{
                       await ShopDB(companyId: widget.companyModel.companyId, shopId: orderSnapshot!["shopId"]).updateWallet(-int.parse(amount.text)).then((value)async{
                         updateOrderStatus();

@@ -153,6 +153,25 @@ class _DashboardState extends State<Dashboard> {
               ),
             ],
           ),
+         /* floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          floatingActionButton: FloatingActionButton(
+            tooltip: "Place Order",
+              onPressed: (){
+              if(_userModel.rights.contains(Rights.placeOrder)||_userModel.rights.contains(Rights.all)){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>Area(companyModel: _companyModel, userModel: _userModel)));
+              }
+              },
+            child: Icon(Icons.add,color: Colors.white,),
+          ),
+          bottomNavigationBar: BottomAppBar(
+            shape: CircularNotchedRectangle(),
+            notchMargin: 4.0,
+            child: Row(
+              children: [
+
+              ],
+            ),
+          ),*/
           body: SingleChildScrollView(
             child: Column(
               children: [

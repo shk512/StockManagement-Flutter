@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Functions/open_map.dart';
+import 'package:stock_management/Functions/pdf_api.dart';
+import 'package:stock_management/Functions/pdf_build.dart';
 import 'package:stock_management/Models/order_model.dart';
 import 'package:stock_management/Screens/Order/deliver_form.dart';
 import 'package:stock_management/Screens/Order/edit_order.dart';
@@ -30,10 +32,10 @@ class ViewOrder extends StatefulWidget {
 class _ViewOrderState extends State<ViewOrder> {
   DocumentSnapshot? orderSnapshot;
   DocumentSnapshot? shopSnapshot;
-  String orderBookerName="";
-  String deliveryManName="";
-  GeoPoint orderLocation=GeoPoint(0,0);
-  GeoPoint shopLocation=GeoPoint(0, 0);
+  String orderBookerName = "";
+  String deliveryManName = "";
+  GeoPoint orderLocation = GeoPoint(0, 0);
+  GeoPoint shopLocation = GeoPoint(0, 0);
 
 
   @override
@@ -41,170 +43,245 @@ class _ViewOrderState extends State<ViewOrder> {
     super.initState();
     getOrderData();
   }
-    getOrderData() async{
-      await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderId).getOrderById().then((value)async{
+
+  getOrderData() async {
+    await OrderDB(
+        companyId: widget.companyModel.companyId, orderId: widget.orderId)
+        .getOrderById()
+        .then((value) async {
+      setState(() {
+        orderSnapshot = value;
+        OrderModel.products = List.from(value["products"]);
+        OrderModel.totalAmount = value["totalAmount"];
+        orderLocation = value["geoLocation"];
+      });
+      await UserDb(id: value["orderBy"]).getData().then((value) {
         setState(() {
-          orderSnapshot=value;
-          OrderModel.products=List.from(value["products"]);
-          OrderModel.totalAmount=value["totalAmount"];
-          orderLocation=value["geoLocation"];
+          orderBookerName = "${value["name"]}\t${value["phone"]}";
         });
-        await UserDb(id: value["orderBy"]).getData().then((value){
+      });
+      if (value["deliverBy"]
+          .toString()
+          .isNotEmpty) {
+        await UserDb(id: value["deliverBy"]).getData().then((value) {
           setState(() {
-            orderBookerName="${value["name"]}\t${value["phone"]}";
+            deliveryManName = "${value["name"]}\t${value["phone"]}";
           });
         });
-        if(value["deliverBy"].toString().isNotEmpty){
-          await UserDb(id: value["deliverBy"]).getData().then((value){
-            setState(() {
-              deliveryManName="${value["name"]}\t${value["phone"]}";
-            });
-          });
-        }
-        await ShopDB(companyId: widget.companyModel.companyId, shopId: value["shopId"]).getShopDetails().then((value)async{
-          setState(() {
-            shopSnapshot=value;
-            shopLocation=value["geoLocation"];
-          });
-        }).onError((error, stackTrace)=>Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
-      }).onError((error, stackTrace)=>Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
-    }
+      }
+      await ShopDB(
+          companyId: widget.companyModel.companyId, shopId: value["shopId"])
+          .getShopDetails()
+          .then((value) async {
+        setState(() {
+          shopSnapshot = value;
+          shopLocation = value["geoLocation"];
+        });
+      }).onError((error, stackTrace) => Navigator.push(context,
+          MaterialPageRoute(
+              builder: (context) => ErrorScreen(error: error.toString()))));
+    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(
+        builder: (context) => ErrorScreen(error: error.toString()))));
+  }
 
 
   @override
   Widget build(BuildContext context) {
-    if(orderSnapshot==null){
+    if (orderSnapshot == null) {
       return const Center(child: CircularProgressIndicator(),);
-    }else{
+    } else {
       return Scaffold(
         appBar: AppBar(
           elevation: 0,
           leading: IconButton(
-            onPressed: (){
+            onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(CupertinoIcons.back,color: Colors.white,),
+            icon: const Icon(CupertinoIcons.back, color: Colors.white,),
           ),
-          title: Text(orderSnapshot!["orderId"],style: const TextStyle(color: Colors.white),),
+          title: Text(orderSnapshot!["orderId"],
+            style: const TextStyle(color: Colors.white),),
           actions: [
             IconButton(
-                onPressed: (){
-
-                }, icon: Icon(Icons.download,color: Colors.white,)),
-            orderSnapshot!["status"]=="Deliver".toUpperCase()
-                ?const SizedBox()
+                onPressed: () {
+                  BuildPdf.generate(
+                      companyName: widget.companyModel.companyName,
+                      invoiceNo: widget.orderId,
+                      products: OrderModel.products,
+                      totalAmount: orderSnapshot!["totalAmount"].toString(),
+                      balanceAmount: orderSnapshot!["balanceAmount"].toString(),
+                      advanceAmount: orderSnapshot!["advanceAmount"].toString(),
+                      concessionAmount: orderSnapshot!["concessionAmount"].toString(),
+                      shopName: orderSnapshot!["shopDetails"],
+                      contactPerson: "${shopSnapshot!["ownerName"]}\t${shopSnapshot!["contact"]}").then((value){
+                        PdfApi.openFile(value);
+                  });
+                }, icon: Icon(Icons.download, color: Colors.white,)),
+            orderSnapshot!["status"] == "Deliver".toUpperCase()
+                ? const SizedBox()
                 : PopupMenuButton(
                 color: Colors.white,
-                onSelected: (value){
-                  if(value==0&&(widget.userModel.rights.contains(Rights.editOrder)||widget.userModel.rights.contains(Rights.all))){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>EditOrder(orderId: widget.orderId, companyModel: widget.companyModel)));
+                onSelected: (value) {
+                  if (value == 0 &&
+                      (widget.userModel.rights.contains(Rights.editOrder) ||
+                          widget.userModel.rights.contains(Rights.all))) {
+                    Navigator.push(context, MaterialPageRoute(
+                        builder: (context) =>
+                            EditOrder(orderId: widget.orderId,
+                                companyModel: widget.companyModel)));
                   }
-                  if(value==1&&(widget.userModel.rights.contains(Rights.shopNavigation)||widget.userModel.rights.contains(Rights.all))){
-                    try{
+                  if (value == 1 && (widget.userModel.rights.contains(
+                      Rights.shopNavigation) ||
+                      widget.userModel.rights.contains(Rights.all))) {
+                    try {
                       openMap(shopLocation.latitude, shopLocation.longitude);
-                    }catch(e){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: e.toString())));
+                    } catch (e) {
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (context) =>
+                              ErrorScreen(error: e.toString())));
                     }
                   }
-                  if(value==2&&(widget.userModel.rights.contains(Rights.orderNavigation)||widget.userModel.rights.contains(Rights.all))){
-                    try{
+                  if (value == 2 && (widget.userModel.rights.contains(
+                      Rights.orderNavigation) ||
+                      widget.userModel.rights.contains(Rights.all))) {
+                    try {
                       openMap(shopLocation.latitude, shopLocation.longitude);
-                    }catch(e){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: e.toString())));
+                    } catch (e) {
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (context) =>
+                              ErrorScreen(error: e.toString())));
                     }
                   }
                 },
-                itemBuilder: (context){
+                itemBuilder: (context) {
                   return [
                     PopupMenuItem(
                       value: 0,
-                      child: Row(children: const [Icon(Icons.edit,color: Colors.black54,), SizedBox(width: 5,),Text("Edit")],),
+                      child: Row(children: const [
+                        Icon(Icons.edit, color: Colors.black54,),
+                        SizedBox(width: 5,),
+                        Text("Edit")
+                      ],),
                     ),
                     PopupMenuItem(
                       value: 1,
-                      child: Row(children: const [Icon(Icons.navigation,color: Colors.black54,),SizedBox(width: 5,),Text("Shop")],),
+                      child: Row(children: const [
+                        Icon(Icons.navigation, color: Colors.black54,),
+                        SizedBox(width: 5,),
+                        Text("Shop")
+                      ],),
                     ),
                     PopupMenuItem(
                       value: 2,
-                      child: Row(children: const [Icon(Icons.navigation,color: Colors.black54,),SizedBox(width: 5,),Text("Order")],),
+                      child: Row(children: const [
+                        Icon(Icons.navigation, color: Colors.black54,),
+                        SizedBox(width: 5,),
+                        Text("Order")
+                      ],),
                     ),
                   ];
                 }
             ),
           ],
         ),
-        floatingActionButton: orderSnapshot!["status"]=="processing".toUpperCase()
-            ?FloatingActionButton.extended(
-          onPressed: (){
-            if(widget.userModel.rights.contains(Rights.dispatchOrder)||widget.userModel.rights.contains(Rights.all)){
+        floatingActionButton: orderSnapshot!["status"] ==
+            "processing".toUpperCase()
+            ? FloatingActionButton.extended(
+          onPressed: () {
+            if (widget.userModel.rights.contains(Rights.dispatchOrder) ||
+                widget.userModel.rights.contains(Rights.all)) {
               updateOrderStatus();
             }
           },
-          label: const Text("Dispatch",style: TextStyle(color: Colors.white),),
+          label: const Text("Dispatch", style: TextStyle(color: Colors.white),),
         )
-            :orderSnapshot!["status"]=="dispatch".toUpperCase()
-                ?FloatingActionButton.extended(
-          onPressed: (){
-            if(widget.userModel.rights.contains(Rights.deliverOrder)||widget.userModel.rights.contains(Rights.all)){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>DeliverForm(companyModel: widget.companyModel, userModel: widget.userModel, orderId: widget.orderId,)));
+            : orderSnapshot!["status"] == "dispatch".toUpperCase()
+            ? FloatingActionButton.extended(
+          onPressed: () {
+            if (widget.userModel.rights.contains(Rights.deliverOrder) ||
+                widget.userModel.rights.contains(Rights.all)) {
+              Navigator.push(context, MaterialPageRoute(builder: (context) =>
+                  DeliverForm(companyModel: widget.companyModel,
+                    userModel: widget.userModel,
+                    orderId: widget.orderId,)));
             }
           },
-          label: const Text("Deliver",style: TextStyle(color: Colors.white),),
+          label: const Text("Deliver", style: TextStyle(color: Colors.white),),
         )
-            :const SizedBox(),
+            : const SizedBox(),
         body: orderBookerName.isEmpty
             ? const Center(child: CircularProgressIndicator(),)
-            :Column(
-            children:[
-              Expanded(
-                flex: 7,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 5),
-                  child: Column(
-                    children: [
-                      RowInfoDisplay(value: orderSnapshot!["shopDetails"], label: "Shop Details"),
-                      RowInfoDisplay(value: orderSnapshot!["dateTime"], label: "Order Date"),
-                      RowInfoDisplay(value: orderSnapshot!["remarks"], label: "Remarks"),
-                      RowInfoDisplay(value: orderSnapshot!["totalAmount"].toString(), label: "Total Amount"),
-                      RowInfoDisplay(value: orderSnapshot!["advanceAmount"].toString(), label: "Receive Amount"),
-                      RowInfoDisplay(value: orderSnapshot!["concessionAmount"].toString(), label: "Concession Amount"),
-                      RowInfoDisplay(value: orderSnapshot!["balanceAmount"].toString(), label: "Balance Amount"),
-                      RowInfoDisplay(value: orderBookerName, label: "Order By"),
-                      RowInfoDisplay(value: deliveryManName, label: "Deliver By"),
-                    ],
-                  ),
+            : Column(
+          children: [
+            Expanded(
+              flex: 7,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                child: Column(
+                  children: [
+                    RowInfoDisplay(value: orderSnapshot!["shopDetails"],
+                        label: "Shop Details"),
+                    RowInfoDisplay(
+                        value: orderSnapshot!["dateTime"], label: "Order Date"),
+                    RowInfoDisplay(
+                        value: orderSnapshot!["remarks"], label: "Remarks"),
+                    RowInfoDisplay(
+                        value: orderSnapshot!["totalAmount"].toString(),
+                        label: "Total Amount"),
+                    RowInfoDisplay(
+                        value: orderSnapshot!["advanceAmount"].toString(),
+                        label: "Receive Amount"),
+                    RowInfoDisplay(
+                        value: orderSnapshot!["concessionAmount"].toString(),
+                        label: "Concession Amount"),
+                    RowInfoDisplay(
+                        value: orderSnapshot!["balanceAmount"].toString(),
+                        label: "Balance Amount"),
+                    RowInfoDisplay(value: orderBookerName, label: "Order By"),
+                    RowInfoDisplay(value: deliveryManName, label: "Deliver By"),
+                  ],
                 ),
               ),
-              const SizedBox(height: 5,),
-              Expanded(
-                flex: 5,
-                child: ListView.builder(
-                    itemCount: OrderModel.products.length,
-                    itemBuilder: (context,index){
-                      if(OrderModel.products.isEmpty){
-                        return const Center(child: Text("Cart is Empty"),);
-                      }else{
-                        return ListTile(
-                          title: Text("${OrderModel.products[index]["productName"]}-${OrderModel.products[index]["description"]}"),
-                          subtitle: Text("Detail: ${OrderModel.products[index]["totalQuantity"]}x${OrderModel.products[index]["minPrice"]}=${OrderModel.products[index]["totalPrice"]}"),
+            ),
+            const SizedBox(height: 5,),
+            Expanded(
+              flex: 5,
+              child: ListView.builder(
+                  itemCount: OrderModel.products.length,
+                  itemBuilder: (context, index) {
+                    if (OrderModel.products.isEmpty) {
+                      return const Center(child: Text("Cart is Empty"),);
+                    } else {
+                      return ListTile(
+                          title: Text("${OrderModel
+                              .products[index]["productName"]}-${OrderModel
+                              .products[index]["description"]}"),
+                          subtitle: Text("Detail: ${OrderModel
+                              .products[index]["totalQuantity"]}x${OrderModel
+                              .products[index]["minPrice"]}=${OrderModel
+                              .products[index]["totalPrice"]}"),
                           trailing: ClipOval(
-                          child: SizedBox(
-                            height: 30,
-                            width: 30,
-                            child: Material(
-                            color: Colors.brown,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                "${OrderModel.products[index]["totalQuantity"]}",style: TextStyle(fontSize:16,fontWeight: FontWeight.w900,color: Colors.white),),
-                            ),
-                      ),
-                          )));
-                      }
-                    }),
-              ),
-            ],
-          ),
+                              child: SizedBox(
+                                height: 30,
+                                width: 30,
+                                child: Material(
+                                  color: Colors.brown,
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "${OrderModel
+                                          .products[index]["totalQuantity"]}",
+                                      style: TextStyle(fontSize: 16,
+                                          fontWeight: FontWeight.w900,
+                                          color: Colors.white),),
+                                  ),
+                                ),
+                              )));
+                    }
+                  }),
+            ),
+          ],
+        ),
       );
     }
   }

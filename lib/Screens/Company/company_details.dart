@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Functions/image_upload.dart';
+import 'package:stock_management/Functions/open_map.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Screens/Company/edit_company.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
@@ -105,15 +106,46 @@ class _CompanyDetailsState extends State<CompanyDetails> {
               const SizedBox(height: 10,),
               widget.companyModel.location.latitude==0&&widget.companyModel.location.longitude==0
                   ? RowInfoDisplay(value: "Not Set", label: "Location")
-                  : Container(
-                height: 300,
-                child: GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                      target: LatLng(widget.companyModel.location.latitude, widget.companyModel.location.longitude),
-                    zoom: 14.4746,
+                  : Column(
+                children: [
+                  Container(
+                      color: Colors.brown,
+                      height: 50,
+                      child: InkWell(
+                        onTap: (){
+                          openMap(widget.companyModel.location.latitude, widget.companyModel.location.longitude);
+                        },
+                        child: Row(
+                          children: [
+                            Text(
+                                "Navigate"
+                            ),
+                            Icon(Icons.navigation,color: Colors.white,)
+                          ],
+                        ),
+                      )
                   ),
+                  Container(
+                    height: 300,
+                    child: GoogleMap(
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(widget.companyModel.location.latitude, widget.companyModel.location.longitude),
+                        zoom: 14.4746,
+                      ),
 
-                ),
+                    ),
+                  ),
+                  Container(
+                    height: 50,
+                    color: Colors.brown,
+                    child: ElevatedButton.icon(
+                        onPressed: (){
+
+                        },
+                        icon: Icon(Icons.pin_drop_outlined),
+                        label: Text("Edit"))
+                  ),
+                ],
               ),
               const SizedBox(height: 10,),
               Row(

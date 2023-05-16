@@ -218,10 +218,11 @@ class _SignupState extends State<Signup> {
       });
       await auth.createUser(mail.text, pass.text).then((value)async{
         if(value.toString().isNotEmpty){
-          await UserDb(id: value.toString()).saveUser(_userModel.toJson(
+          await UserDb(id: value.toString()).saveUser(
+              _userModel.toJson(
               userId: value.toString(),
               name: name.text,
-              salary: _role==UserRole.shopKeeper||_role==UserRole.company?0:int.parse(salary.text),
+              salary: _role==UserRole.employee?int.parse(salary.text):0,
               mail: mail.text,
               companyId: widget.companyId,
               phone: contact.text,
