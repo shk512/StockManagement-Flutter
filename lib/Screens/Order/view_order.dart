@@ -46,7 +46,12 @@ class _ViewOrderState extends State<ViewOrder> {
     super.initState();
     getOrderData();
   }
-
+  @override
+  void dispose(){
+    OrderModel.products=[];
+    OrderModel.totalAmount=0;
+    super.dispose();
+  }
   getOrderData() async {
     await OrderDB(
         companyId: widget.companyModel.companyId, orderId: widget.orderId)
@@ -121,7 +126,6 @@ class _ViewOrderState extends State<ViewOrder> {
                         concessionAmount: orderSnapshot!["concessionAmount"].toString(),
                         shopName: orderSnapshot!["shopDetails"],
                         contactPerson: "${shopSnapshot!["ownerName"]}\t${shopSnapshot!["contact"]}").then((file){
-                    // PdfApi.saveFile(file)
                       PdfApi.openFile(file);
                       setState(() {
                         isLoading=false;

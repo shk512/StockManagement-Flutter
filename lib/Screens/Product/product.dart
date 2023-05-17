@@ -71,19 +71,19 @@ class _ProductState extends State<Product> {
                   itemCount: snapshot.data.docs.length,
                   itemBuilder: (context,index){
                     if(snapshot.data.docs[index]["isDeleted"]==true){
-                      return const SizedBox(height: 0,);
+                      return const SizedBox();
                     }else{
                       return ListTile(
                         onTap: (){
-                          if(widget.userModel.rights.contains(Rights.editProduct)){
+                          if(widget.userModel.rights.contains(Rights.editProduct)||widget.userModel.rights.contains(Rights.all)){
                             Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProduct(productId: snapshot.data.docs[index]["productId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
                           }
                         },
-                        leading: CircleAvatar(
-                          child: snapshot.data.docs[index]["imageUrl"].toString().isEmpty
-                              ?Icon(Icons.image)
-                              :Image.network(snapshot.data.docs[index]["imageUrl"]),
-                        ),
+                        leading:  snapshot.data.docs[index]["imageUrl"].toString().isEmpty
+                            ?Icon(Icons.image)
+                            :CircleAvatar(
+                              backgroundImage: NetworkImage(snapshot.data.docs[index]["imageUrl"]),
+                          ),
                         title: Text("${snapshot.data.docs[index]["productName"]}-${snapshot.data.docs[index]["description"]}"),
                         subtitle: Text("Price: ${snapshot.data.docs[index]["totalPrice"]} Rs."),
                         trailing: widget.userModel.rights.contains(Rights.deleteProduct)
@@ -93,7 +93,6 @@ class _ProductState extends State<Product> {
                             },
                             child: const Icon(Icons.delete,color: Colors.red,))
                             :const SizedBox(height: 0,),
-                        isThreeLine: true,
                       );
                     }
                   });

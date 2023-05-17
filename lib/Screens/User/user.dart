@@ -161,41 +161,33 @@ class _EmployeeState extends State<Employee> {
               key: formKey,
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ListTile(
-                            title: Text(
-                              "Cash",
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            leading: Radio(
-                                value: TransactionType.cash,
-                                groupValue: type,
-                                onChanged: (value) {
-                                  setState(() {
-                                    type = value!;
-                                  });
-                                })
-                        ),
+                  ListTile(
+                      title: Text(
+                        "Cash",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      Expanded(
-                        child: ListTile(
-                            title: Text(
-                              "Online",
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            leading: Radio(
-                                value: TransactionType.online,
-                                groupValue: type,
-                                onChanged: (value) {
-                                  setState(() {
-                                    type = value!;
-                                  });
-                                })
-                        ),
-                      )
-                    ],
+                      leading: Radio(
+                          value: TransactionType.cash,
+                          groupValue: type,
+                          onChanged: (value) {
+                            setState(() {
+                              type = value!;
+                            });
+                          })
+                  ),
+                  ListTile(
+                      title: Text(
+                        "Online",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      leading: Radio(
+                          value: TransactionType.online,
+                          groupValue: type,
+                          onChanged: (value) {
+                            setState(() {
+                              type = value!;
+                            });
+                          })
                   ),
                   NumField(icon: Icon(Icons.currency_ruble_outlined), ctrl: amount, hintTxt: "In digits", labelTxt: "Amount Received")
                 ],

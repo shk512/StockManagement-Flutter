@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Services/DB/product_db.dart';
 
+import '../../Functions/image_upload.dart';
 import '../../Models/user_model.dart';
 import '../../Widgets/num_field.dart';
 import '../../Widgets/text_field.dart';
@@ -25,6 +26,7 @@ class _EditProductState extends State<EditProduct> {
   TextEditingController totalPrice=TextEditingController();
   TextEditingController minPrice=TextEditingController();
   TextEditingController quantityPerPiece=TextEditingController();
+  String imageUrl="";
   final formKey=GlobalKey<FormState>();
 
   @override
@@ -40,6 +42,7 @@ class _EditProductState extends State<EditProduct> {
         totalPrice.text=value["totalPrice"].toString();
         minPrice.text=value["minPrice"].toString();
         quantityPerPiece.text=value["quantityPerPiece"].toString();
+        imageUrl=value["imageUrl"];
       });
     });
   }
@@ -57,13 +60,13 @@ class _EditProductState extends State<EditProduct> {
         title: const Text("Edit Product",style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: (){
           if(formKey.currentState!.validate()){
             updateProduct();
           }
         },
-        child: const Text("Update",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+        label: const Text("Update",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
       ),
       body: SingleChildScrollView(
         child: Form(
@@ -81,6 +84,29 @@ class _EditProductState extends State<EditProduct> {
                   NumField(labelTxt: "Min price", hintTxt: "Minimum price of product", ctrl: minPrice, icon: const Icon(Icons.currency_ruble_outlined)),
                   const SizedBox(height: 10,),
                   NumField(labelTxt: "Quantity", hintTxt: "Quantity per piece", ctrl: quantityPerPiece, icon: const Icon(Icons.production_quantity_limits)),
+                  const SizedBox(height: 10,),
+                  InkWell(
+                    onTap: (){
+                      try{
+                        uploadImage().then((value){
+                          setState(() {
+                            imageUrl=value;
+                          });
+                        });
+                      }catch (e){
+                        showSnackbar(context, Colors.red.shade400, e.toString());
+                      }
+                    },
+                    child: Container(
+                      color: Colors.brown.shade200,
+                      alignment: Alignment.center,
+                      height: 200,
+                      width: 200,
+                      child: imageUrl.isEmpty
+                          ?Icon(Icons.image,size: 100,)
+                          :Image.network(imageUrl),
+                    ),
+                  ),
                 ],
               ),
             )
@@ -90,12 +116,13 @@ class _EditProductState extends State<EditProduct> {
   }
   updateProduct()async{
     await ProductDb(companyId: widget.companyModel.companyId, productId: widget.productId).updateProduct({
-          "productName":productName.text,
-          "description":description.text,
-          "totalPrice":int.parse(totalPrice.text),
-          "minPrice":int.parse(minPrice.text),
-          "quantityPerPiece":int.parse(quantityPerPiece.text),
-        }).then((value){
+      "productName":productName.text,
+      "description":description.text,
+      "totalPrice":int.parse(totalPrice.text),
+      "minPrice":int.parse(minPrice.text),
+      "quantityPerPiece":int.parse(quantityPerPiece.text),
+      "imageUrl":imageUrl
+    }).then((value){
       if(value==true){
         showSnackbar(context, Colors.green.shade300, "Updated");
         Navigator.pop(context);

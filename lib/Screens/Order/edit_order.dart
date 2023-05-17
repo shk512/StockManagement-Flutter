@@ -25,6 +25,7 @@ class EditOrder extends StatefulWidget {
 class _EditOrderState extends State<EditOrder> {
   DocumentSnapshot? snapshot;
   bool isLoading=false;
+  num balanceAmount=0;
 
   getOrderData()async{
     await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderId).getOrderById().then((value) {
@@ -32,6 +33,7 @@ class _EditOrderState extends State<EditOrder> {
         snapshot = value;
         OrderModel.products=List.from(value["products"]);
         OrderModel.totalAmount=value["totalAmount"];
+        balanceAmount=value["balanceAmount"];
       });
     });
   }
@@ -83,10 +85,11 @@ class _EditOrderState extends State<EditOrder> {
                       String formattedDate=DateFormat("yyyy-MM-dd").format(DateTime.parse(snapshot!["dateTime"]));
                       await ReportDb(companyId: widget.companyModel.companyId, productId: OrderModel.products[index]["productId"]).decrement(OrderModel.products[index]["totalQuantity"], formattedDate).then((value)async{
                         num amount=OrderModel.totalAmount-OrderModel.products[index]["totalPrice"];
-                        await ShopDB(companyId: widget.companyModel.companyId, shopId: snapshot!["shopId"]).updateWallet(-amount).then((value){
+                        await ShopDB(companyId: widget.companyModel.companyId, shopId: snapshot!["shopId"]).updateWallet(-amount).then((value)async{
                           setState(() {
                             OrderModel.totalAmount=OrderModel.totalAmount-OrderModel.products[index]["totalPrice"];
                             OrderModel.products.removeAt(index);
+                            balanceAmount=OrderModel.totalAmount-snapshot!["advanceAmount"];
                           });
                           showSnackbar(context, Colors.green.shade300, "Removed");
                         });
@@ -103,7 +106,8 @@ class _EditOrderState extends State<EditOrder> {
   updateOrder()async{
     await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderId).updateOrder({
       "products":OrderModel.products,
-      "totalAmount":OrderModel.totalAmount
+      "totalAmount":OrderModel.totalAmount,
+      "balanceAmount":balanceAmount
     }).then((value)async {
       if (value == true) {
         showSnackbar(context, Colors.green.shade300, "Updated");

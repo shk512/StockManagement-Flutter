@@ -89,7 +89,6 @@ class _CompanyDetailsState extends State<CompanyDetails> {
                 child: widget.companyModel.imageUrl.isNotEmpty
                     ?CircleAvatar(
                   backgroundImage: NetworkImage(widget.companyModel.imageUrl),
-                  backgroundColor: Colors.brown.shade300,
                   radius: 100,
                 )
                     :Icon(Icons.image,size: 70,),

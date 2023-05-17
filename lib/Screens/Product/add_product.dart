@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Functions/image_upload.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/product_model.dart';
 import 'package:stock_management/Models/user_model.dart';
@@ -70,6 +71,29 @@ class _AddProductState extends State<AddProduct> {
                   NumField(labelTxt: "Min price", hintTxt: "Minimum price of product", ctrl: minPrice, icon: const Icon(Icons.currency_ruble_outlined)),
                   const SizedBox(height: 10,),
                   NumField(labelTxt: "Quantity", hintTxt: "Quantity per piece", ctrl: quantityPerPiece, icon: const Icon(Icons.production_quantity_limits)),
+                  const SizedBox(height: 10,),
+                  InkWell(
+                    onTap: (){
+                     try{
+                       uploadImage().then((value){
+                         setState(() {
+                           imageUrl=value;
+                         });
+                       });
+                     }catch (e){
+                       showSnackbar(context, Colors.red.shade400, e.toString());
+                     }
+                    },
+                    child: Container(
+                      color: Colors.brown.shade200,
+                      alignment: Alignment.center,
+                      height: 200,
+                      width: 200,
+                      child: imageUrl.isEmpty
+                          ?Icon(Icons.image,size: 100,)
+                          :Image.network(imageUrl),
+                    ),
+                  )
                 ],
               ),
             )

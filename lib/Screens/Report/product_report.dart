@@ -22,6 +22,7 @@ class _ProductReportState extends State<ProductReport> {
   String productName="";
   TextEditingController from=TextEditingController();
   TextEditingController to=TextEditingController();
+  bool isNotAvailable=false;
 
   @override
   void initState() {
@@ -59,6 +60,7 @@ class _ProductReportState extends State<ProductReport> {
             Padding(
               padding: EdgeInsets.all(5),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
                       flex: 1,
@@ -88,7 +90,11 @@ class _ProductReportState extends State<ProductReport> {
                         return ListView.builder(
                             itemCount: snapshot.data.docs.length,
                             itemBuilder: (context, index){
-                              return display("${snapshot.data.docs[index]["date"]}", '${snapshot.data.docs[index]["${widget.productId}"]}');
+                              try{
+                                return display("${snapshot.data.docs[index]["date"]}", '${snapshot.data.docs[index]["${widget.productId}"]}');
+                              }catch(e){
+                                return const SizedBox();
+                              }
                             });
                       }
                     })

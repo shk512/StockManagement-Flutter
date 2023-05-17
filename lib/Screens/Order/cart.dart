@@ -173,16 +173,18 @@ class _CartState extends State<Cart> {
       if (value == true) {
         await UserDb(id: widget.userModel.userId).updateWalletBalance(advanceAmount).then((value) async{
           await ShopDB(companyId: widget.companyModel.companyId, shopId: widget.shopId).updateWallet(OrderModel.totalAmount-advanceAmount).then((value)async{
-            String tId=DateTime.now().microsecondsSinceEpoch.toString();
-            await AccountDb(companyId: widget.companyModel.companyId, transactionId: tId).saveTransaction(
-                AccountModel.toJson(
-                    transactionId: tId,
-                    transactionBy: widget.userModel.userId,
-                    desc: widget.shopDetails,
-                    narration: Narration.minus,
-                    amount: advanceAmount,
-                    type: "Cash",
-                    dateTime: DateTime.now().toString())).then((value){
+            if(advanceAmount!=0){
+              String tId=DateTime.now().microsecondsSinceEpoch.toString();
+              await AccountDb(companyId: widget.companyModel.companyId, transactionId: tId).saveTransaction(
+                  AccountModel.toJson(
+                      transactionId: tId,
+                      transactionBy: widget.userModel.userId,
+                      desc: widget.shopDetails,
+                      narration: Narration.minus,
+                      amount: advanceAmount,
+                      type: "Cash",
+                      dateTime: DateTime.now().toString()));
+            }
               Navigator.pop(context);
               Navigator.pop(context);
               showSnackbar(context, Colors.green.shade300, "Order has been placed");
@@ -192,7 +194,6 @@ class _CartState extends State<Cart> {
               });
             });
             });
-        });
       } else {
         setState(() {
           isLoading=false;

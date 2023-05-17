@@ -65,10 +65,10 @@ class _DisplayProductState extends State<DisplayProduct> {
                         onTap: (){
                           Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductReport(companyModel: widget.companyModel, productId: snapshot.data.docs[index]["productId"])));
                         },
-                        leading: CircleAvatar(
-                          child: snapshot.data.docs[index]["imageUrl"].toString().isEmpty
-                              ?Icon(Icons.image)
-                              :Image.network(snapshot.data.docs[index]["imageUrl"]),
+                        leading:  snapshot.data.docs[index]["imageUrl"].toString().isEmpty
+                            ?Icon(Icons.image)
+                            :CircleAvatar(
+                          backgroundImage: NetworkImage(snapshot.data.docs[index]["imageUrl"]),
                         ),
                         title: Text(snapshot.data.docs[index]["productName"]),
                         subtitle: Text("${snapshot.data.docs[index]["description"]}"),

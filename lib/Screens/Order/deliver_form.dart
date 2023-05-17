@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Widgets/row_info_display.dart';
 
 import '../../Constants/narration.dart';
 import '../../Functions/create_transaction.dart';
@@ -41,6 +42,7 @@ class _DeliverFormState extends State<DeliverForm> {
     super.initState();
     getOrderData();
   }
+
   getOrderData() async{
     await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderId).getOrderById().then((value)async{
       setState(() {
@@ -82,11 +84,12 @@ class _DeliverFormState extends State<DeliverForm> {
                   accountTransaction(narration, int.parse(amount.text), transactionType, orderSnapshot!["shopDetails"],widget.companyModel.companyId,widget.userModel.userId,context).then((value){
                     widget.userModel.wallet+=int.parse(amount.text);
                     updateUserData(context, widget.userModel).then((value)async{
-                      await ShopDB(companyId: widget.companyModel.companyId, shopId: orderSnapshot!["shopId"]).updateWallet(-int.parse(amount.text)).then((value)async{
+                      await ShopDB(companyId: widget.companyModel.companyId, shopId: orderSnapshot!["shopId"]).updateWallet(-(int.parse(amount.text)+int.parse(concession.text))).then((value)async{
                         updateOrderStatus();
                         setState(() {
                           isLoading=false;
                         });
+                        Navigator.pop(context);
                         Navigator.pop(context);
                         showSnackbar(context, Colors.green.shade300,"Delivered");
                       });
@@ -99,7 +102,7 @@ class _DeliverFormState extends State<DeliverForm> {
           ),
         ],
       ),
-      body: isLoading
+      body: isLoading || orderSnapshot==null
           ? const Center(child: CircularProgressIndicator(),)
           :SingleChildScrollView(
         child: Padding(
@@ -108,6 +111,8 @@ class _DeliverFormState extends State<DeliverForm> {
             key: formKey,
             child: Column(
               children: [
+                RowInfoDisplay(value: "${orderSnapshot!["balanceAmount"]}", label: "Balance Amount"),
+                const SizedBox(height: 10,),
                 ListTile(
                     title: Text(
                       "Cash",

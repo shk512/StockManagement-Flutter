@@ -37,19 +37,19 @@ class BuildPdf{
                   children:[
                     Expanded(
                       flex: 4,
-                        child: Text("Product Name",),
+                        child: Text("Product Name",style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                     Expanded(
                       flex: 2,
-                      child: Text("Quantity"),
+                      child: Text("Quantity",style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                     Expanded(
                       flex: 2,
-                      child: Text("Price",),
+                      child: Text("Price",style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                     Expanded(
                       flex: 2,
-                      child: Text("Total Price"),
+                      child: Text("Total Price",style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ]
               ),
@@ -69,10 +69,10 @@ class BuildPdf{
                       crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text("Total Amount:\t$totalAmount"),
-                          Text("Advance Amount:\t$advanceAmount"),
-                          Text("Concession Amount:\t$concessionAmount"),
-                          Text("Balance Amount:\t$balanceAmount"),
+                          Text("Total Amount:\t$totalAmount",style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text("Advance Amount:\t$advanceAmount",style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text("Concession Amount:\t$concessionAmount",style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text("Balance Amount:\t$balanceAmount",style: TextStyle(fontWeight: FontWeight.bold)),
                         ]
                     )
                 )
@@ -96,8 +96,8 @@ class BuildPdf{
     child: Row(
         children: [
           Expanded(
-              flex: 2,
-              child: Text(label)),
+              flex: 1,
+              child: Text(label,style: TextStyle(fontWeight: FontWeight.bold))),
           Expanded(
               flex: 4,
               child: Text(value)),

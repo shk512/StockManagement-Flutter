@@ -259,7 +259,8 @@ class _EditUserState extends State<EditUser> {
       "name":name.text,
       "phone":contact.text,
       "designation":designation.text,
-      "salary":salary.text
+      "salary":int.parse(salary.text),
+      "right":rights
     }).then((value){
       showSnackbar(context, Colors.green.shade300, "Updated");
       Navigator.pop(context);

@@ -8,12 +8,12 @@ import 'package:stock_management/Screens/Company/company_details.dart';
 import 'package:stock_management/Screens/User/view_user.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 import 'package:stock_management/Widgets/dashboard_menu.dart';
-import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Constants/rights.dart';
 import '../../Functions/sign_out.dart';
 import '../../Services/DB/company_db.dart';
 import '../../Services/DB/user_db.dart';
+import '../../Services/shared_preferences/spf.dart';
 import '../Area/area.dart';
 import '../Order/order.dart';
 import '../Product/product.dart';
@@ -35,6 +35,7 @@ class _DashboardState extends State<Dashboard> {
   CompanyModel _companyModel=CompanyModel();
   UserModel _userModel=UserModel();
   int selectedPage=0;
+
   @override
   void initState() {
     super.initState();
@@ -49,7 +50,7 @@ class _DashboardState extends State<Dashboard> {
     }
   }
   getUserAndCompanyData()async{
-    await UserDb(id: FirebaseAuth.instance.currentUser!.uid).getData().then((snapshot){
+    await UserDb(id: FirebaseAuth.instance.currentUser!.uid).getData().then((snapshot)async{
       setState(() {
         _userModel.userId=snapshot["userId"];
         _userModel.companyId=snapshot["companyId"];
@@ -64,25 +65,27 @@ class _DashboardState extends State<Dashboard> {
         _userModel.area=List.from(snapshot["area"]);
         _userModel.rights=List.from(snapshot["right"]);
       });
-    }).onError((error, stackTrace){
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())), (route) => false);
-    });
-    await CompanyDb(id: _userModel.companyId).getData().then((snapshot){
-      setState(() {
-        _companyModel.imageUrl=snapshot["imageUrl"];
-        _companyModel.companyId=snapshot['companyId'];
-        _companyModel.contact=snapshot['contact'];
-        _companyModel.isPackageActive= snapshot['isPackageActive'];
-        _companyModel.packageEndsDate= snapshot['packageEndsDate'];
-        _companyModel.companyName= snapshot['companyName'];
-        _companyModel.area=List.from(snapshot['area']);
-        _companyModel.wallet=snapshot['wallet'];
-        _companyModel.packageType=snapshot["packageType"];
-        _companyModel.whatsApp=snapshot["whatsApp"];
-        _companyModel.city=snapshot["city"];
-        _companyModel.location=snapshot["geoLocation"];
+      await CompanyDb(id: _userModel.companyId).getData().then((snapshot){
+        setState(() {
+          _companyModel.imageUrl=snapshot["imageUrl"];
+          _companyModel.companyId=snapshot['companyId'];
+          _companyModel.contact=snapshot['contact'];
+          _companyModel.isPackageActive= snapshot['isPackageActive'];
+          _companyModel.packageEndsDate= snapshot['packageEndsDate'];
+          _companyModel.companyName= snapshot['companyName'];
+          _companyModel.area=List.from(snapshot['area']);
+          _companyModel.wallet=snapshot['wallet'];
+          _companyModel.packageType=snapshot["packageType"];
+          _companyModel.whatsApp=snapshot["whatsApp"];
+          _companyModel.city=snapshot["city"];
+          _companyModel.location=snapshot["geoLocation"];
+        });
+      }).onError((error, stackTrace){
+        SPF.saveUserLogInStatus(false);
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())), (route) => false);
       });
     }).onError((error, stackTrace){
+      SPF.saveUserLogInStatus(false);
       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())), (route) => false);
     });
   }
@@ -90,11 +93,10 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     if(_companyModel.companyName.isEmpty){
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return Scaffold(body: Center(child: CircularProgressIndicator(),),);
     }
     if(_userModel.isDeleted){
+      SPF.saveUserLogInStatus(false);
       return ErrorScreen(error: "Oops! Your account is inactive.\nContact your company to activate.");
     }
     if(!_companyModel.isPackageActive){
@@ -108,9 +110,7 @@ class _DashboardState extends State<Dashboard> {
           changePackageStatus();
         }
       }
-      return _companyModel.companyName.isEmpty
-          ? const Center(child: CircularProgressIndicator(),)
-          :Scaffold(
+      return Scaffold(
           appBar: AppBar(
             leading: GestureDetector(
                 onTap: (){
@@ -121,7 +121,6 @@ class _DashboardState extends State<Dashboard> {
                 child: _companyModel.imageUrl.isNotEmpty
                     ?CircleAvatar(
                   backgroundImage: NetworkImage(_companyModel.imageUrl),
-                  backgroundColor: Colors.brown,
                   radius: 3,
                 )
                     :Icon(Icons.image)

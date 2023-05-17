@@ -62,6 +62,11 @@ class _StockState extends State<Stock> {
                 itemBuilder: (context,index){
                   if(snapshot.data.docs[index]["isDeleted"]==false){
                     return ListTile(
+                      leading:  snapshot.data.docs[index]["imageUrl"].toString().isEmpty
+                          ?Icon(Icons.image)
+                          :CircleAvatar(
+                        backgroundImage: NetworkImage(snapshot.data.docs[index]["imageUrl"]),
+                      ),
                       title: Text(snapshot.data.docs[index]["productName"]),
                       subtitle: Text(snapshot.data.docs[index]["totalQuantity"].toString()),
                       trailing:  widget.userModel.rights.contains(Rights.updateStock)||widget.userModel.rights.contains(Rights.all)
@@ -109,7 +114,7 @@ class _StockState extends State<Stock> {
                   onPressed: (){
                     Navigator.pop(context);
                     if(newQuantity.text.isNotEmpty){
-                      updateStock(int.parse(newQuantity.text)+quantity,productId);
+                      updateStock(int.parse(newQuantity.text),productId);
                     }
                   },
                   child: const Text("Update",style: TextStyle(color: Colors.white),))
