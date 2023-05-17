@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:stock_management/Functions/location.dart';
 import 'package:stock_management/Models/account_model.dart';
 import 'package:stock_management/Models/company_model.dart';
-import 'package:stock_management/Screens/Area/area.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/account_db.dart';
 import 'package:stock_management/Services/DB/order_db.dart';

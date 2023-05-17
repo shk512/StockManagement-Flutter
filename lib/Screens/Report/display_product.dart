@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:stock_management/Screens/Report/product_report.dart';
-import 'package:stock_management/Widgets/row_info_display.dart';
 
 import '../../Models/company_model.dart';
 import '../../Services/DB/product_db.dart';

@@ -6,7 +6,6 @@ import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/product_db.dart';
 import 'package:stock_management/Services/DB/report_db.dart';
 
-import '../../Widgets/row_info_display.dart';
 
 class ProductReport extends StatefulWidget {
   final String productId;
