@@ -74,6 +74,31 @@ class _LoginState extends State<Login> {
                             ],
                           ),
                         ),
+                        const SizedBox(height: 10),
+                        Text.rich(
+                          TextSpan(
+                            text: "Forgot Password? ",
+                            style: const TextStyle(
+                              color: Colors.brown,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                            ),
+                            children: <TextSpan>[
+                              TextSpan(
+                                  text: "Click here",
+                                  style: const TextStyle(
+                                    color: Colors.black87,
+                                    fontStyle: FontStyle.italic,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.pushNamed(
+                                          context, Routes.resetPassword);
+                                    })
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),

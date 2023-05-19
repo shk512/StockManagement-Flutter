@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Screens/RegisterLogin/reset_password.dart';
 import 'package:stock_management/Screens/Splash_Error/splash.dart';
 import 'package:stock_management/Services/shared_preferences/spf.dart';
 import 'package:stock_management/firebase_options.dart';
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
         Routes.splash:(context) => SplashScreen(logInStatus: logInStatus,),
         Routes.login:(context)=>const Login(),
         Routes.dashboard: (context) => const Dashboard(),
+        Routes.resetPassword:(context)=>const ResetPassword()
       },
     );
   }

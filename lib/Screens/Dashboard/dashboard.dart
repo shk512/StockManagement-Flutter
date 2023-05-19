@@ -5,10 +5,14 @@ import 'package:intl/intl.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Company/company_details.dart';
+import 'package:stock_management/Screens/Report/display_product.dart';
+import 'package:stock_management/Screens/Transaction/transaction.dart';
+import 'package:stock_management/Screens/User/user.dart';
 import 'package:stock_management/Screens/User/view_user.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 
 import '../../Constants/rights.dart';
+import '../../Functions/internet_connection.dart';
 import '../../Functions/sign_out.dart';
 import '../../Services/DB/company_db.dart';
 import '../../Services/DB/user_db.dart';
@@ -38,13 +42,22 @@ class _DashboardState extends State<Dashboard> {
   @override
   void initState() {
     super.initState();
-    getUserAndCompanyData();
-    matchList();
-    pages.insert(0, Order(userModel: _userModel, companyModel: _companyModel));
-    pages.insert(1, Product(userModel: _userModel, companyModel: _companyModel));
-    pages.insert(2, Area(userModel: _userModel, companyModel: _companyModel));
-    pages.insert(3, Stock(userModel: _userModel, companyModel: _companyModel));
-    pages.insert(4, Shop(userModel: _userModel, companyModel: _companyModel));
+    checkInternet();
+  }
+  checkInternet()async{
+    await checkInternetConnection().then((value){
+      if(value==true){
+        getUserAndCompanyData();
+        matchList();
+        pages.insert(0, Order(userModel: _userModel, companyModel: _companyModel));
+        pages.insert(1, Product(userModel: _userModel, companyModel: _companyModel));
+        pages.insert(2, Area(userModel: _userModel, companyModel: _companyModel));
+        pages.insert(3, Stock(userModel: _userModel, companyModel: _companyModel));
+        pages.insert(4, Shop(userModel: _userModel, companyModel: _companyModel));
+      }else{
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: value.toString())));
+      }
+    });
   }
   matchList()async{
     for(var area in _userModel.area){
@@ -140,6 +153,21 @@ class _DashboardState extends State<Dashboard> {
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewUser(userId: _userModel.userId, userModel: _userModel, companyModel: _companyModel)));
                     }
                     if(value==1){
+                      if(_userModel.rights.contains(Rights.all)||_userModel.rights.contains(Rights.viewReport)){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>DisplayProduct(companyModel: _companyModel)));
+                      }
+                    }
+                    if(value==2){
+                      if(_userModel.rights.contains(Rights.all)||_userModel.rights.contains(Rights.viewTransactions)){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Accounts(companyModel: _companyModel, userModel: _userModel)));
+                      }
+                    }
+                    if(value==3){
+                      if(_userModel.rights.contains(Rights.all)||_userModel.rights.contains(Rights.viewUser)){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Employee(companyModel: _companyModel, userModel: _userModel)));
+                      }
+                    }
+                    if(value==4){
                       signOut(context);
                     }
                   },
@@ -151,6 +179,18 @@ class _DashboardState extends State<Dashboard> {
                       ),
                       PopupMenuItem(
                         value: 1,
+                        child: Row(children: const [Icon(Icons.receipt_long,color: Colors.black54,), SizedBox(width: 5,),Text("Report")],),
+                      ),
+                      PopupMenuItem(
+                        value: 2,
+                        child: Row(children: const [Icon(Icons.account_balance,color: Colors.black54,), SizedBox(width: 5,),Text("Account")],),
+                      ),
+                      PopupMenuItem(
+                        value: 3,
+                        child: Row(children: const [Icon(CupertinoIcons.person_3_fill,color: Colors.black54,), SizedBox(width: 5,),Text("User")],),
+                      ),
+                      PopupMenuItem(
+                        value: 4,
                         child: Row(children: const [Icon(Icons.logout_outlined,color: Colors.black54,),SizedBox(width: 5,),Text("SignOut")],),
                       ),
                     ];
@@ -181,36 +221,44 @@ class _DashboardState extends State<Dashboard> {
                   tooltip: "Order",
                   color: selectedPage==0?Colors.brown:Colors.black54,
                     onPressed: (){
-                    setState(() {
-                      selectedPage=0;
-                    });
+                      if(_userModel.rights.contains(Rights.viewOrder)||_userModel.rights.contains(Rights.all)){
+                        setState(() {
+                          selectedPage=0;
+                        });
+                      }
                     },
                     icon: Icon(Icons.shopping_cart_outlined,)),
                 IconButton(
                   tooltip: "Product",
                     color: selectedPage==1?Colors.brown:Colors.black54,
                     onPressed: (){
-                      setState(() {
-                        selectedPage=1;
-                      });
+                     if(_userModel.rights.contains(Rights.viewProduct)||_userModel.rights.contains(Rights.all)){
+                       setState(() {
+                         selectedPage=1;
+                       });
+                     }
                     },
                     icon: Icon(Icons.panorama_horizontal_rounded)),
                 IconButton(
                   tooltip: "Stock",
                     color: selectedPage==3?Colors.brown:Colors.black54,
                     onPressed: (){
-                      setState(() {
-                        selectedPage=3;
-                      });
+                      if(_userModel.rights.contains(Rights.viewStock)||_userModel.rights.contains(Rights.all)){
+                        setState(() {
+                          selectedPage=3;
+                        });
+                      }
                     },
                     icon: Icon(Icons.cached_outlined)),
                 IconButton(
-                  tooltip: "Report",
+                  tooltip: "Shop",
                     color: selectedPage==4?Colors.brown:Colors.black54,
                     onPressed: (){
-                      setState(() {
-                        selectedPage=4;
-                      });
+                      if(_userModel.rights.contains(Rights.viewShop)||_userModel.rights.contains(Rights.all)){
+                        setState(() {
+                          selectedPage=4;
+                        });
+                      }
                     },
                     icon: Icon(Icons.storefront_outlined)),
               ],

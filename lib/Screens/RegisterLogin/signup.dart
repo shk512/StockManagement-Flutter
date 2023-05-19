@@ -217,7 +217,7 @@ class _SignupState extends State<Signup> {
         isLoading=true;
       });
       await auth.createUser(mail.text, pass.text).then((value)async{
-        if(value.toString().isNotEmpty){
+        if(value==true){
           await UserDb(id: value.toString()).saveUser(
               _userModel.toJson(
               userId: value.toString(),

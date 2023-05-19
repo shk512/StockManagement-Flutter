@@ -8,7 +8,6 @@ import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/User/edit_user.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
-import 'package:stock_management/Widgets/num_field.dart';
 
 import '../../Constants/routes.dart';
 import '../../Services/Auth/auth.dart';
@@ -167,7 +166,7 @@ class _ViewUserState extends State<ViewUser> {
     final formKey=GlobalKey<FormState>();
     TextEditingController password=TextEditingController();
     TextEditingController confirmPassword=TextEditingController();
-    TextEditingController key=TextEditingController();
+
     return showDialog(
         context: context,
         builder: (context){
@@ -177,7 +176,6 @@ class _ViewUserState extends State<ViewUser> {
               key: formKey,
               child: Column(
                 children: [
-                  NumField(icon: Icon(Icons.key), ctrl: key, hintTxt: "Company's License key", labelTxt: "License key"),
                   TxtField(labelTxt: "Password", hintTxt: "Type password", ctrl: password, icon: Icon(Icons.lock_outline_rounded)),
                   TxtField(labelTxt: "Confirm Password", hintTxt: "Retype your password", ctrl: confirmPassword, icon: Icon(Icons.lock_outline_rounded)),
                 ],
@@ -193,11 +191,7 @@ class _ViewUserState extends State<ViewUser> {
                   onPressed: ()async{
                     if(formKey.currentState!.validate()){
                       Navigator.pop(context);
-                      if((password.text==confirmPassword.text)&&(widget.companyModel.companyId==key.text)){
-                        updatePassword(password.text);
-                      }else{
-                        showSnackbar(context, Colors.red.shade400, "Password doesn't match");
-                      }
+                      updatePassword(password.text);
                     }
                   },
                   child: Text('Confirm',style: TextStyle(color: Colors.white),)),

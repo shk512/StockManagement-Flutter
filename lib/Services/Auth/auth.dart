@@ -12,7 +12,9 @@ class Auth{
           email: email, password: pass))
           .user!;
       if (user.uid.isNotEmpty) {
-        return user.uid;
+        return true;
+      }else{
+        return false;
       }
     } on FirebaseAuthException catch (e) {
       return e.message;
@@ -25,7 +27,7 @@ class Auth{
       User user = (await firebaseAuth.signInWithEmailAndPassword(
           email: email, password: pass))
           .user!;
-      if (user != null) {
+      if (user.uid.isNotEmpty) {
         return true;
       }
     } on FirebaseAuthException catch (e) {
@@ -33,6 +35,7 @@ class Auth{
     }
   }
 
+  //update password
   Future updateNewPass(String newPass) async {
     try {
       await firebaseAuth.currentUser!.updatePassword(newPass);
@@ -47,9 +50,18 @@ class Auth{
     try {
       await SPF.saveUserLogInStatus(false);
       await firebaseAuth.signOut();
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
       return e;
     }
   }
 
+  //reset password
+  Future resetPassword(String email)async{
+    firebaseAuth.setLanguageCode("en");
+    try{
+      await firebaseAuth.sendPasswordResetEmail(email: email);
+    }on FirebaseAuthException catch(e){
+      return e;
+    }
+  }
 }
