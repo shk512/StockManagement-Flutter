@@ -33,7 +33,7 @@ class _DeliverFormState extends State<DeliverForm> {
   final formKey=GlobalKey<FormState>();
   bool isLoading=false;
   TransactionType type=TransactionType.cash;
-  String narration=Narration.plus;
+  String narration=Narration.minus;
   String transactionType="Cash";
   DocumentSnapshot? orderSnapshot;
 

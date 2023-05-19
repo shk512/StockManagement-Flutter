@@ -18,7 +18,7 @@ void main() async{
     if(value==null){
       logInStatus=false;
     }else{
-      logInStatus=true;
+      logInStatus=value;
     }
   });
   runApp(MyApp(logInStatus: logInStatus,));

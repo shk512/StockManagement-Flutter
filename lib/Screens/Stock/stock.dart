@@ -35,16 +35,6 @@ class _StockState extends State<Stock> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        leading: IconButton(
-            onPressed: (){
-              Navigator.pop(context);
-            }, icon: Icon(CupertinoIcons.back,color: Colors.white,)
-        ),
-        title: const Text("Stock",style: TextStyle(color: Colors.white),),
-        centerTitle: true,
-      ),
       body: StreamBuilder(
         stream: products,
         builder: (context,AsyncSnapshot snapshot){

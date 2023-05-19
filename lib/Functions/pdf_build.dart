@@ -69,10 +69,10 @@ class BuildPdf{
                       crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text("Total Amount:\t$totalAmount",style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text("Advance Amount:\t$advanceAmount",style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text("Concession Amount:\t$concessionAmount",style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text("Balance Amount:\t$balanceAmount",style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text("Total Amount:\t$totalAmount Rs.",style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text("Advance Amount:\t$advanceAmount Rs.",style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text("Concession Amount:\t$concessionAmount Rs.",style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text("Balance Amount:\t$balanceAmount Rs.",style: TextStyle(fontWeight: FontWeight.bold)),
                         ]
                     )
                 )

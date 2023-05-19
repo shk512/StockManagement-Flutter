@@ -39,18 +39,7 @@ class _AreaState extends State<Area> {
     return widget.userModel.role=="Shop Keeper".toUpperCase()
         ?AreaShop(areaName: widget.userModel.name, companyModel: widget.companyModel, userModel: widget.userModel,)
         :Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        leading: IconButton(
-          onPressed: (){
-            Navigator.pop(context);
-          },
-          icon: const Icon(CupertinoIcons.back,color: Colors.white,),
-        ),
-        title: const Text("Area",style: TextStyle(color: Colors.white),),
-        centerTitle: true,
-      ),
-      body: FutureBuilder(
+        body: FutureBuilder(
           future: getAreaList(),
           builder: (context,index){
             return ListView.builder(

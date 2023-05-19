@@ -46,14 +46,16 @@ class _AddProductState extends State<AddProduct> {
         ),
         title: const Text("New Product",style: TextStyle(color: Colors.white),),
         centerTitle: true,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          if(formKey.currentState!.validate()){
-            saveProduct();
-          }
-        },
-        child: const Text("Save",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+        actions: [
+          ElevatedButton(
+              onPressed: (){
+                if(formKey.currentState!.validate()){
+                  saveProduct();
+                }
+              },
+              child: const Text("Save",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
+          )
+        ],
       ),
       body: SingleChildScrollView(
         child: Form(

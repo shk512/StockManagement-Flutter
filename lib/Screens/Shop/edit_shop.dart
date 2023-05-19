@@ -63,13 +63,13 @@ class _EditShopState extends State<EditShop> {
               icon: const Icon(Icons.delete,color: Colors.white,))
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: (){
           if(formKey.currentState!.validate()){
             updateShop();
           }
         },
-        child: const Text("Update",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+        label: const Text("Update",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
       ),
       body: SingleChildScrollView(
         child: Form(

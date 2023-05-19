@@ -44,17 +44,6 @@ class _ShopState extends State<Shop> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        leading: IconButton(
-          onPressed: (){
-            Navigator.pop(context);
-          },
-          icon: const Icon(CupertinoIcons.back,color: Colors.white,),
-        ),
-        title: const Text("Shop",style: const TextStyle(color: Colors.white),),
-        centerTitle: true,
-      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

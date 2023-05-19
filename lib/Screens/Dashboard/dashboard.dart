@@ -7,7 +7,6 @@ import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Company/company_details.dart';
 import 'package:stock_management/Screens/User/view_user.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
-import 'package:stock_management/Widgets/dashboard_menu.dart';
 
 import '../../Constants/rights.dart';
 import '../../Functions/sign_out.dart';
@@ -17,12 +16,10 @@ import '../../Services/shared_preferences/spf.dart';
 import '../Area/area.dart';
 import '../Order/order.dart';
 import '../Product/product.dart';
-import '../Report/display_product.dart';
 import '../Shop/shop.dart';
 import '../Splash_Error/error.dart';
 import '../Stock/stock.dart';
-import '../Transaction/transaction.dart';
-import '../User/user.dart';
+
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -35,12 +32,19 @@ class _DashboardState extends State<Dashboard> {
   CompanyModel _companyModel=CompanyModel();
   UserModel _userModel=UserModel();
   int selectedPage=0;
+  final pages=[];
+
 
   @override
   void initState() {
     super.initState();
     getUserAndCompanyData();
     matchList();
+    pages.insert(0, Order(userModel: _userModel, companyModel: _companyModel));
+    pages.insert(1, Product(userModel: _userModel, companyModel: _companyModel));
+    pages.insert(2, Area(userModel: _userModel, companyModel: _companyModel));
+    pages.insert(3, Stock(userModel: _userModel, companyModel: _companyModel));
+    pages.insert(4, Shop(userModel: _userModel, companyModel: _companyModel));
   }
   matchList()async{
     for(var area in _userModel.area){
@@ -49,8 +53,10 @@ class _DashboardState extends State<Dashboard> {
       }
     }
   }
+
   getUserAndCompanyData()async{
-    await UserDb(id: FirebaseAuth.instance.currentUser!.uid).getData().then((snapshot)async{
+    var userId=await FirebaseAuth.instance.currentUser!.uid;
+    await UserDb(id: userId).getData().then((snapshot)async{
       setState(() {
         _userModel.userId=snapshot["userId"];
         _userModel.companyId=snapshot["companyId"];
@@ -152,12 +158,15 @@ class _DashboardState extends State<Dashboard> {
               ),
             ],
           ),
-         /* floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           floatingActionButton: FloatingActionButton(
             tooltip: "Place Order",
               onPressed: (){
               if(_userModel.rights.contains(Rights.placeOrder)||_userModel.rights.contains(Rights.all)){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>Area(companyModel: _companyModel, userModel: _userModel)));
+                setState(() {
+                  selectedPage=2;
+                });
+                //Navigator.push(context, MaterialPageRoute(builder: (context)=>Area(companyModel: _companyModel, userModel: _userModel)));
               }
               },
             child: Icon(Icons.add,color: Colors.white,),
@@ -166,33 +175,48 @@ class _DashboardState extends State<Dashboard> {
             shape: CircularNotchedRectangle(),
             notchMargin: 4.0,
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-
+                IconButton(
+                  tooltip: "Order",
+                  color: selectedPage==0?Colors.brown:Colors.black54,
+                    onPressed: (){
+                    setState(() {
+                      selectedPage=0;
+                    });
+                    },
+                    icon: Icon(Icons.shopping_cart_outlined,)),
+                IconButton(
+                  tooltip: "Product",
+                    color: selectedPage==1?Colors.brown:Colors.black54,
+                    onPressed: (){
+                      setState(() {
+                        selectedPage=1;
+                      });
+                    },
+                    icon: Icon(Icons.panorama_horizontal_rounded)),
+                IconButton(
+                  tooltip: "Stock",
+                    color: selectedPage==3?Colors.brown:Colors.black54,
+                    onPressed: (){
+                      setState(() {
+                        selectedPage=3;
+                      });
+                    },
+                    icon: Icon(Icons.cached_outlined)),
+                IconButton(
+                  tooltip: "Report",
+                    color: selectedPage==4?Colors.brown:Colors.black54,
+                    onPressed: (){
+                      setState(() {
+                        selectedPage=4;
+                      });
+                    },
+                    icon: Icon(Icons.storefront_outlined)),
               ],
             ),
-          ),*/
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                _userModel.rights.contains(Rights.viewOrder)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Track Order", route: Order(userModel: _userModel,companyModel: _companyModel,), icon: Icons.directions, clr: Colors.brown.shade300):const SizedBox(),
-                _userModel.rights.contains(Rights.placeOrder)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Place Order", route: Area(companyModel: _companyModel,userModel: _userModel,), icon:Icons.add_shopping_cart, clr: Colors.brown.shade300):const SizedBox(),
-                _userModel.rights.contains(Rights.viewStock)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Stock", route: Stock(userModel: _userModel,companyModel: _companyModel,), icon: Icons.cached_outlined, clr: Colors.brown.shade300):const SizedBox(),
-                _userModel.rights.contains(Rights.viewUser)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "User", route: Employee(companyModel: _companyModel,userModel: _userModel,), icon: CupertinoIcons.person_2, clr: Colors.brown.shade300):const SizedBox(),
-                _userModel.rights.contains(Rights.viewProduct)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Product", route: Product(userModel: _userModel,companyModel: _companyModel,), icon: Icons.add_circle_outline, clr: Colors.brown.shade300):const SizedBox(),
-                _userModel.rights.contains(Rights.viewShop)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Shop", route: Shop(userModel: _userModel,companyModel: _companyModel,), icon:Icons.storefront, clr: Colors.brown.shade300):const SizedBox(),
-                _userModel.rights.contains(Rights.viewReport)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Report", route: DisplayProduct(companyModel: _companyModel,), icon:Icons.description, clr: Colors.brown.shade300):const SizedBox(),
-                _userModel.rights.contains(Rights.viewTransactions)||_userModel.rights.contains(Rights.all)
-                    ? DashboardMenu(name: "Accounts", route: Accounts(companyModel: _companyModel, userModel: _userModel,), icon: Icons.account_balance_outlined, clr: Colors.brown.shade300):const SizedBox(),
-              ],
-            ),
-          )
+          ),
+          body: pages[selectedPage]
       );
     }
   }
