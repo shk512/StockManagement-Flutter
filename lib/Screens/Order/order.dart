@@ -54,76 +54,48 @@ class _OrderState extends State<Order> {
                 children: [
                   //PROCESSING
                   Expanded(
-                    child: InkWell(
-                      onTap: (){
-                        setState(() {
-                          tab="processing".toUpperCase();
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
-                          color: tab=="processing".toUpperCase()?Colors.brown :Colors.brown.shade200,
-                        ),
-                        child:const Text("PROCESS",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration:  BoxDecoration(
+                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
+                        color: Colors.brown.shade300,
                       ),
+                      child:const Text("PROCESS",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
                     ),
                   ),
                   //DISPATCH
                   Expanded(
-                    child: InkWell(
-                      onTap: (){
-                        setState(() {
-                          tab="dispatch".toUpperCase();
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: tab=="dispatch".toUpperCase()?Colors.brown :Colors.brown.shade200
-                        ),
-                        child: const Text("DISPATCH",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
-                        ),
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
+                        color: Colors.brown.shade300,
                       ),
+                      child:const Text("DISPATCH",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
                     ),
                   ),
                   //DELIVERED
                   Expanded(
-                    child: InkWell(
-                      onTap: (){
-                        setState(() {
-                          tab="deliver".toUpperCase();
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: tab=="deliver".toUpperCase()?Colors.brown :Colors.brown.shade200,
-                        ),
-                        child: const Text("DELIVERED",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
-                        ),
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
+                        color: Colors.brown.shade300,
                       ),
+                      child:const Text("DELIVERED",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
                     ),
                   ),
                   //ALL
                   Expanded(
-                    child: InkWell(
-                      onTap: (){
-                        setState(() {
-                          tab="all".toUpperCase();
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.only(topRight: Radius.circular(18),bottomRight: Radius.circular(18)),
-                          color: tab=="all".toUpperCase()?Colors.brown :Colors.brown.shade200,
-                        ),
-                        child: const Text("ALL",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
-                        ),
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        borderRadius:  BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
+                        color: Colors.brown,
                       ),
-                    ),),
+                      child:const Text("ALL",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -154,30 +126,13 @@ class _OrderState extends State<Order> {
                               * ENTERTAINS COMPANY
                               * */
                           if(widget.userModel.rights.contains(Rights.all)){
-                            if(tab.toUpperCase()=="All".toUpperCase()){
                               return  listTile(snapshot.data.docs[index]);
-                            }
-                            else{
-                              if(snapshot.data.docs[index]["status"]==tab.toUpperCase()){
-                                return  listTile(snapshot.data.docs[index]);
-                              }else{
-                                return const SizedBox();
-                              }
-                            }
                           }
                           /*
                               * ENTERTAINS EMPLOYEE
                               * */
                           else if(snapshot.data.docs[index]["orderBy"]==widget.userModel.userId||snapshot.data.docs[index]["deliverBy"]==widget.userModel.userId||snapshot.data.docs[index]["shopId"]==widget.userModel.designation){
-                            if(tab.toUpperCase()=="All".toUpperCase()){
-                              return  listTile(snapshot.data.docs[index]);
-                            }else{
-                              if(snapshot.data.docs[index]["status"]==tab.toUpperCase()){
-                                return listTile(snapshot.data.docs[index]);
-                              }else{
-                                return const SizedBox();
-                              }
-                            }
+                            return  listTile(snapshot.data.docs[index]);
                           }
                           else{
                             return const SizedBox();
@@ -209,8 +164,8 @@ class _OrderState extends State<Order> {
       },
       title: Text("${snapshot["shopDetails"]}"),
       subtitle: Text("${snapshot["dateTime"]}"),
-      trailing: tab=="all".toUpperCase()?Icon(Icons.brightness_1,color: clr,size: 10,):const SizedBox(),
-      leading: Text("Rs. ${snapshot["totalAmount"]}"),
+      leading: Icon(Icons.brightness_1,color: clr,size: 15,),
+      trailing: Text("Rs. ${snapshot["totalAmount"]}"),
       isThreeLine: true
     );
   }

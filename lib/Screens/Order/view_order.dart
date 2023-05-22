@@ -106,8 +106,7 @@ class _ViewOrderState extends State<ViewOrder> {
             },
             icon: const Icon(CupertinoIcons.back, color: Colors.white,),
           ),
-          title: Text(orderSnapshot!["orderId"],
-            style: const TextStyle(color: Colors.white),),
+          title: const Text("Invoice", style: TextStyle(color: Colors.white),),
           actions: [
             IconButton(
                 onPressed: () async{
@@ -234,6 +233,7 @@ class _ViewOrderState extends State<ViewOrder> {
                 padding: EdgeInsets.symmetric(horizontal: 5),
                 child: Column(
                   children: [
+                    RowInfoDisplay(value: orderSnapshot!["orderId"], label: "Invoice#"),
                     RowInfoDisplay(value: orderSnapshot!["shopDetails"],
                         label: "Shop Details"),
                     RowInfoDisplay(

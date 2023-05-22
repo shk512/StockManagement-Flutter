@@ -5,12 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
+import 'package:stock_management/Screens/User/assign_area.dart';
 import 'package:stock_management/Screens/User/edit_user.dart';
+import 'package:stock_management/Screens/User/remove_area.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 
 import '../../Constants/routes.dart';
 import '../../Services/Auth/auth.dart';
+import '../../Services/DB/area_db.dart';
 import '../../Services/shared_preferences/spf.dart';
 import '../../Widgets/row_info_display.dart';
 import '../../Widgets/text_field.dart';
@@ -29,9 +32,10 @@ class ViewUser extends StatefulWidget {
 
 class _ViewUserState extends State<ViewUser> {
   DocumentSnapshot? snapshot;
+  List area=[];
   String shopName="";
   String shopId="";
-  List area=[];
+  List userArea=[];
   List rights=[];
 
   @override
@@ -39,11 +43,20 @@ class _ViewUserState extends State<ViewUser> {
     super.initState();
     getData();
   }
+  getArea() async{
+    await AreaDb(areaId: "", companyId: widget.companyModel.companyId).getArea().then((value){
+      setState(() {
+        area=value;
+      });
+    }).onError((error, stackTrace){
+      Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())), (route) => false);
+    });
+  }
   getData() async{
     await UserDb(id: widget.userId).getData().then((value)async{
       setState(() {
         snapshot=value;
-        area=List.from(snapshot!["area"]);
+        userArea=List.from(snapshot!["area"]);
         rights=List.from(snapshot!["right"]);
         shopId=snapshot!["designation"];
       });
@@ -53,6 +66,14 @@ class _ViewUserState extends State<ViewUser> {
             shopName="${value["shopName"]}-${value["areaId"]}";
           });
         }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+      }else{
+        for(String id in userArea){
+          await AreaDb(areaId: id, companyId: widget.companyModel.companyId).getAreaById().then((value){
+            setState(() {
+              area.add(value["areaName"]);
+            });
+          });
+        }
       }
     }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
   }
@@ -71,14 +92,12 @@ class _ViewUserState extends State<ViewUser> {
               Navigator.pop(context);
             }, icon: Icon(CupertinoIcons.back,color: Colors.white,)
         ),
-        title: Text(snapshot!["userId"]==widget.userModel.userId?"Profile":snapshot!["role"],style: TextStyle(color: Colors.white),),
+
         actions: [
           IconButton(
               onPressed: (){
-                if(widget.userModel.rights.contains(Rights.addTransaction)||widget.userModel.rights.contains(Rights.all)){
-                  createTransaction();
-                }
-              }, icon: const Icon(Icons.account_balance_wallet_outlined,color: Colors.white,)),
+              },
+              icon: const Icon(Icons.account_balance_wallet_outlined,color: Colors.white,)),
           Align(
             alignment: Alignment.center,
             child: Text(
@@ -124,17 +143,27 @@ class _ViewUserState extends State<ViewUser> {
                             ? Expanded(
                               child :IconButton(
                                 onPressed: (){
-                                  showAreaDialogueBox();
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>AssignArea(userModel: widget.userModel, companyModel: widget.companyModel,)));
                               },
                               icon: const Icon(Icons.add,color: Colors.brown,) ,
                               ),
-                            ): const SizedBox()
+                            ): const SizedBox(),
+                          widget.userModel.rights.contains(Rights.addArea) || widget.userModel.rights.contains(Rights.all)
+                              ? Expanded(
+                            child :IconButton(
+                              onPressed: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>RemoveArea(userModel: widget.userModel, companyModel: widget.companyModel,)));
+                              },
+                              icon: const Icon(Icons.remove,color: Colors.brown,) ,
+                            ),
+                          ): const SizedBox(),
                         ],
                       ),
-                const SizedBox(height: 5),
                 snapshot!["role"]=="Shop Keeper".toUpperCase()
                       ? Text(snapshot!["designation"].toString().isNotEmpty ? shopName : "No Shop Assigned")
-                      :area.isEmpty?const Text("No Area Assigned"):showAreaList(),
+                      :userArea.isEmpty
+                          ?const Text("No Area Assigned")
+                          :areaList(),
                 const SizedBox(height: 10,),
                 widget.userModel.role=="Company".toUpperCase()
                     ?Column(
@@ -199,6 +228,18 @@ class _ViewUserState extends State<ViewUser> {
           );
         });
   }
+  
+  Widget areaList(){
+    return Column(
+      children: area.map((e) => Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 5),
+          child: InkWell(child: Text("$e")),
+        ),
+      )).toList(),
+    );
+  }
   Widget showRights(){
     return Column(
       children: rights.map((e) => Align(
@@ -210,62 +251,12 @@ class _ViewUserState extends State<ViewUser> {
       )).toList(),
     );
   }
-  Widget showAreaList(){
-    return Column(
-      children: area.map((e) => Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: InkWell(
-            onTap: (){
-              if(widget.userModel.rights.contains(Rights.deleteArea)||widget.userModel.rights.contains(Rights.all)){
-                showWarningDialogue(e);
-              }
-            },
-            child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: Text(">\t\t $e")),
-          ))).toList(),
-    );
-  }
-  Widget showCompanyList(){
-    return Column(
-      children: widget.companyModel.area.map((e) => area.contains(e)
-          ?const SizedBox()
-          :Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: InkWell(
-          onTap: (){
-            saveArea(e);
-            Navigator.pop(context);
-          },
-          child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text(e)),
-        ),
-      )).toList(),
-    );
-  }
-  showAreaDialogueBox(){
-    return showDialog(
-        context: context,
-        builder: (context){
-          return AlertDialog(
-            title: const Text("Tap on area to add"),
-            content: showCompanyList(),
-            actions: [
-              ElevatedButton(
-                  onPressed: (){
-                    Navigator.pop(context);
-                    },
-                  child: const Text("Cancel",style:  TextStyle(color: Colors.white),))
-            ],
-          );
-        });
-  }
-  saveArea(String areaName)async{
-    await UserDb(id: snapshot!["userId"]).updateAreaList(areaName).then((value)async{
+
+  saveArea(String areaId)async{
+    await UserDb(id: snapshot!["userId"]).updateAreaList(areaId).then((value)async{
       if(value==true){
         setState(() {
-          area.add(areaName);
+          userArea.add(areaId);
         });
       }else{
         showSnackbar(context, Colors.red.shade400, "Area with same name already available");
@@ -274,12 +265,13 @@ class _ViewUserState extends State<ViewUser> {
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
     });
   }
-  deleteArea(String areaName)async{
-    await UserDb(id: snapshot!["userId"]).deleteUserArea(areaName).then((value){
+
+  deleteArea(String areaId)async{
+    await UserDb(id: snapshot!["userId"]).deleteUserArea(areaId).then((value){
       if(value==true){
         showSnackbar(context, Colors.green.shade300, "Deleted");
         setState(() {
-          area.remove(areaName);
+          userArea.remove(areaId);
         });
       }else{
         showSnackbar(context, Colors.red.shade400, "Error");
@@ -311,8 +303,5 @@ class _ViewUserState extends State<ViewUser> {
           );
         }
     );
-  }
-  createTransaction(){
-
   }
 }

@@ -16,7 +16,8 @@ class AddShop extends StatefulWidget {
   final CompanyModel companyModel;
   final UserModel userModel;
   final String areaName;
-  const AddShop({Key? key,required this.areaName,required this.userModel,required this.companyModel}) : super(key: key);
+  final String areaId;
+  const AddShop({Key? key,required this.areaId,required this.areaName,required this.userModel,required this.companyModel}) : super(key: key);
 
   @override
   State<AddShop> createState() => _AddShopState();
@@ -89,7 +90,7 @@ class _AddShopState extends State<AddShop> {
     String shopId=DateTime.now().microsecondsSinceEpoch.toString();
     await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).saveShop(ShopModel.toJson(
         shopId: shopId,
-        areaName: widget.areaName,
+        areaId: widget.areaId,
         isActive: true,
         shopName: shopName.text.toUpperCase(),
         contact: contact.text,

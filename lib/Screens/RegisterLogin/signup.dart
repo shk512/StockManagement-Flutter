@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
@@ -218,20 +219,19 @@ class _SignupState extends State<Signup> {
       });
       await auth.createUser(mail.text, pass.text).then((value)async{
         if(value==true){
-          await UserDb(id: value.toString()).saveUser(
-              _userModel.toJson(
-              userId: value.toString(),
-              name: name.text,
-              salary: _role==UserRole.employee?int.parse(salary.text):0,
-              mail: mail.text,
-              companyId: widget.companyId,
-              phone: contact.text,
-              role: role,
-              designation: designation.text,
-              wallet: 0,
-              isDeleted: false,
-              rights: rights,
-              area: [])).then((value){
+          _userModel.companyId=widget.companyId;
+          _userModel.userId=FirebaseAuth.instance.currentUser!.uid;
+          _userModel.name=name.text;
+          _userModel.salary=_role==UserRole.employee?int.parse(salary.text):0;
+          _userModel.mail=mail.text;
+          _userModel.phone=contact.text;
+          _userModel.role=role;
+          _userModel.designation=designation.text;
+          _userModel.wallet=0;
+          _userModel.rights=rights;
+          _userModel.isDeleted=false;
+          _userModel.area=[];
+          await UserDb(id: _userModel.userId).saveUser(_userModel.toJson()).then((value){
             setState(() {
               isLoading=false;
             });

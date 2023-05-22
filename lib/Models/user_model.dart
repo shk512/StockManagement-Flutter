@@ -13,21 +13,7 @@ class UserModel{
   List _rights=[];
   bool _isDeleted=false;
 
-  Map<String,dynamic> toJson(
-  {
-    required String userId,
-    required String name,
-    required num salary,
-    required String mail,
-    required String companyId,
-    required String phone,
-    required String role,
-    required String designation,
-    required num wallet,
-    required bool isDeleted,
-    required List rights,
-    required List area
-    }){
+  Map<String,dynamic> toJson(){
     return {
       "userId":userId,
       "name":name,

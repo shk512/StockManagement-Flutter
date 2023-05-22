@@ -6,7 +6,7 @@ class ShopModel{
 
   static Map<String,dynamic> toJson({
     required String shopId,
-    required String areaName,
+    required String areaId,
     required String shopName,
     required String contact,
     required String ownerName,
@@ -19,7 +19,7 @@ class ShopModel{
     return {
       "shopId":shopId,
       "shopName":shopName,
-      "areaId":areaName,
+      "areaId":areaId,
       "contact":contact,
       "nearBy":nearBy,
       "isActive":isActive,

@@ -119,7 +119,7 @@ class _EmployeeState extends State<Employee> {
         builder: (context){
           return AlertDialog(
             title: Text("Warning"),
-            content: Text("Are you sure to perform this action?"),
+            content: Text("Are you sure to inactive ${snapshot["name"]}?"),
             actions: [
               IconButton(
                 onPressed: (){

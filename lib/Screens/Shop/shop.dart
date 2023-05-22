@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Models/account_model.dart';
 import 'package:stock_management/Models/company_model.dart';
@@ -34,6 +33,7 @@ class _ShopState extends State<Shop> {
   void initState() {
     super.initState();
     getShops();
+    quantityOfShops=0;
   }
   getShops()async{
     var request=await ShopDB(companyId: widget.companyModel.companyId, shopId: "").getShops();
@@ -58,62 +58,26 @@ class _ShopState extends State<Shop> {
               height: 25,
               child: Row(
                 children: [
-                  //All
+                  //ALL
                   Expanded(
-                    child: InkWell(
-                      onTap: (){
-                        setState(() {
-                          tab="all".toUpperCase();
-                          quantityOfShops=0;
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
-                          color: tab=="all".toUpperCase()?Colors.brown :Colors.brown.shade200,
-                        ),
-                        child:const Text("ALL",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.brown,
+                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
                       ),
+                      alignment: AlignmentDirectional.center,
+                      child: const Text("ALL",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
                     ),
                   ),
-                  //active
+                  //AREA WISE
                   Expanded(
-                    child: InkWell(
-                      onTap: (){
-                        setState(() {
-                          tab="active".toUpperCase();
-                          quantityOfShops=0;
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: tab=="active".toUpperCase()?Colors.brown :Colors.brown.shade200,
-                        ),
-                        child: const Text("ACTIVE",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
-                        ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.brown.shade300,
+                        borderRadius: const BorderRadius.only(topRight: Radius.circular(18),bottomRight: Radius.circular(18)),
                       ),
-                    ),
-                  ),
-                  //in active
-                  Expanded(
-                    child: InkWell(
-                      onTap: (){
-                        setState(() {
-                          tab="Inactive".toUpperCase();
-                          quantityOfShops=0;
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: tab=="inactive".toUpperCase()?Colors.brown :Colors.brown.shade200,
-                          borderRadius: const BorderRadius.only(topRight: Radius.circular(18),bottomRight: Radius.circular(18)),
-                        ),
-                        child: const Text("InACTIVE",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
-                        ),
-                      ),
+                      alignment: AlignmentDirectional.center,
+                      child: const Text("AREA WISE",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
                     ),
                   ),
                 ],
@@ -141,11 +105,11 @@ class _ShopState extends State<Shop> {
                   return ListView.builder(
                       itemCount: snapshot.data.docs.length,
                       itemBuilder: (context,index) {
-                        if(tab=="all".toUpperCase()){
+                        if(tab=="all".toUpperCase()&&snapshot.data.docs[index]["isDeleted"]==false){
                           return listTile(snapshot.data.docs[index]);
-                        }else if(tab=="Active".toUpperCase() && snapshot.data.docs[index]["isActive"]==true){
+                        }else if(tab=="Active".toUpperCase() && snapshot.data.docs[index]["isActive"]==true &&snapshot.data.docs[index]["isDeleted"]==false){
                           return listTile(snapshot.data.docs[index]);
-                        }else if(tab=="InActive".toUpperCase() && snapshot.data.docs[index]["isActive"]==false){
+                        }else if(tab=="InActive".toUpperCase() && snapshot.data.docs[index]["isActive"]==false &&snapshot.data.docs[index]["isDeleted"]==false){
                           return listTile(snapshot.data.docs[index]);
                         }else{
                           return const SizedBox(height: 0,);
@@ -198,7 +162,7 @@ class _ShopState extends State<Shop> {
         builder: (context){
           return AlertDialog(
            title: Text("Warning"),
-           content: Text("Are you sure to perform this action?"),
+           content: Text("Are you sure to inactive ${snapshot["shopName"]}?"),
            actions: [
              IconButton(
                onPressed: (){

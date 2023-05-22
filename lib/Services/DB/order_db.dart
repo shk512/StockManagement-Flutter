@@ -12,7 +12,11 @@ class OrderDB{
 
   //Get All Orders
   Future getOrder()async{
-    return companyCollection.doc(companyId).collection("order").orderBy("dateTime",descending: true).snapshots();
+    return await companyCollection.doc(companyId).collection("order").orderBy("dateTime",descending: true).snapshots();
+  }
+
+  Future getProcessOrder()async{
+    return await companyCollection.doc(companyId).collection("order").where("status", isEqualTo: "PROCESSING").snapshots();
   }
 
   //save Order

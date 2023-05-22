@@ -11,7 +11,6 @@ class CompanyModel{
   String _city="";
   num _wallet=0;
   bool _isPackageActive=false;
-  List _area=[];
   GeoPoint _location=GeoPoint(0, 0);
 
   Map<String,dynamic> toJson()
@@ -23,7 +22,6 @@ class CompanyModel{
       "isPackageActive":isPackageActive,
       "contact":contact,
       "packageEndsDate":packageEndsDate,
-      "area":area,
       "wallet":wallet,
       "whatsApp":whatsApp,
       "packageType":packageType,
@@ -90,12 +88,6 @@ class CompanyModel{
 
   set isPackageActive(bool value) {
     _isPackageActive = value;
-  }
-
-  List get area => _area;
-
-  set area(List value) {
-    _area = value;
   }
 
   GeoPoint get location => _location;

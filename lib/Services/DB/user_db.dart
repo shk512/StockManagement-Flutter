@@ -42,14 +42,14 @@ class UserDb{
   }
 
   //update area list
-  Future updateAreaList(String areaName) async{
+  Future updateAreaList(String area) async{
     DocumentSnapshot snapshot=await userCollection.doc(id).get();
     List check=await snapshot["area"];
-    if(check.contains(areaName)){
+    if(check.contains(area)){
       return false;
     }else{
       userCollection.doc(id).update({
-        "area":FieldValue.arrayUnion([areaName]),
+        "area":FieldValue.arrayUnion([area]),
       });
       return true;
     }

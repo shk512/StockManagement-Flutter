@@ -15,12 +15,22 @@ class ShopDB{
 
   //Get Shops
   Future getShops()async{
-    return companyCollection.doc(companyId).collection("shop").snapshots();
+    return await companyCollection.doc(companyId).collection("shop").snapshots();
+  }
+  
+  //get shops by area Id
+  Future getShopByAreaId(String areaId)async{
+    return await companyCollection.doc(companyId).collection("shop").where("areaId", isEqualTo: areaId).snapshots();
+  }
+
+  //total counts of shop
+  Future getTotalShops()async{
+    return await companyCollection.doc(companyId).collection("shop").count().get();
   }
 
   //Get shop details
   Future getShopDetails() async{
-    return companyCollection.doc(companyId).collection("shop").doc(shopId).get();
+    return await companyCollection.doc(companyId).collection("shop").doc(shopId).get();
   }
 
   //update shopData

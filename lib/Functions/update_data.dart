@@ -9,20 +9,8 @@ import '../Services/DB/company_db.dart';
 import '../Services/DB/order_db.dart';
 
 updateUserData(BuildContext context,UserModel _userModel) async{
-  await UserDb(id: _userModel.userId).updateUser(_userModel.toJson(
-      userId: _userModel.userId,
-      name: _userModel.name,
-      salary: _userModel.salary,
-      mail: _userModel.mail,
-      companyId: _userModel.companyId,
-      phone: _userModel.phone,
-      role: _userModel.role,
-      designation: _userModel.designation,
-      wallet: _userModel.wallet,
-      isDeleted: _userModel.isDeleted,
-      rights: _userModel.rights,
-      area: _userModel.area)).then((value){
-    showSnackbar(context, Colors.cyan, "Updated");
+  await UserDb(id: _userModel.userId).updateUser(_userModel.toJson()).then((value){
+    showSnackbar(context, Colors.green.shade300, "Updated");
   }).onError((error, stackTrace) {
     Navigator.push(context, MaterialPageRoute(
         builder: (context) => ErrorScreen(error: error.toString())));
