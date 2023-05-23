@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Models/user_model.dart';
+import 'package:stock_management/Screens/Area/show_area_shop.dart';
 import 'package:stock_management/Services/DB/area_db.dart';
 import 'package:stock_management/Widgets/text_field.dart';
 
@@ -74,14 +75,34 @@ class _AreaState extends State<Area> {
               itemBuilder: (context,index) {
                 return ListTile(
                   onTap: (){
-                    showWarningDialogue(snapshot.data.docs[index]["areaId"], snapshot.data.docs[index]["areaName"]);
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ShowAreaShop(areaId: snapshot.data.docs[index]["areaId"], companyModel: widget.companyModel, userModel: widget.userModel)));
                   },
                   title: Text("${snapshot.data.docs[index]["areaName"]}",style: TextStyle(fontWeight: FontWeight.bold),),
-                  trailing: widget.userModel.rights.contains(Rights.all) || widget.userModel.rights.contains(Rights.addArea)
-                    ?IconButton(
-                      onPressed: (){
+                  trailing: widget.userModel.rights.contains(Rights.all)
+                      ? PopupMenuButton(
+                    icon: Icon(Icons.menu),
+                    onSelected: (value){
+                      if(value==0){
                         showEditAreaDialogue(snapshot.data.docs[index]["areaId"], snapshot.data.docs[index]["areaName"]);
-                      }, icon: Icon(Icons.edit)):const SizedBox(),
+                      }
+                      if(value==1){
+                        if(widget.userModel.rights.contains(Rights.all)||widget.userModel.rights.contains(Rights.deleteArea)){
+                          showWarningDialogue(snapshot.data.docs[index]["areaId"], snapshot.data.docs[index]["areaName"]);
+                        }
+                      }
+                    },
+                      itemBuilder: (context){
+                        return [
+                          PopupMenuItem(
+                            value: 0,
+                            child: Row(children: const [Icon(Icons.edit,color: Colors.black54,), SizedBox(width: 5,),Text("Edit")],),
+                          ),
+                          PopupMenuItem(
+                            value: 1,
+                            child: Row(children: const [Icon(Icons.delete,color: Colors.black54,), SizedBox(width: 5,),Text("Delete")],),
+                          ),
+                        ];
+                  }): const SizedBox()
                 );
               });
         }

@@ -37,76 +37,7 @@ class _OrderState extends State<Order> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          /*
-          *
-          * TAB
-          *
-          * */
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
-            child: SizedBox(
-              height: 25,
-              child: Row(
-                children: [
-                  //PROCESSING
-                  Expanded(
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration:  BoxDecoration(
-                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
-                        color: Colors.brown.shade300,
-                      ),
-                      child:const Text("PROCESS",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
-                    ),
-                  ),
-                  //DISPATCH
-                  Expanded(
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
-                        color: Colors.brown.shade300,
-                      ),
-                      child:const Text("DISPATCH",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
-                    ),
-                  ),
-                  //DELIVERED
-                  Expanded(
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
-                        color: Colors.brown.shade300,
-                      ),
-                      child:const Text("DELIVERED",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
-                    ),
-                  ),
-                  //ALL
-                  Expanded(
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        borderRadius:  BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
-                        color: Colors.brown,
-                      ),
-                      child:const Text("ALL",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          /*
-          *
-          * STREAM
-          *
-          * */
-          Expanded(
-            child: StreamBuilder(
+    return StreamBuilder(
                 stream: order,
                 builder: (context,AsyncSnapshot snapshot){
                   if(snapshot.connectionState==ConnectionState.waiting){
@@ -142,9 +73,7 @@ class _OrderState extends State<Order> {
                   }else{
                     return const Center(child: Text("Something Error"),);
                   }
-                }),)
-        ],
-      )
+                }
     );
   }
   Widget listTile(DocumentSnapshot snapshot){

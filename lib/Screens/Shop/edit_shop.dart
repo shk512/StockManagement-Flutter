@@ -113,9 +113,7 @@ class _EditShopState extends State<EditShop> {
     await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).deleteShop().then((value) {
       if(value==true){
         showSnackbar(context, Colors.green.shade300, "Deleted");
-        setState(() {
-
-        });
+        Navigator.pop(context);
       }else{
         showSnackbar(context, Colors.red.shade400, "Error");
       }

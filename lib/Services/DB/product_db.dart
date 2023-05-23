@@ -38,7 +38,7 @@ class ProductDb{
 
   //get Products
   Future getProducts() async{
-    return companyCollection.doc(companyId).collection("product").snapshots();
+    return companyCollection.doc(companyId).collection("product").where("isDeleted", isEqualTo: false).snapshots();
   }
 
   //get product details

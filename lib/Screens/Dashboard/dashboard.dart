@@ -1,30 +1,21 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
-import 'package:stock_management/Screens/Area/area.dart';
-import 'package:stock_management/Screens/Company/company_details.dart';
+import 'package:stock_management/Screens/PageView/normal_page_view.dart';
 import 'package:stock_management/Screens/PageView/order_page_view.dart';
-import 'package:stock_management/Screens/Report/display_product.dart';
-import 'package:stock_management/Screens/Transaction/transaction.dart';
-import 'package:stock_management/Screens/User/user.dart';
-import 'package:stock_management/Screens/User/view_user.dart';
 import 'package:stock_management/Services/Auth/auth.dart';
 
 import '../../Constants/rights.dart';
-import '../../Functions/sign_out.dart';
 import '../../Services/DB/company_db.dart';
 import '../../Services/DB/user_db.dart';
 import '../../Services/shared_preferences/spf.dart';
 import '../Area/user_area.dart';
-import '../Order/order.dart';
 import '../PageView/shop_page_view.dart';
 import '../Product/product.dart';
-import '../Shop/shop.dart';
 import '../Splash_Error/error.dart';
 import '../Stock/stock.dart';
 
@@ -35,13 +26,12 @@ class Dashboard extends StatefulWidget {
   State<Dashboard> createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> {
+class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
   Auth auth=Auth();
   CompanyModel _companyModel=CompanyModel();
   UserModel _userModel=UserModel();
   int selectedPage=0;
-  final pages=[];
-
+  List pages=[];
 
   @override
   void initState() {
@@ -53,11 +43,10 @@ class _DashboardState extends State<Dashboard> {
       }
     });
     pages.insert(0, OrderPageView(userModel: _userModel, companyModel: _companyModel));
-    pages.insert(1, Product(userModel: _userModel, companyModel: _companyModel));
-    pages.insert(2, UserArea(userModel: _userModel, companyModel: _companyModel));
-    pages.insert(3, Stock(userModel: _userModel, companyModel: _companyModel));
-    pages.insert(4, ShopPageView(userModel: _userModel, companyModel: _companyModel,));
-    //pages.insert(4, Shop(userModel: _userModel, companyModel: _companyModel));
+    pages.insert(1, NormalPageView(userModel: _userModel, companyModel: _companyModel, page: Product(userModel: _userModel, companyModel: _companyModel)));
+    pages.insert(2, NormalPageView(userModel: _userModel, companyModel: _companyModel, page: UserArea(userModel: _userModel, companyModel: _companyModel)));
+    pages.insert(3, NormalPageView(userModel: _userModel, companyModel: _companyModel, page: Stock(userModel: _userModel, companyModel: _companyModel)));
+    pages.insert(4, ShopPageView(userModel: _userModel, companyModel: _companyModel));
   }
 
   getUserAndCompanyData()async{
@@ -122,105 +111,29 @@ class _DashboardState extends State<Dashboard> {
         }
       }
       return Scaffold(
-          appBar: AppBar(
-            leading: GestureDetector(
-                onTap: (){
-                  if(_userModel.rights.contains(Rights.viewCompany)||_userModel.rights.contains(Rights.all)){
-                    Navigator.push(context,MaterialPageRoute(builder: (context)=>CompanyDetails(userModel: _userModel,companyModel: _companyModel,)));
-                  }
-                },
-                child: _companyModel.imageUrl.isNotEmpty
-                    ?CircleAvatar(
-                  backgroundImage: NetworkImage(_companyModel.imageUrl),
-                  radius: 3,
-                )
-                    :Icon(Icons.image)
-            ),
-            title: Text(_companyModel.companyName,style: const TextStyle(fontWeight: FontWeight.w900,color: Colors.white),),
-            actions: [
-              PopupMenuButton(
-                  color: Colors.white,
-                  onSelected: (value){
-                    if(value==0){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewUser(userId: _userModel.userId, userModel: _userModel, companyModel: _companyModel)));
-                    }
-                    if(value==1){
-                      if(_userModel.rights.contains(Rights.all)||_userModel.rights.contains(Rights.viewCompany)){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Area(companyModel: _companyModel, userModel: _userModel,)));
-                      }
-                    }
-                    if(value==2){
-                      if(_userModel.rights.contains(Rights.all)||_userModel.rights.contains(Rights.viewReport)){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>DisplayProduct(companyModel: _companyModel)));
-                      }
-                    }
-                    if(value==3){
-                      if(_userModel.rights.contains(Rights.all)||_userModel.rights.contains(Rights.viewTransactions)){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Accounts(companyModel: _companyModel, userModel: _userModel)));
-                      }
-                    }
-                    if(value==4){
-                      if(_userModel.rights.contains(Rights.all)||_userModel.rights.contains(Rights.viewUser)){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Employee(companyModel: _companyModel, userModel: _userModel)));
-                      }
-                    }
-                    if(value==5){
-                      signOut(context);
-                    }
-                  },
-                  itemBuilder: (context){
-                    return [
-                      PopupMenuItem(
-                        value: 0,
-                        child: Row(children: const [Icon(CupertinoIcons.person_crop_circle,color: Colors.black54,), SizedBox(width: 5,),Text("View Profile")],),
-                      ),
-                      PopupMenuItem(
-                        value: 1,
-                        child: Row(children: const [Icon(Icons.pin_drop_outlined,color: Colors.black54,), SizedBox(width: 5,),Text("Area")],),
-                      ),
-                      PopupMenuItem(
-                        value: 2,
-                        child: Row(children: const [Icon(Icons.receipt_long,color: Colors.black54,), SizedBox(width: 5,),Text("Report")],),
-                      ),
-                      PopupMenuItem(
-                        value: 3,
-                        child: Row(children: const [Icon(Icons.account_balance,color: Colors.black54,), SizedBox(width: 5,),Text("Account")],),
-                      ),
-                      PopupMenuItem(
-                        value: 4,
-                        child: Row(children: const [Icon(CupertinoIcons.person_3_fill,color: Colors.black54,), SizedBox(width: 5,),Text("User")],),
-                      ),
-                      PopupMenuItem(
-                        value: 5,
-                        child: Row(children: const [Icon(Icons.logout_outlined,color: Colors.black54,),SizedBox(width: 5,),Text("SignOut")],),
-                      ),
-                    ];
-                  }
-              ),
-            ],
-          ),
+        body: pages[selectedPage],
           floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           floatingActionButton: FloatingActionButton(
             tooltip: "Place Order",
-              onPressed: (){
+            onPressed: (){
               if(_userModel.rights.contains(Rights.placeOrder)||_userModel.rights.contains(Rights.all)){
                 setState(() {
                   selectedPage=2;
                 });
                 //Navigator.push(context, MaterialPageRoute(builder: (context)=>Area(companyModel: _companyModel, userModel: _userModel)));
               }
-              },
+            },
             child: Icon(Icons.add,color: Colors.white,),
           ),
           bottomNavigationBar: BottomAppBar(
             shape: CircularNotchedRectangle(),
             notchMargin: 4.0,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  tooltip: "Order",
-                  color: selectedPage==0?Colors.brown:Colors.black38,
+                    tooltip: "Order",
+                    color: selectedPage==0?Colors.brown:Colors.black38,
                     onPressed: (){
                       if(_userModel.rights.contains(Rights.viewOrder)||_userModel.rights.contains(Rights.all)){
                         setState(() {
@@ -230,19 +143,19 @@ class _DashboardState extends State<Dashboard> {
                     },
                     icon: Icon(Icons.shopping_cart,)),
                 IconButton(
-                  tooltip: "Catalog",
+                    tooltip: "Catalog",
                     color: selectedPage==1?Colors.brown:Colors.black38,
                     onPressed: (){
-                     if(_userModel.rights.contains(Rights.viewProduct)||_userModel.rights.contains(Rights.all)){
-                       setState(() {
-                         selectedPage=1;
-                       });
-                     }
+                      if(_userModel.rights.contains(Rights.viewProduct)||_userModel.rights.contains(Rights.all)){
+                        setState(() {
+                          selectedPage=1;
+                        });
+                      }
                     },
                     icon: Icon(Icons.dns)),
                 SizedBox(width: 30,),
                 IconButton(
-                  tooltip: "Stock",
+                    tooltip: "Stock",
                     color: selectedPage==3?Colors.brown:Colors.black38,
                     onPressed: (){
                       if(_userModel.rights.contains(Rights.viewStock)||_userModel.rights.contains(Rights.all)){
@@ -253,7 +166,7 @@ class _DashboardState extends State<Dashboard> {
                     },
                     icon: Icon(Icons.cached)),
                 IconButton(
-                  tooltip: "Shop",
+                    tooltip: "Shop",
                     color: selectedPage==4?Colors.brown:Colors.black38,
                     onPressed: (){
                       if(_userModel.rights.contains(Rights.viewShop)||_userModel.rights.contains(Rights.all)){
@@ -266,7 +179,6 @@ class _DashboardState extends State<Dashboard> {
               ],
             ),
           ),
-          body: pages[selectedPage]
       );
     }
   }

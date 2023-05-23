@@ -43,54 +43,7 @@ class _ShopState extends State<Shop> {
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          /*
-          *
-          * TAB
-          *
-          * */
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
-            child: SizedBox(
-              height: 25,
-              child: Row(
-                children: [
-                  //ALL
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.brown,
-                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
-                      ),
-                      alignment: AlignmentDirectional.center,
-                      child: const Text("ALL",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
-                    ),
-                  ),
-                  //AREA WISE
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.brown.shade300,
-                        borderRadius: const BorderRadius.only(topRight: Radius.circular(18),bottomRight: Radius.circular(18)),
-                      ),
-                      alignment: AlignmentDirectional.center,
-                      child: const Text("AREA WISE",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          /*
-          *
-          * STREAM
-          *
-          * */
-          Expanded(
-            child: StreamBuilder(
+    return StreamBuilder(
               stream: shops,
               builder: (context,AsyncSnapshot snapshot){
                 if(snapshot.connectionState==ConnectionState.waiting){
@@ -117,9 +70,6 @@ class _ShopState extends State<Shop> {
                       });
                 }
               },
-            ),),
-        ],
-      ),
     );
   }
   listTile(DocumentSnapshot snapshot){
@@ -129,20 +79,12 @@ class _ShopState extends State<Shop> {
           Navigator.push(context, MaterialPageRoute(builder: (context)=>EditShop(shopId: snapshot["shopId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
         }
       },
-      leading: tab=="all".toUpperCase()
-          ? ElevatedButton.icon(
-        style: ButtonStyle(
-          backgroundColor: MaterialStatePropertyAll(Colors.white)
-        ),
-        onPressed: (){
-          if(widget.userModel.rights.contains(Rights.changeShopStatus)|| widget.userModel.rights.contains(Rights.all)){
+      leading: IconButton(
+          onPressed: (){
             showWarningDialogue(snapshot);
-          }
-        },
-          label: Text("${++quantityOfShops}",style: TextStyle(color:Colors.black,fontWeight: FontWeight.bold),),
-          icon: Icon(Icons.brightness_1,size: 10,color: snapshot["isActive"]?Colors.green:Colors.red,)
-      ):Text("${++quantityOfShops}",style: TextStyle(fontWeight: FontWeight.bold),),
-      title: Text("${snapshot["shopName"]}-${snapshot["areaId"]}"),
+          },
+          icon: Icon(Icons.brightness_1,color: snapshot["isActive"]? Colors.green:Colors.red,size: 15,)),
+      title: Text("${snapshot["shopName"]}"),
       subtitle: Text("${snapshot["ownerName"]}\t${snapshot["contact"]}"),
       isThreeLine: true,
       trailing: ElevatedButton.icon(

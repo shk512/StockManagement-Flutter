@@ -54,7 +54,7 @@ class _UserAreaState extends State<UserArea> {
                 return ListView.builder(
                     itemCount: snapshot.data.docs.length,
                     itemBuilder: (context,index){
-                      if(snapshot.data.docs[index]["isDeleted"]==false && widget.userModel.area.contains(snapshot.data.docs[index]["areaId"])){
+                      if(widget.userModel.area.contains(snapshot.data.docs[index]["areaId"])){
                         return ListTile(
                           onTap: (){
                             Navigator.push(context, MaterialPageRoute(builder: (context)=>AreaShop(areaId: snapshot.data.docs[index]["areaId"], companyModel: widget.companyModel, userModel: widget.userModel)));

@@ -85,7 +85,7 @@ class _AreaShopState extends State<AreaShop> {
                   return ListView.builder(
                     itemCount: snapshot.data.docs.length,
                     itemBuilder: (context,index) {
-                      if((snapshot.data.docs[index]["areaId"]==widget.areaId && snapshot.data.docs[index]["isDeleted"]==false&& snapshot.data.docs[index]["isActive"]==true)||widget.userModel.designation==snapshot.data.docs[index]["shopId"]){
+                      if((snapshot.data.docs[index]["isDeleted"]==false&& snapshot.data.docs[index]["isActive"]==true)||widget.userModel.designation==snapshot.data.docs[index]["shopId"]){
                         return ListTile(
                           onTap: (){
                             Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: snapshot.data.docs[index]["shopId"], companyModel: widget.companyModel,userModel: widget.userModel,)));

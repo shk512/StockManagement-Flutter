@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
-import 'package:stock_management/Screens/Order/order.dart';
+import 'package:stock_management/Screens/Order/4_order.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 
 import '../../Services/DB/order_db.dart';

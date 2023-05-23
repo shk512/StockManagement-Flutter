@@ -34,71 +34,7 @@ class _ProcessOrderState extends State<ProcessOrder> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        /*
-          *
-          * TAB
-          *
-          * */
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
-          child: SizedBox(
-            height: 25,
-            child: Row(
-              children: [
-                //PROCESSING
-                Expanded(
-                  child: Container(
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
-                        color: Colors.brown,
-                      ),
-                      child:const Text("PROCESS",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
-                    ),
-                  ),
-                //DISPATCH
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.center,
-                    color: Colors.brown.shade300,
-                    child:const Text("DISPATCH",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
-                  ),
-                ),
-                //DELIVERED
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
-                      color: Colors.brown.shade300,
-                    ),
-                    child:const Text("DELIVERED",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
-                  ),
-                ),
-                //ALL
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(18),bottomLeft: Radius.circular(18)),
-                      color: Colors.brown.shade300,
-                    ),
-                    child:const Text("ALL",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        /*
-          *
-          * STREAM
-          *
-          * */
-        Expanded(
-          child: StreamBuilder(
+    return StreamBuilder(
           stream: order,
           builder: (context, snapshot){
             if(snapshot.connectionState==ConnectionState.waiting){
@@ -131,9 +67,7 @@ class _ProcessOrderState extends State<ProcessOrder> {
                     }
                   });
             }
-          }),
-        )
-      ],
+          }
     );
   }
   Widget listTile(DocumentSnapshot snapshot){

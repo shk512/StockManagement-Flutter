@@ -50,28 +50,24 @@ class _StockState extends State<Stock> {
             return ListView.builder(
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context,index){
-                  if(snapshot.data.docs[index]["isDeleted"]==false){
-                    return ListTile(
-                      leading:  snapshot.data.docs[index]["imageUrl"].toString().isEmpty
-                          ?Icon(Icons.image)
-                          :CircleAvatar(
-                        backgroundImage: NetworkImage(snapshot.data.docs[index]["imageUrl"]),
-                      ),
-                      title: Text(snapshot.data.docs[index]["productName"]),
-                      subtitle: Text(snapshot.data.docs[index]["totalQuantity"].toString()),
-                      trailing:  widget.userModel.rights.contains(Rights.updateStock)||widget.userModel.rights.contains(Rights.all)
-                          ? InkWell(
-                          onTap: () {
-                            showStockInputDialogue(
-                                snapshot.data.docs[index]["productId"], snapshot.data.docs[index]["totalQuantity"],
-                                snapshot.data.docs[index]["productName"]);
-                          },
-                          child: const Icon(Icons.cached_outlined, color: Colors.brown,))
-                          : const SizedBox(height: 0,),
-                    );
-                  }else{
-                    return const SizedBox(height: 0,);
-                  }
+                  return ListTile(
+                    leading:  snapshot.data.docs[index]["imageUrl"].toString().isEmpty
+                        ?Icon(Icons.image)
+                        :CircleAvatar(
+                      backgroundImage: NetworkImage(snapshot.data.docs[index]["imageUrl"]),
+                    ),
+                    title: Text(snapshot.data.docs[index]["productName"]),
+                    subtitle: Text(snapshot.data.docs[index]["totalQuantity"].toString()),
+                    trailing:  widget.userModel.rights.contains(Rights.updateStock)||widget.userModel.rights.contains(Rights.all)
+                        ? InkWell(
+                        onTap: () {
+                          showStockInputDialogue(
+                              snapshot.data.docs[index]["productId"], snapshot.data.docs[index]["totalQuantity"],
+                              snapshot.data.docs[index]["productName"]);
+                        },
+                        child: const Icon(Icons.cached_outlined, color: Colors.brown,))
+                        : const SizedBox(height: 0,),
+                  );
                 });
           }
         },

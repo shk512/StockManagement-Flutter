@@ -15,8 +15,19 @@ class OrderDB{
     return await companyCollection.doc(companyId).collection("order").orderBy("dateTime",descending: true).snapshots();
   }
 
+  //get process order
   Future getProcessOrder()async{
     return await companyCollection.doc(companyId).collection("order").where("status", isEqualTo: "PROCESSING").snapshots();
+  }
+
+  //get dispatch order
+  Future getDispatchOrder()async{
+    return await companyCollection.doc(companyId).collection("order").where("status", isEqualTo: "DISPATCH").snapshots();
+  }
+
+  //get deliver order
+  Future getDeliverOrder()async{
+    return await companyCollection.doc(companyId).collection("order").where("status", isEqualTo: "DELIVER").snapshots();
   }
 
   //save Order
