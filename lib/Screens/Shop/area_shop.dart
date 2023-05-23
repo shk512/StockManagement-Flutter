@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Screens/Shop/add_shop.dart';
@@ -22,31 +21,35 @@ class AreaShop extends StatefulWidget {
 
 class _AreaShopState extends State<AreaShop> {
   Stream? shops;
-  DocumentSnapshot? snapshot;
+  String areaName="";
 
   @override
   void initState() {
     super.initState();
-    getShops();
+    if(widget.userModel.role=="SHOP KEEPER"){
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: widget.userModel.designation, companyModel: widget.companyModel, userModel: widget.userModel)));
+    }else{
+      getShops();
+    }
     getAreaDetails();
   }
   getAreaDetails() async{
     await AreaDb(areaId: widget.areaId, companyId: widget.companyModel.companyId).getAreaById().then((value) {
       setState(() {
-        snapshot=value;
+        areaName=value["areaName"];
       });
     });
   }
   getShops()async{
-   await ShopDB(companyId: widget.companyModel.companyId, shopId: "").getShopByAreaId(widget.areaId).then((value){
-     setState(() {
-       shops=value;
-     });
-   });
+    await ShopDB(companyId: widget.companyModel.companyId, shopId: "").getActiveShopByAreaId(widget.areaId).then((value){
+      setState(() {
+        shops=value;
+      });
+    });
   }
   @override
   Widget build(BuildContext context) {
-      return  snapshot==null
+      return  areaName.isEmpty
           ? Scaffold(
             body: Center(child: CircularProgressIndicator(),),
             )
@@ -58,13 +61,13 @@ class _AreaShopState extends State<AreaShop> {
                   Navigator.pop(context);
                 }, icon: Icon(CupertinoIcons.back,color: Colors.white,)
               ),
-              title: Text(snapshot!["areaName"],style: const TextStyle(color: Colors.white),),
+              title: Text(areaName,style: const TextStyle(color: Colors.white),),
               centerTitle: true,
           ),
           floatingActionButton: widget.userModel.rights.contains(Rights.addShop)||widget.userModel.rights.contains(Rights.all)
               ?FloatingActionButton.extended(
               onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>AddShop(areaName: snapshot!["areaName"],areaId: widget.areaId ,userModel: widget.userModel, companyModel: widget.companyModel,)));
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>AddShop(areaName: areaName,areaId: widget.areaId ,userModel: widget.userModel, companyModel: widget.companyModel,)));
               },
               icon: const Icon(Icons.add,color: Colors.white,),
               label: const Text("Shop",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
@@ -72,7 +75,7 @@ class _AreaShopState extends State<AreaShop> {
               :const SizedBox(),
           body: StreamBuilder(
               stream: shops,
-              builder: (context,AsyncSnapshot snapshot){
+              builder: (context,snapshot){
                 if(snapshot.connectionState==ConnectionState.waiting){
                   return const Center(child: CircularProgressIndicator(),);
                 }
@@ -85,17 +88,13 @@ class _AreaShopState extends State<AreaShop> {
                   return ListView.builder(
                     itemCount: snapshot.data.docs.length,
                     itemBuilder: (context,index) {
-                      if((snapshot.data.docs[index]["isDeleted"]==false&& snapshot.data.docs[index]["isActive"]==true)||widget.userModel.designation==snapshot.data.docs[index]["shopId"]){
                         return ListTile(
                           onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: snapshot.data.docs[index]["shopId"], companyModel: widget.companyModel,userModel: widget.userModel,)));
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: snapshot.data.docs[index]["shopId"], companyModel: widget.companyModel,userModel: widget.userModel)));
                           },
                           title: Text("${snapshot.data.docs[index]["shopName"]}"),
                           subtitle: Text("${snapshot.data.docs[index]["ownerName"]}\t${snapshot.data.docs[index]["contact"]}"),
                         );
-                      }else{
-                        return const SizedBox(height: 0,);
-                      }
                     },
                   );
                 }

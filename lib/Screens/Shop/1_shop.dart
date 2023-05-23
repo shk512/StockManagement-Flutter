@@ -25,15 +25,11 @@ class Shop extends StatefulWidget {
 
 class _ShopState extends State<Shop> {
   Stream? shops;
-  String address='';
-  String tab="all".toUpperCase();
-  int quantityOfShops=0;
 
   @override
   void initState() {
     super.initState();
     getShops();
-    quantityOfShops=0;
   }
   getShops()async{
     var request=await ShopDB(companyId: widget.companyModel.companyId, shopId: "").getShops();
@@ -58,15 +54,7 @@ class _ShopState extends State<Shop> {
                   return ListView.builder(
                       itemCount: snapshot.data.docs.length,
                       itemBuilder: (context,index) {
-                        if(tab=="all".toUpperCase()&&snapshot.data.docs[index]["isDeleted"]==false){
-                          return listTile(snapshot.data.docs[index]);
-                        }else if(tab=="Active".toUpperCase() && snapshot.data.docs[index]["isActive"]==true &&snapshot.data.docs[index]["isDeleted"]==false){
-                          return listTile(snapshot.data.docs[index]);
-                        }else if(tab=="InActive".toUpperCase() && snapshot.data.docs[index]["isActive"]==false &&snapshot.data.docs[index]["isDeleted"]==false){
-                          return listTile(snapshot.data.docs[index]);
-                        }else{
-                          return const SizedBox(height: 0,);
-                        }
+                        return listTile(snapshot.data.docs[index]);
                       });
                 }
               },

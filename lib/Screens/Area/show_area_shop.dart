@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Screens/Shop/add_shop.dart';
 import 'package:stock_management/Services/DB/area_db.dart';
 
 import '../../Constants/narration.dart';
@@ -14,7 +13,6 @@ import '../../Services/DB/shop_db.dart';
 import '../../Widgets/num_field.dart';
 import '../../utils/enum.dart';
 import '../../utils/snack_bar.dart';
-import '../Order/order_form.dart';
 import '../Splash_Error/error.dart';
 
 class ShowAreaShop extends StatefulWidget {
@@ -45,7 +43,7 @@ class _ShowAreaShopState extends State<ShowAreaShop> {
     });
   }
   getShops()async{
-    await ShopDB(companyId: widget.companyModel.companyId, shopId: "").getShopByAreaId(widget.areaId).then((value){
+    await ShopDB(companyId: widget.companyModel.companyId, shopId: "").getShopsByAreaId(widget.areaId).then((value){
       setState(() {
         shops=value;
       });

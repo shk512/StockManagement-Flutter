@@ -87,8 +87,7 @@ class _EditUserIdState extends State<EditUserId> {
       "deliverBy":id
     }).then((value) {
       showSnackbar(context, Colors.green.shade300, "Order Dispatch");
-
-      //Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>Order(userModel: widget.userModel, companyModel: widget.companyModel)), (route) => false);
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>Order(userModel: widget.userModel, companyModel: widget.companyModel)), (route) => false);
     }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
   }
 }

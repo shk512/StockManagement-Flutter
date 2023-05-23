@@ -46,4 +46,24 @@ class OrderDB{
   Future getOrderById()async{
     return companyCollection.doc(companyId).collection("order").doc(orderId).get();
   }
+
+  //process order counts
+  Future<int> getProcessOrderCounts()async{
+    return await companyCollection.doc(companyId).collection("order").where("status", isEqualTo:"PROCESSING").snapshots().length;
+  }
+
+  //process order counts
+  Future<int> getDispatchOrderCounts()async{
+    return await companyCollection.doc(companyId).collection("order").where("status", isEqualTo:"DISPATCH").snapshots().length;
+  }
+
+  //process order counts
+  Future<int> getDeliverOrderCounts()async{
+    return await companyCollection.doc(companyId).collection("order").where("status", isEqualTo:"DELIVER").snapshots().length;
+  }
+
+  //process order counts
+  Future<int> getAllOrderCounts()async{
+    return await companyCollection.doc(companyId).collection("order").snapshots().length;
+  }
 }

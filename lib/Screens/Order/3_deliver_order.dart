@@ -18,6 +18,7 @@ class DeliverOrder extends StatefulWidget {
 
 class _DeliverOrderState extends State<DeliverOrder> {
   Stream? order;
+  TextEditingController searchController=TextEditingController();
 
   @override
   void initState() {
@@ -34,41 +35,83 @@ class _DeliverOrderState extends State<DeliverOrder> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-              stream: order,
-              builder: (context, snapshot){
-                if(snapshot.connectionState==ConnectionState.waiting){
-                  return const Center(child: CircularProgressIndicator(),);
-                }
-                if(snapshot.hasError){
-                  return const Center(child: Text("error"),);
-                }
-                if(!snapshot.hasData){
-                  return const Center(child: Text("No Data Found"),);
-                }
-                else{
-                  return ListView.builder(
-                      itemCount: snapshot.data.docs.length,
-                      itemBuilder: (context, index){
-                        /*
-                    * ENTERTAINS COMPANY
-                    * */
-                        if(widget.userModel.rights.contains(Rights.all)){
-                          return  listTile(snapshot.data.docs[index]);
-                        }
-                        /*
-                * ENTERTAINS EMPLOYEE
-                * */
-                        else if(snapshot.data.docs[index]["orderBy"]==widget.userModel.userId||snapshot.data.docs[index]["deliverBy"]==widget.userModel.userId||snapshot.data.docs[index]["shopId"]==widget.userModel.designation){
-                          return  listTile(snapshot.data.docs[index]);
-                        }
-                        else{
-                          return const SizedBox();
-                        }
-                      });
-                }
-              }
-              );
+    return Scaffold(
+      body: Column(
+        children: [
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: "Search by invoice#",
+                ),
+                onChanged: (val){
+                  setState(() {
+                    searchController.text=val;
+                  });
+                },
+              )
+          ),
+          Expanded(
+              child: StreamBuilder(
+                  stream: order,
+                  builder: (context, snapshot){
+                    if(snapshot.connectionState==ConnectionState.waiting){
+                      return const Center(child: CircularProgressIndicator(),);
+                    }
+                    if(snapshot.hasError){
+                      return const Center(child: Text("error"),);
+                    }
+                    if(!snapshot.hasData){
+                      return const Center(child: Text("No Data Found"),);
+                    }
+                    else{
+                      return ListView.builder(
+                          itemCount: snapshot.data.docs.length,
+                          itemBuilder: (context, index){
+                            if(searchController.text.isEmpty){
+                              /*
+                        * ENTERTAINS COMPANY
+                        * */
+                              if(widget.userModel.rights.contains(Rights.all)){
+                                return  listTile(snapshot.data.docs[index]);
+                              }
+                              /*
+                          * ENTERTAINS EMPLOYEE
+                          * */
+                              else if(snapshot.data.docs[index]["orderBy"]==widget.userModel.userId||snapshot.data.docs[index]["deliverBy"]==widget.userModel.userId||snapshot.data.docs[index]["shopId"]==widget.userModel.designation){
+                                return  listTile(snapshot.data.docs[index]);
+                              }
+                              else{
+                                return const SizedBox();
+                              }
+                            }else{
+                              if(snapshot.data.docs[index]["orderId"].toString().contains(searchController.text)||snapshot.data.docs[index]["shopDetails"].trim().contains(searchController.text)){
+                                /*
+                          * ENTERTAINS COMPANY
+                           * */
+                                if(widget.userModel.rights.contains(Rights.all)){
+                                  return  listTile(snapshot.data.docs[index]);
+                                }
+                                /*
+                            * ENTERTAINS EMPLOYEE
+                            * */
+                                else if(snapshot.data.docs[index]["orderBy"]==widget.userModel.userId||snapshot.data.docs[index]["deliverBy"]==widget.userModel.userId||snapshot.data.docs[index]["shopId"]==widget.userModel.designation){
+                                  return  listTile(snapshot.data.docs[index]);
+                                }
+                                else{
+                                  return const SizedBox();
+                                }
+                              }else{
+                                return const SizedBox();
+                              }
+                            }
+                          });
+                    }
+                  }
+              ))
+        ],
+      ),
+    );
   }
   Widget listTile(DocumentSnapshot snapshot){
     return ListTile(

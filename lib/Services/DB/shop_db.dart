@@ -28,9 +28,19 @@ class ShopDB{
     return await companyCollection.doc(companyId).collection("shop").where("isActive", isEqualTo: true).where("isDeleted", isEqualTo: false).snapshots();
   }
   
-  //get shops by area Id
-  Future getShopByAreaId(String areaId)async{
-    return await companyCollection.doc(companyId).collection("shop").where("areaId", isEqualTo: areaId).where("isDeleted", isEqualTo: false).snapshots();
+  //get active shops by area Id
+  Future getActiveShopByAreaId(String areaId)async{
+    return await companyCollection.doc(companyId).collection("shop").where("isDeleted", isEqualTo: false).where("isActive", isEqualTo: true).where("areaId", isEqualTo: areaId).snapshots();
+  }
+
+  //get shops by areaId
+  Future getShopsByAreaId(String areaId)async{
+    return await companyCollection.doc(companyId).collection("shop").where("isDeleted", isEqualTo: false).where("areaId", isEqualTo: areaId).snapshots();
+  }
+
+  //get shop keeper shops
+  Future getShopForShopKeeper()async{
+    return await companyCollection.doc(companyId).collection("shop").doc(shopId);
   }
 
   //total counts of shop

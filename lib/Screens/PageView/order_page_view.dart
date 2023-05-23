@@ -26,6 +26,7 @@ class OrderPageView extends StatefulWidget {
 }
 
 class _OrderPageViewState extends State<OrderPageView>{
+
   @override
   void initState() {
     super.initState();
@@ -130,7 +131,7 @@ class _OrderPageViewState extends State<OrderPageView>{
               },
               body: TabBarView(
                 children: <Widget>[
-                  ProcessOrder(userModel: widget.userModel, companyModel: widget.companyModel),
+                  ProcessOrder(userModel: widget.userModel, companyModel: widget.companyModel,),
                   DispatchOrder(userModel: widget.userModel, companyModel: widget.companyModel),
                   DeliverOrder(userModel: widget.userModel, companyModel: widget.companyModel),
                   Order(userModel: widget.userModel, companyModel: widget.companyModel)

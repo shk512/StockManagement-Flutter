@@ -23,6 +23,7 @@ class NormalPageView extends StatefulWidget {
 }
 
 class _NormalPageViewState extends State<NormalPageView> {
+
   @override
   Widget build(BuildContext context) {
     return  Scaffold(

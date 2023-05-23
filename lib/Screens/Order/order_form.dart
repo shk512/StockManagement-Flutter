@@ -7,6 +7,7 @@ import 'package:stock_management/Models/product_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Order/cart.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
+import 'package:stock_management/Services/DB/area_db.dart';
 import 'package:stock_management/Services/DB/product_db.dart';
 import 'package:stock_management/Services/DB/report_db.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
@@ -29,6 +30,7 @@ class _OrderFormState extends State<OrderForm> {
   String shopName="";
   String shopDetails="";
   Stream? products;
+  String areaName="";
 
   @override
   void initState() {
@@ -37,10 +39,13 @@ class _OrderFormState extends State<OrderForm> {
     getShopDetails();
   }
   getShopDetails()async{
-    await ShopDB(companyId: widget.companyModel.companyId, shopId: widget.shopId).getShopDetails().then((value){
-      setState(() {
-        shopName=value["shopName"];
-        shopDetails="${value["shopName"]},\t near ${value["nearBy"]},\t ${value["areaId"]}";
+    await ShopDB(companyId: widget.companyModel.companyId, shopId: widget.shopId).getShopDetails().then((value)async{
+      await AreaDb(areaId: value["areaId"], companyId: widget.companyModel.companyId).getAreaById().then((snapshot){
+        setState(() {
+          shopName=value["shopName"];
+          shopDetails="${value["shopName"]},\t near ${value["nearBy"]},\t ${snapshot["areaName"]}";
+          areaName=snapshot["areaName"];
+        });
       });
     }).onError((error, stackTrace){
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));

@@ -80,7 +80,7 @@ class _AreaState extends State<Area> {
                   title: Text("${snapshot.data.docs[index]["areaName"]}",style: TextStyle(fontWeight: FontWeight.bold),),
                   trailing: widget.userModel.rights.contains(Rights.all)
                       ? PopupMenuButton(
-                    icon: Icon(Icons.menu),
+                    icon: Icon(Icons.more_vert),
                     onSelected: (value){
                       if(value==0){
                         showEditAreaDialogue(snapshot.data.docs[index]["areaId"], snapshot.data.docs[index]["areaName"]);
