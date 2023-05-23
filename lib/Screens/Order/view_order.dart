@@ -72,7 +72,7 @@ class _ViewOrderState extends State<ViewOrder> {
         });
       }).onError((error, stackTrace) => Navigator.push(context,
           MaterialPageRoute(
-              builder: (context) => ErrorScreen(error: "Shop Error"))));
+              builder: (context) => ErrorScreen(error: error.toString()))));
       await UserDb(id: value["orderBy"]).getData().then((value) {
         setState(() {
           orderBookerName = "${value["name"]}\t${value["phone"]}";

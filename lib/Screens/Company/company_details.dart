@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Functions/image_upload.dart';
+import 'package:stock_management/Functions/location.dart';
 import 'package:stock_management/Functions/open_map.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Screens/Company/edit_company.dart';
-import 'package:stock_management/Services/DB/area_db.dart';
 import 'package:stock_management/Services/DB/company_db.dart';
 
 import '../../Functions/update_data.dart';
 import '../../Models/user_model.dart';
+import '../../Services/DB/area_db.dart';
 import '../../Widgets/row_info_display.dart';
 import '../../utils/snack_bar.dart';
 import '../Splash_Error/error.dart';
@@ -28,6 +29,7 @@ class CompanyDetails extends StatefulWidget {
 class _CompanyDetailsState extends State<CompanyDetails> {
   GeoPoint location=const GeoPoint(0,0);
   Stream? area;
+  List<Marker> _marker=[];
 
   @override
   void initState() {
@@ -47,6 +49,15 @@ class _CompanyDetailsState extends State<CompanyDetails> {
       if(location.latitude!=0&&location.longitude!=0){
         setState(() {
           location=value["geoLocation"];
+          _marker.add(
+              Marker(
+                markerId: MarkerId("company"),
+                position: LatLng(location.latitude, location.longitude),
+                infoWindow: InfoWindow(
+                  title: "${widget.companyModel.companyName}"
+                )
+              ),
+          );
         });
       }
     });
@@ -142,7 +153,7 @@ class _CompanyDetailsState extends State<CompanyDetails> {
                         target: LatLng(widget.companyModel.location.latitude, widget.companyModel.location.longitude),
                         zoom: 14.4746,
                       ),
-
+                      markers: Set<Marker>.of(_marker),
                     ),
                   ),
                   Container(
@@ -151,17 +162,59 @@ class _CompanyDetailsState extends State<CompanyDetails> {
                       color: Colors.brown,
                       child: ElevatedButton.icon(
                           onPressed: (){
-
+                            showNavigationDialogue();
                           },
                           icon: Icon(Icons.pin_drop_outlined),
                           label: Text("Edit Location"))
                   ),
                 ],
               ),
+              widget.companyModel.location.latitude==0&&widget.companyModel.location.longitude==0
+                  ? Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 50,
+                  color: Colors.brown,
+                  child: ElevatedButton.icon(
+                      onPressed: (){
+                        showNavigationDialogue();
+                      },
+                      icon: Icon(Icons.pin_drop_outlined),
+                      label: Text("Set Comapny Location"))
+              ): const SizedBox(),
             ],
           ),
         ),
       ),
     );
+  }
+  showNavigationDialogue(){
+    return showDialog(
+        context: context,
+        builder:(context){
+          return AlertDialog(
+            title: Text("Message"),
+            content: Text("Please make sure that you are exact in your company location right now as the app will capture your current location and set it as your company location."),
+            actions: [
+              IconButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  }, icon: Icon(Icons.remove_circle,color: Colors.red,)),
+              IconButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                    updateCompanyLocation();
+                  }, icon: Icon(Icons.check_circle_rounded,color: Colors.green,))
+            ],
+          );
+        });
+  }
+  updateCompanyLocation() async{
+   await getCurrentLocation(context).then((value){
+     setState(() {
+       widget.companyModel.location=GeoPoint(value.latitude, value.longitude);
+     });
+     updateCompanyData(context, widget.companyModel);
+   });
+
   }
 }
