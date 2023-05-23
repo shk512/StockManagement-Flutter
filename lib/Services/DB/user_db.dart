@@ -8,8 +8,8 @@ class UserDb{
   final userCollection=FirebaseFirestore.instance.collection("user");
 
   //Get ALl users
-  Future getAllUser()async{
-    return userCollection.snapshots();
+  Future getAllUser(String companyId)async{
+    return userCollection.where("companyId", isEqualTo: companyId).snapshots();
   }
 
   //get UserData

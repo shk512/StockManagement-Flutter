@@ -62,6 +62,17 @@ class _ViewOrderState extends State<ViewOrder> {
         OrderModel.totalAmount = value["totalAmount"];
         orderLocation = value["geoLocation"];
       });
+      await ShopDB(
+          companyId: widget.companyModel.companyId, shopId: value["shopId"])
+          .getShopDetails()
+          .then((value) async {
+        setState(() {
+          shopSnapshot = value;
+          shopLocation = value["geoLocation"];
+        });
+      }).onError((error, stackTrace) => Navigator.push(context,
+          MaterialPageRoute(
+              builder: (context) => ErrorScreen(error: "Shop Error"))));
       await UserDb(id: value["orderBy"]).getData().then((value) {
         setState(() {
           orderBookerName = "${value["name"]}\t${value["phone"]}";
@@ -76,17 +87,7 @@ class _ViewOrderState extends State<ViewOrder> {
           });
         });
       }
-      await ShopDB(
-          companyId: widget.companyModel.companyId, shopId: value["shopId"])
-          .getShopDetails()
-          .then((value) async {
-        setState(() {
-          shopSnapshot = value;
-          shopLocation = value["geoLocation"];
-        });
-      }).onError((error, stackTrace) => Navigator.push(context,
-          MaterialPageRoute(
-              builder: (context) => ErrorScreen(error: error.toString()))));
+
     }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(
         builder: (context) => ErrorScreen(error: error.toString()))));
   }
@@ -94,8 +95,10 @@ class _ViewOrderState extends State<ViewOrder> {
 
   @override
   Widget build(BuildContext context) {
-    if (orderSnapshot == null) {
-      return const Center(child: CircularProgressIndicator(),);
+    if (orderSnapshot == null || shopSnapshot==null) {
+      return Scaffold(
+        body: const Center(child: CircularProgressIndicator(),),
+      );
     } else {
       return Scaffold(
         appBar: AppBar(

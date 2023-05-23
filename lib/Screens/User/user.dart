@@ -39,7 +39,7 @@ class _EmployeeState extends State<Employee> {
     getUser();
   }
   getUser()async{
-    var request=await UserDb(id: "").getAllUser();
+    var request=await UserDb(id: "").getAllUser(widget.companyModel.companyId);
       setState(() {
         user=request;
       });
@@ -77,33 +77,29 @@ class _EmployeeState extends State<Employee> {
             return ListView.builder(
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context,index){
-                  if(widget.companyModel.companyId==snapshot.data.docs[index]["companyId"]){
-                    return ListTile(
-                      onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewUser(userId: snapshot.data.docs[index]["userId"], userModel: widget.userModel,companyModel: widget.companyModel,)));
-                      },
-                        title: Text("${snapshot.data.docs[index]["name"]}"),
-                        subtitle: Text("${snapshot.data.docs[index]["phone"]}"),
-                        leading: widget.userModel.rights.contains(Rights.deleteUser)||widget.userModel.rights.contains(Rights.all)
-                            ?IconButton(
-                            onPressed: (){
-                              showWarningDialogue(snapshot.data.docs[index]);
-                            },
-                            icon: Icon(Icons.brightness_1,size: 15,color: snapshot.data.docs[index]["isDeleted"]?Colors.red:Colors.green,))
-                            :const SizedBox(),
-                      trailing: ElevatedButton.icon(
-                          onPressed: (){
-                            if(snapshot.data.docs[index]["wallet"]!=0){
-                              showTransactionDialogue(snapshot.data.docs[index]["userId"],"${snapshot.data.docs[index]["name"]}-${snapshot.data.docs[index]["designation"]}");
-                            }
-                          },
-                          icon: Icon(Icons.account_balance_wallet_outlined,color: Colors.white,),
-                          label: Text("Rs. ${snapshot.data.docs[index]["wallet"]}",style: TextStyle(color: Colors.white),)
-                      ),
-                    );
-                  }else{
-                    return const SizedBox();
-                  }
+                  return ListTile(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewUser(userId: snapshot.data.docs[index]["userId"], userModel: widget.userModel,companyModel: widget.companyModel,)));
+                    },
+                    title: Text("${snapshot.data.docs[index]["name"]}"),
+                    subtitle: Text("${snapshot.data.docs[index]["phone"]}"),
+                    leading: widget.userModel.rights.contains(Rights.deleteUser)||widget.userModel.rights.contains(Rights.all)
+                        ?IconButton(
+                        onPressed: (){
+                          showWarningDialogue(snapshot.data.docs[index]);
+                        },
+                        icon: Icon(Icons.brightness_1,size: 15,color: snapshot.data.docs[index]["isDeleted"]?Colors.red:Colors.green,))
+                        :const SizedBox(),
+                    trailing: ElevatedButton.icon(
+                        onPressed: (){
+                          if(snapshot.data.docs[index]["wallet"]!=0){
+                            showTransactionDialogue(snapshot.data.docs[index]["userId"],"${snapshot.data.docs[index]["name"]}-${snapshot.data.docs[index]["designation"]}");
+                          }
+                        },
+                        icon: Icon(Icons.account_balance_wallet_outlined,color: Colors.white,),
+                        label: Text("Rs. ${snapshot.data.docs[index]["wallet"]}",style: TextStyle(color: Colors.white),)
+                    ),
+                  );
                 });
           }
           else{

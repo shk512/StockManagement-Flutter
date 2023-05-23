@@ -40,7 +40,7 @@ class ShopDB{
 
   //Get shop details
   Future getShopDetails() async{
-    return await companyCollection.doc(companyId).collection("shop").doc(shopId).get();
+    return companyCollection.doc(companyId).collection("shop").doc(shopId).get();
   }
 
   //update shopData

@@ -28,7 +28,7 @@ class _EditUserIdState extends State<EditUserId> {
     getUsers();
   }
   getUsers()async{
-    await UserDb(id: "").getAllUser().then((value){
+    await UserDb(id: "").getAllUser(widget.companyModel.companyId).then((value){
       setState(() {
         users=value;
       });
