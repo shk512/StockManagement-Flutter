@@ -84,12 +84,14 @@ class _ViewUserState extends State<ViewUser> {
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-            onPressed: (){
-              Navigator.pop(context);
-            }, icon: Icon(CupertinoIcons.back,color: Colors.white,)
+    return snapshot==null
+        ? Scaffold(body: Center(child: CircularProgressIndicator(),),)
+        :Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              onPressed: (){
+                Navigator.pop(context);
+              } , icon: Icon(CupertinoIcons.back,color: Colors.white,)
         ),
 
         actions: [
@@ -110,14 +112,14 @@ class _ViewUserState extends State<ViewUser> {
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>EditUser(userId: widget.userId,userModel: widget.userModel,)));
               }, icon: const Icon(Icons.edit,color: Colors.white,))
               :const SizedBox(),
-          widget.userModel.userId==FirebaseAuth.instance.currentUser!.uid
+          widget.userId==FirebaseAuth.instance.currentUser!.uid
               ? IconButton(
               onPressed: (){
                 showPasswordChangeDialogue();
               },
               icon: Icon(Icons.lock_reset,color: Colors.white,))
               :const SizedBox(),
-          widget.userModel.userId==FirebaseAuth.instance.currentUser!.uid
+          widget.userId==FirebaseAuth.instance.currentUser!.uid
               ? IconButton(
               onPressed: (){
                 showDeleteDialogue();
