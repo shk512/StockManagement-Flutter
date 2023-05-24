@@ -125,7 +125,7 @@ class _LoginState extends State<Login> {
         setState(() {
           isLoading=false;
         });
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
       });
     }
   }

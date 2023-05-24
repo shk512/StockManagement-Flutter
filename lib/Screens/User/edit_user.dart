@@ -264,7 +264,7 @@ class _EditUserState extends State<EditUser> {
       showSnackbar(context, Colors.green.shade300, "Updated");
       Navigator.pop(context);
     }).onError((error, stackTrace){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
 

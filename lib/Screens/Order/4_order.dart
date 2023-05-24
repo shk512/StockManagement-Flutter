@@ -44,7 +44,7 @@ class _OrderState extends State<Order> {
               padding: EdgeInsets.symmetric(horizontal: 10),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: "Search by invoice#",
+                  hintText: "Search by invoice# or shop name",
                 ),
                 onChanged: (val){
                   setState(() {
@@ -87,7 +87,7 @@ class _OrderState extends State<Order> {
                                 return const SizedBox();
                               }
                             }else{
-                              if(snapshot.data.docs[index]["orderId"].toString().contains(searchController.text)||snapshot.data.docs[index]["shopDetails"].trim().contains(searchController.text)){
+                              if(snapshot.data.docs[index]["orderId"].toString().contains(searchController.text)||snapshot.data.docs[index]["shopDetails"].toString().trim().toLowerCase().contains(searchController.text.trim().toLowerCase())){
                                 /*
                           * ENTERTAINS COMPANY
                            * */
@@ -128,7 +128,7 @@ class _OrderState extends State<Order> {
     }
     return ListTile(
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewOrder(orderId: snapshot["orderId"],companyModel: widget.companyModel,userModel: widget.userModel,)));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewOrder(orderId: snapshot["orderId"],companyModel: widget.companyModel,userModel: widget.userModel,key: Key("viewOrder"),)));
       },
       title: Text("${snapshot["shopDetails"]}"),
       subtitle: Text("${snapshot["dateTime"]}"),

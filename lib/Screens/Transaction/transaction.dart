@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:stock_management/Constants/narration.dart';
 import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Models/company_model.dart';
@@ -21,7 +23,7 @@ class Accounts extends StatefulWidget {
 
 class _AccountsState extends State<Accounts> {
   Stream? transactions;
-
+  TextEditingController searchController= TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -32,7 +34,7 @@ class _AccountsState extends State<Accounts> {
       setState(() {
         transactions=value;
       });
-    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),))));
   }
   @override
   Widget build(BuildContext context) {
@@ -55,43 +57,75 @@ class _AccountsState extends State<Accounts> {
       floatingActionButton: widget.userModel.rights.contains(Rights.addTransaction)||widget.userModel.rights.contains(Rights.all)
           ?FloatingActionButton.extended(
           onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>CreateTransaction(companyModel: widget.companyModel,userModel: widget.userModel,)));
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>CreateTransaction(companyModel: widget.companyModel,userModel: widget.userModel,key: Key("createTransaction"),)));
           },
           icon: Icon(Icons.add,color: Colors.white,),
           label: Text("Transaction",style: TextStyle(color: Colors.white),),
       )
           :const SizedBox(),
-      body: StreamBuilder(
-        stream: transactions,
-        builder: (context,snapshot){
-          if(snapshot.connectionState==ConnectionState.waiting){
-            return const Center(child: CircularProgressIndicator(),);
-          }
-          if(snapshot.hasError){
-            return const Center(child: Text("Error"),);
-          }
-          if(!snapshot.hasData){
-            return const Center(child: Text("No Data Found"),);
-          }
-          else{
-            return ListView.builder(
-                itemCount: snapshot.data.docs.length,
-                itemBuilder: (context,index){
-                  return ListTile(
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewTransaction(transactionId: snapshot.data.docs[index]["transactionId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
-                    },
-                    leading: Text("${snapshot.data.docs[index]["type"]}",style: TextStyle(color: Colors.brown,fontWeight: FontWeight.bold),),
-                    title: Text("${snapshot.data.docs[index]["description"]}"),
-                    subtitle: Text("${snapshot.data.docs[index]["date"]}"),
-                    trailing: Text("Rs. ${snapshot.data.docs[index]["amount"]}",style: TextStyle(color: snapshot.data.docs[index]["narration"]==Narration.minus?Colors.red:Colors.green,fontWeight: FontWeight.bold)),
-                    isThreeLine : true,
-                  );
-                }
-            );
-          }
-        },
+      body: Column(
+        children: [
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: "Search by description or date",
+                ),
+                onChanged: (val){
+                  setState(() {
+                    searchController.text=val;
+                  });
+                },
+              )
+          ),
+          Expanded(
+              child: StreamBuilder(
+            stream: transactions,
+            builder: (context,snapshot){
+              if(snapshot.connectionState==ConnectionState.waiting){
+                return const Center(child: CircularProgressIndicator(),);
+              }
+              if(snapshot.hasError){
+                return const Center(child: Text("Error"),);
+              }
+              if(!snapshot.hasData){
+                return const Center(child: Text("No Data Found"),);
+              }
+              else{
+                return ListView.builder(
+                    itemCount: snapshot.data.docs.length,
+                    itemBuilder: (context,index){
+                      if(searchController.text.isEmpty){
+                        return listTile(snapshot.data.docs[index]);
+                      }else{
+                        String date=DateFormat("yyyy-MM-dd").format(DateTime.parse(snapshot.data.docs[index]["date"]));
+                        String str = date.replaceAll(RegExp('[^0-9]'), '');
+                        if(snapshot.data.docs[index]["description"].toString().trim().toLowerCase().contains(searchController.text.trim().toLowerCase())||str.contains(searchController.text)){
+                          return listTile(snapshot.data.docs[index]);
+                        }else{
+                          return const SizedBox();
+                        }
+                      }
+                    }
+                );
+              }
+            },
+          )
+          )
+        ],
       ),
+    );
+  }
+  listTile(DocumentSnapshot snapshot){
+    return ListTile(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewTransaction(transactionId: snapshot["transactionId"], userModel: widget.userModel, companyModel: widget.companyModel,key: Key("viewTransaction"),)));
+      },
+      leading: Text("${snapshot["type"]}",style: TextStyle(color: Colors.brown,fontWeight: FontWeight.bold),),
+      title: Text("${snapshot["description"]}"),
+      subtitle: Text("${snapshot["date"]}"),
+      trailing: Text("Rs. ${snapshot["amount"]}",style: TextStyle(color: snapshot["narration"]==Narration.minus?Colors.red:Colors.green,fontWeight: FontWeight.bold)),
+      isThreeLine : true,
     );
   }
 }

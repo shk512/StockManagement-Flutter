@@ -37,6 +37,7 @@ class _ViewUserState extends State<ViewUser> {
   String shopId="";
   List userArea=[];
   List rights=[];
+  bool isLoading=false;
 
   @override
   void initState() {
@@ -49,7 +50,7 @@ class _ViewUserState extends State<ViewUser> {
         area=value;
       });
     }).onError((error, stackTrace){
-      Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())), (route) => false);
+      Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)), (route) => false);
     });
   }
   getData() async{
@@ -83,9 +84,7 @@ class _ViewUserState extends State<ViewUser> {
   }
   @override
   Widget build(BuildContext context) {
-    return snapshot==null
-        ?const Center(child: CircularProgressIndicator(),)
-        :Scaffold(
+    return Scaffold(
       appBar: AppBar(
         leading: IconButton(
             onPressed: (){
@@ -117,10 +116,18 @@ class _ViewUserState extends State<ViewUser> {
                 showPasswordChangeDialogue();
               },
               icon: Icon(Icons.lock_reset,color: Colors.white,))
+              :const SizedBox(),
+          widget.userModel.userId==FirebaseAuth.instance.currentUser!.uid
+              ? IconButton(
+              onPressed: (){
+                showDeleteDialogue();
+              }, icon: Icon(Icons.delete,color: Colors.white,))
               :const SizedBox()
         ],
       ),
-      body: SingleChildScrollView(
+      body:  isLoading
+          ?const Center(child: CircularProgressIndicator(),)
+          :SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
           child: Column(
@@ -182,6 +189,45 @@ class _ViewUserState extends State<ViewUser> {
       ),
     );
   }
+
+  showDeleteDialogue(){
+    TextEditingController licenseKey=TextEditingController();
+    return showDialog(
+        context: context,
+        builder: (context){
+          return AlertDialog(
+            title: Text("Delete Account"),
+            content: TxtField(labelTxt: "License Key", hintTxt: "Company's license key", ctrl: licenseKey, icon: Icon(Icons.key)),
+            actions: [
+              IconButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                }, icon: Icon(Icons.cancel,color: Colors.red),),
+              IconButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                  if(licenseKey.text==widget.companyModel.companyId){
+                    deleteUser();
+                  }else{
+                    showSnackbar(context, Colors.red.shade400, "Invalid license");
+                  }
+                }, icon: Icon(Icons.check_circle_rounded,color: Colors.green),),
+            ],
+          );
+        });
+  }
+  Future deleteUser()async{
+    Auth auth=Auth();
+    await auth.deleteUser().then((value){
+      if(value==true){
+        Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+        showSnackbar(context, Colors.green.shade300, "Deleted");
+      }else{
+        showSnackbar(context, Colors.red.shade400, value.toString());
+      }
+    });
+  }
+
   updatePassword(String password)async{
     Auth auth=Auth();
     await auth.updateNewPass(password).then((value){
@@ -262,7 +308,7 @@ class _ViewUserState extends State<ViewUser> {
         showSnackbar(context, Colors.red.shade400, "Area with same name already available");
       }
     }).onError((error, stackTrace){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
 
@@ -277,7 +323,7 @@ class _ViewUserState extends State<ViewUser> {
         showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace) {
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
   showWarningDialogue(String areaName){

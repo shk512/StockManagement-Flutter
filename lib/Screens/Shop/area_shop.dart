@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Screens/Shop/add_shop.dart';
@@ -22,12 +23,13 @@ class AreaShop extends StatefulWidget {
 class _AreaShopState extends State<AreaShop> {
   Stream? shops;
   String areaName="";
+  TextEditingController searchController=TextEditingController();
 
   @override
   void initState() {
     super.initState();
     if(widget.userModel.role=="SHOP KEEPER"){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: widget.userModel.designation, companyModel: widget.companyModel, userModel: widget.userModel)));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: widget.userModel.designation, companyModel: widget.companyModel, userModel: widget.userModel,key: Key("orderForm"),)));
     }else{
       getShops();
     }
@@ -73,33 +75,61 @@ class _AreaShopState extends State<AreaShop> {
               label: const Text("Shop",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)
           )
               :const SizedBox(),
-          body: StreamBuilder(
-              stream: shops,
-              builder: (context,snapshot){
-                if(snapshot.connectionState==ConnectionState.waiting){
-                  return const Center(child: CircularProgressIndicator(),);
-                }
-                if(snapshot.hasError){
-                  return const Center(child: Text("error"),);
-                }
-                if(!snapshot.hasData){
-                  return const Center(child: Text("No Data Found"),);
-                }else{
-                  return ListView.builder(
-                    itemCount: snapshot.data.docs.length,
-                    itemBuilder: (context,index) {
-                        return ListTile(
-                          onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: snapshot.data.docs[index]["shopId"], companyModel: widget.companyModel,userModel: widget.userModel)));
-                          },
-                          title: Text("${snapshot.data.docs[index]["shopName"]}"),
-                          subtitle: Text("${snapshot.data.docs[index]["ownerName"]}\t${snapshot.data.docs[index]["contact"]}"),
-                        );
+          body: Column(
+            children: [
+              Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Search by shop name",
+                    ),
+                    onChanged: (val){
+                      setState(() {
+                        searchController.text=val;
+                      });
                     },
-                  );
-                }
-              }
+                  )
+              ),
+              Expanded(child: StreamBuilder(
+                  stream: shops,
+                  builder: (context,snapshot){
+                    if(snapshot.connectionState==ConnectionState.waiting){
+                      return const Center(child: CircularProgressIndicator(),);
+                    }
+                    if(snapshot.hasError){
+                      return const Center(child: Text("error"),);
+                    }
+                    if(!snapshot.hasData){
+                      return const Center(child: Text("No Data Found"),);
+                    }else{
+                      return ListView.builder(
+                        itemCount: snapshot.data.docs.length,
+                        itemBuilder: (context,index) {
+                          if(searchController.text.isEmpty){
+                            return listTile(snapshot.data.docs[index]);
+                          }else{
+                            if(snapshot.data.docs[index]["shopName"].toString().trim().toLowerCase().contains(searchController.text.trim().toLowerCase())){
+                              return listTile(snapshot.data.docs[index]);
+                            }else{
+                              return const SizedBox();
+                            }
+                          }
+                        },
+                      );
+                    }
+                  }
+              ))
+            ],
           )
       );
+  }
+  listTile(DocumentSnapshot snapshot){
+    return ListTile(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderForm(shopId: snapshot["shopId"], companyModel: widget.companyModel,userModel: widget.userModel,key: Key("orderForm"),)));
+      },
+      title: Text("${snapshot["shopName"]}"),
+      subtitle: Text("${snapshot["ownerName"]}\t${snapshot["contact"]}"),
+    );
   }
 }

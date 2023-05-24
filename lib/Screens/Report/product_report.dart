@@ -19,9 +19,7 @@ class ProductReport extends StatefulWidget {
 class _ProductReportState extends State<ProductReport> {
   Stream? report;
   String productName="";
-  TextEditingController from=TextEditingController();
-  TextEditingController to=TextEditingController();
-  bool isNotAvailable=false;
+  TextEditingController searchController=TextEditingController();
 
   @override
   void initState() {
@@ -37,8 +35,8 @@ class _ProductReportState extends State<ProductReport> {
         setState(() {
           productName=value["productName"];
         });
-      }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
-    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+      }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),))));
+    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),))));
   }
   @override
   Widget build(BuildContext context) {
@@ -57,21 +55,34 @@ class _ProductReportState extends State<ProductReport> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.all(5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                      flex: 1,
-                      child:const Text("Date",style: TextStyle(fontWeight: FontWeight.w900),)
+                padding: EdgeInsets.only(bottom: 10),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "Search by date",
                   ),
-                  Expanded(
-                      flex: 1,
-                      child: const Text("Quantity",style:  TextStyle(fontWeight: FontWeight.w900))
-                  ),
-                ],
-              ),
+                  onChanged: (val){
+                    setState(() {
+                      searchController.text=val;
+                    });
+                  },
+                )
             ),
+             Padding(
+                padding: EdgeInsets.all(5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                        flex: 1,
+                        child:const Text("Date",style: TextStyle(fontWeight: FontWeight.w900),)
+                    ),
+                    Expanded(
+                        flex: 1,
+                        child: const Text("Quantity",textAlign: TextAlign.center,style:  TextStyle(fontWeight: FontWeight.w900))
+                    ),
+                  ],
+                ),
+              ),
             Expanded(
                 child: StreamBuilder(
                     stream: report,
@@ -90,7 +101,16 @@ class _ProductReportState extends State<ProductReport> {
                             itemCount: snapshot.data.docs.length,
                             itemBuilder: (context, index){
                               try{
-                                return display("${snapshot.data.docs[index]["date"]}", '${snapshot.data.docs[index]["${widget.productId}"]}');
+                                if(searchController.text.isEmpty){
+                                  return display("${snapshot.data.docs[index]["date"]}", '${snapshot.data.docs[index]["${widget.productId}"]}');
+                                }else{
+                                  String str = snapshot.data.docs[index]["date"].replaceAll(RegExp('[^0-9]'), '');
+                                  if(str.contains(searchController.text)){
+                                    return display("${snapshot.data.docs[index]["date"]}", '${snapshot.data.docs[index]["${widget.productId}"]}');
+                                  }else{
+                                    return const SizedBox();
+                                  }
+                                }
                               }catch(e){
                                 return const SizedBox();
                               }
@@ -116,35 +136,10 @@ class _ProductReportState extends State<ProductReport> {
           ),
           Expanded(
               flex: 1,
-              child: Text(value)
+              child: Text(value,textAlign: TextAlign.center)
           ),
         ],
       ),
-    );
-  }
-  Widget date(TextEditingController ctrl,String value) {
-    return Expanded(
-      child: TextField(
-          decoration: InputDecoration(
-            icon: const Icon(Icons.calendar_month),
-            labelText: value,
-          ),
-          readOnly: true,
-          controller: ctrl,
-          onTap: () async {
-            DateTime? pickedDate = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100));
-            if (pickedDate != null) {
-              String formattedDate =
-              DateFormat("dd-MM-yyyy").format(pickedDate);
-              setState(() {
-                ctrl.text = formattedDate;
-              });
-            }
-          }),
     );
   }
 }

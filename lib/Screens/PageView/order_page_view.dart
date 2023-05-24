@@ -60,26 +60,26 @@ class _OrderPageViewState extends State<OrderPageView>{
                           color: Colors.white,
                           onSelected: (value){
                             if(value==0){
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewUser(userId: widget.userModel.userId, userModel: widget.userModel, companyModel: widget.companyModel)));
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewUser(userId: widget.userModel.userId, userModel: widget.userModel, companyModel: widget.companyModel,key: Key("viewUser"),)));
                             }
                             if(value==1){
                               if(widget.userModel.rights.contains(Rights.all)||widget.userModel.rights.contains(Rights.viewCompany)){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>Area(companyModel: widget.companyModel, userModel: widget.userModel,)));
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>Area(companyModel: widget.companyModel, userModel: widget.userModel,key: Key("area"),)));
                               }
                             }
                             if(value==2){
                               if(widget.userModel.rights.contains(Rights.all)||widget.userModel.rights.contains(Rights.viewReport)){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>DisplayProduct(companyModel: widget.companyModel)));
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>DisplayProduct(companyModel: widget.companyModel,key: Key("displayProduct"),)));
                               }
                             }
                             if(value==3){
                               if(widget.userModel.rights.contains(Rights.all)||widget.userModel.rights.contains(Rights.viewTransactions)){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>Accounts(companyModel: widget.companyModel, userModel: widget.userModel)));
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>Accounts(companyModel: widget.companyModel, userModel: widget.userModel,key: Key("accounts"),)));
                               }
                             }
                             if(value==4){
                               if(widget.userModel.rights.contains(Rights.all)||widget.userModel.rights.contains(Rights.viewUser)){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>Employee(companyModel: widget.companyModel, userModel: widget.userModel)));
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>Employee(companyModel: widget.companyModel, userModel: widget.userModel,key: Key("employee"),)));
                               }
                             }
                             if(value==5){
@@ -131,10 +131,10 @@ class _OrderPageViewState extends State<OrderPageView>{
               },
               body: TabBarView(
                 children: <Widget>[
-                  ProcessOrder(userModel: widget.userModel, companyModel: widget.companyModel,),
-                  DispatchOrder(userModel: widget.userModel, companyModel: widget.companyModel),
-                  DeliverOrder(userModel: widget.userModel, companyModel: widget.companyModel),
-                  Order(userModel: widget.userModel, companyModel: widget.companyModel)
+                  ProcessOrder(userModel: widget.userModel, companyModel: widget.companyModel,key: Key("processOrder"),),
+                  DispatchOrder(userModel: widget.userModel, companyModel: widget.companyModel,key: Key("dispatchOrder"),),
+                  DeliverOrder(userModel: widget.userModel, companyModel: widget.companyModel,key: Key("deliverOrder"),),
+                  Order(userModel: widget.userModel, companyModel: widget.companyModel,key: Key("order"),)
                 ],
               ),
             )

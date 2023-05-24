@@ -6,7 +6,7 @@ Future<Position> getCurrentLocation(BuildContext context)async{
   await Geolocator.requestPermission().then((value) {
 
   }).onError((error, stackTrace) {
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"))));
   });
   return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 }

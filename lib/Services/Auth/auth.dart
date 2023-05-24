@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:stock_management/Services/DB/user_db.dart';
 
 import '../shared_preferences/spf.dart';
 
@@ -60,6 +61,17 @@ class Auth{
     firebaseAuth.setLanguageCode("en");
     try{
       await firebaseAuth.sendPasswordResetEmail(email: email);
+    }on FirebaseAuthException catch(e){
+      return e;
+    }
+  }
+
+  //delete user
+  Future deleteUser()async{
+    try{
+      UserDb(id: firebaseAuth.currentUser!.uid).deleteUser(true);
+      await firebaseAuth.currentUser!.delete();
+      return true;
     }on FirebaseAuthException catch(e){
       return e;
     }

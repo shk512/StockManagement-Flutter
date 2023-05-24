@@ -28,6 +28,7 @@ class ShowAreaShop extends StatefulWidget {
 class _ShowAreaShopState extends State<ShowAreaShop> {
   Stream? shops;
   DocumentSnapshot? snapshot;
+  TextEditingController searchController=TextEditingController();
 
   @override
   void initState() {
@@ -49,6 +50,7 @@ class _ShowAreaShopState extends State<ShowAreaShop> {
       });
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return  snapshot==null
@@ -66,44 +68,73 @@ class _ShowAreaShopState extends State<ShowAreaShop> {
           title: Text(snapshot!["areaName"],style: const TextStyle(color: Colors.white),),
           centerTitle: true,
         ),
-        body: StreamBuilder(
-            stream: shops,
-            builder: (context,AsyncSnapshot snapshot){
-              if(snapshot.connectionState==ConnectionState.waiting){
-                return const Center(child: CircularProgressIndicator(),);
-              }
-              if(snapshot.hasError){
-                return const Center(child: Text("error"),);
-              }
-              if(!snapshot.hasData){
-                return const Center(child: Text("No Data Found"),);
-              }else{
-                return ListView.builder(
-                  itemCount: snapshot.data.docs.length,
-                  itemBuilder: (context,index) {
-                    return ListTile(
-                      leading: IconButton(
-                          onPressed: (){
-                            showWarningDialogue(snapshot.data.docs[index]);
-                          },
-                          icon: Icon(Icons.brightness_1,color: snapshot.data.docs[index]["isActive"]? Colors.green:Colors.red,size: 15,)),
-                      title: Text("${snapshot.data.docs[index]["shopName"]}"),
-                      subtitle: Text("${snapshot.data.docs[index]["ownerName"]}\t${snapshot.data.docs[index]["contact"]}"),
-                      trailing: ElevatedButton.icon(
-                        onPressed: () {
-                          if((widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all))&&snapshot.data.docs[index]["wallet"]!=0){
-                            showTransactionDialogue(snapshot.data.docs[index]["shopId"],"${snapshot.data.docs[index]["shopName"]}-${snapshot.data.docs[index]["areaId"]}");
-                          }
-                        },
-                        icon: Icon(Icons.account_balance_wallet_outlined,color: Colors.white,),
-                        label: Text("${snapshot.data.docs[index]["wallet"]}",style: TextStyle(color: Colors.white),),
-                      ),
-                    );
+        body: Column(
+          children: [
+            Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "Search by shop name",
+                  ),
+                  onChanged: (val){
+                    setState(() {
+                      searchController.text=val;
+                    });
                   },
-                );
-              }
-            }
+                )
+            ),
+            Expanded(
+                child: StreamBuilder(
+                stream: shops,
+                builder: (context,AsyncSnapshot snapshot){
+                  if(snapshot.connectionState==ConnectionState.waiting){
+                    return const Center(child: CircularProgressIndicator(),);
+                  }
+                  if(snapshot.hasError){
+                    return const Center(child: Text("error"),);
+                  }
+                  if(!snapshot.hasData){
+                    return const Center(child: Text("No Data Found"),);
+                  }else{
+                    return ListView.builder(
+                      itemCount: snapshot.data.docs.length,
+                      itemBuilder: (context,index) {
+                        if(searchController.text.isEmpty){
+                          return listTile(snapshot.data.docs[index]);
+                        }else{
+                          if(snapshot.data.docs[index]["shopName"].toString().trim().toLowerCase().contains(searchController.text.trim().toLowerCase())){
+                            return listTile(snapshot.data.docs[index]);
+                          }else{
+                            return const SizedBox();
+                          }
+                        }
+                      },
+                    );
+                  }
+                }
+            ))
+          ],
         )
+    );
+  }
+  Widget listTile(DocumentSnapshot snapshot){
+    return ListTile(
+      leading: IconButton(
+          onPressed: (){
+            showWarningDialogue(snapshot);
+          },
+          icon: Icon(Icons.brightness_1,color: snapshot["isActive"]? Colors.green:Colors.red,size: 15,)),
+      title: Text("${snapshot["shopName"]}"),
+      subtitle: Text("${snapshot["ownerName"]}\t${snapshot["contact"]}"),
+      trailing: ElevatedButton.icon(
+        onPressed: () {
+          if((widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all))&&snapshot["wallet"]!=0){
+            showTransactionDialogue(snapshot["shopId"],"${snapshot["shopName"]}-${snapshot["areaId"]}");
+          }
+        },
+        icon: Icon(Icons.account_balance_wallet_outlined,color: Colors.white,),
+        label: Text("${snapshot["wallet"]}",style: TextStyle(color: Colors.white),),
+      ),
     );
   }
   showWarningDialogue(DocumentSnapshot snapshot){
@@ -137,7 +168,7 @@ class _ShowAreaShopState extends State<ShowAreaShop> {
         showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(), key: Key("errorScreen"))));
     });
   }
   showTransactionDialogue(String shopId,String shopName){
@@ -230,11 +261,11 @@ class _ShowAreaShopState extends State<ShowAreaShop> {
 
           });
         }).onError((error, stackTrace){
-          Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+          Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(), key: Key("errorScreen"))));
         });
       }
     }).onError((error, stackTrace) {
-      Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(), key: Key("errorScreen"))));
     });
   }
 }

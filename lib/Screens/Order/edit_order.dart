@@ -123,7 +123,7 @@ class _EditOrderState extends State<EditOrder> {
       }
     }).onError((error, stackTrace) {
       Navigator.push(context, MaterialPageRoute(
-          builder: (context) => ErrorScreen(error: error.toString())));
+          builder: (context) => ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
 }

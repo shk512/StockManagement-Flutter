@@ -25,6 +25,7 @@ class InActiveShop extends StatefulWidget {
 
 class _InActiveShopState extends State<InActiveShop> {
   Stream? shop;
+  TextEditingController searchController=TextEditingController();
 
   @override
   void initState() {
@@ -41,78 +42,64 @@ class _InActiveShopState extends State<InActiveShop> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: shop,
-        builder: (context,snapshot){
-          if(snapshot.connectionState==ConnectionState.waiting){
-            return const Center(child: CircularProgressIndicator(),);
-          }
-          if(snapshot.hasError){
-            return const Center(child: Text("error"),);
-          }
-          if(!snapshot.hasData){
-            return const Center(child: Text("No Data Found"),);
-          }
-          else{
-            return ListView.builder(
-                itemCount: snapshot.data.docs.length,
-                itemBuilder: (context,index){
-                  if(widget.userModel.role=="COMPANY"){
-                    return ListTile(
-                      onTap: (){
-                        if(widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all)){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>EditShop(shopId: snapshot.data.docs[index]["shopId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
-                        }
-                      },
-                      leading: IconButton(
-                          onPressed: (){
-                            showWarningDialogue(snapshot.data.docs[index]);
-                          },
-                          icon: Icon(Icons.update,color: Colors.brown,)),
-                      title: Text("${snapshot.data.docs[index]["shopName"]}"),
-                      subtitle: Text("${snapshot.data.docs[index]["ownerName"]}\t${snapshot.data.docs[index]["contact"]}"),
-                      isThreeLine: true,
-                      trailing: ElevatedButton.icon(
-                        onPressed: () {
-                          if((widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all))&&snapshot.data.docs[index]["wallet"]!=0){
-                            showTransactionDialogue(snapshot.data.docs[index]["shopId"],"${snapshot.data.docs[index]["shopName"]}-${snapshot.data.docs[index]["areaId"]}");
-                          }
-                        },
-                        icon: Icon(Icons.account_balance_wallet_outlined,color: Colors.white,),
-                        label: Text("${snapshot.data.docs[index]["wallet"]}",style: TextStyle(color: Colors.white),),
-                      ),
-                    );
-                  }else if(widget.userModel.area.contains(snapshot.data.docs[index]["areaId"])){
-                    return ListTile(
-                      onTap: (){
-                        if(widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all)){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>EditShop(shopId: snapshot.data.docs[index]["shopId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
-                        }
-                      },
-                      leading: IconButton(
-                          onPressed: (){
-                            showWarningDialogue(snapshot.data.docs[index]);
-                          },
-                          icon: Icon(Icons.notifications_active_rounded)),
-                      title: Text("${snapshot.data.docs[index]["shopName"]}"),
-                      subtitle: Text("${snapshot.data.docs[index]["ownerName"]}\t${snapshot.data.docs[index]["contact"]}"),
-                      isThreeLine: true,
-                      trailing: ElevatedButton.icon(
-                        onPressed: () {
-                          if((widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all))&&snapshot.data.docs[index]["wallet"]!=0){
-                            showTransactionDialogue(snapshot.data.docs[index]["shopId"],"${snapshot.data.docs[index]["shopName"]}-${snapshot.data.docs[index]["areaId"]}");
-                          }
-                        },
-                        icon: Icon(Icons.account_balance_wallet_outlined,color: Colors.white,),
-                        label: Text("${snapshot.data.docs[index]["wallet"]}",style: TextStyle(color: Colors.white),),
-                      ),
-                    );
-                  }else{
-                    return const SizedBox();
-                  }
+    return Column(
+      children: [
+        Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: "Search by shop name",
+              ),
+              onChanged: (val){
+                setState(() {
+                  searchController.text=val;
                 });
-          }
-        });
+              },
+            )
+        ),
+        Expanded(
+          child: StreamBuilder(
+              stream: shop,
+              builder: (context,snapshot){
+                if(snapshot.connectionState==ConnectionState.waiting){
+                  return const Center(child: CircularProgressIndicator(),);
+                }
+                if(snapshot.hasError){
+                  return const Center(child: Text("error"),);
+                }
+                if(!snapshot.hasData){
+                  return const Center(child: Text("No Data Found"),);
+                }
+                else{
+                  return ListView.builder(
+                      itemCount: snapshot.data.docs.length,
+                      itemBuilder: (context,index){
+                        if(searchController.text.isEmpty){
+                          if(widget.userModel.role=="COMPANY"){
+                            return listTile(snapshot.data.docs[index]);
+                          }else if(widget.userModel.area.contains(snapshot.data.docs[index]["areaId"])){
+                            return listTile(snapshot.data.docs[index]);
+                          }else{
+                            return const SizedBox();
+                          }
+                        }else{
+                          if(snapshot.data.docs[index]["shopName"].toString().trim().toLowerCase().contains(searchController.text.trim().toLowerCase())){
+                            if(widget.userModel.role=="COMPANY"){
+                              return listTile(snapshot.data.docs[index]);
+                            }else if(widget.userModel.area.contains(snapshot.data.docs[index]["areaId"])){
+                              return listTile(snapshot.data.docs[index]);
+                            }else{
+                              return const SizedBox();
+                            }
+                          }else{
+                            return const SizedBox();
+                          }
+                        }
+                      });
+                }
+              }),)
+      ],
+    );
   }
   showWarningDialogue(DocumentSnapshot snapshot){
     return showDialog(
@@ -135,6 +122,34 @@ class _InActiveShopState extends State<InActiveShop> {
           );
         });
   }
+
+  Widget listTile(DocumentSnapshot snapshot){
+    return ListTile(
+      onTap: (){
+        if(widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all)){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>EditShop(shopId: snapshot["shopId"], userModel: widget.userModel, companyModel: widget.companyModel,key: Key("editShop"),)));
+        }
+      },
+      leading: IconButton(
+          onPressed: (){
+            showWarningDialogue(snapshot);
+          },
+          icon: Icon(Icons.update,color: Colors.brown,)),
+      title: Text("${snapshot["shopName"]}"),
+      subtitle: Text("${snapshot["ownerName"]}\t${snapshot["contact"]}"),
+      isThreeLine: true,
+      trailing: ElevatedButton.icon(
+        onPressed: () {
+          if((widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all))&&snapshot["wallet"]!=0){
+            showTransactionDialogue(snapshot["shopId"],"${snapshot["shopName"]}-${snapshot["areaId"]}");
+          }
+        },
+        icon: Icon(Icons.account_balance_wallet_outlined,color: Colors.white,),
+        label: Text("${snapshot["wallet"]}",style: TextStyle(color: Colors.white),),
+      ),
+    );
+  }
+
   updateStatus(DocumentSnapshot snapshot)async{
     await ShopDB(companyId: widget.companyModel.companyId, shopId: snapshot["shopId"]).updateShop({
       "isActive":!snapshot["isActive"]
@@ -145,7 +160,7 @@ class _InActiveShopState extends State<InActiveShop> {
         showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
   showTransactionDialogue(String shopId,String shopName){
@@ -238,11 +253,11 @@ class _InActiveShopState extends State<InActiveShop> {
 
           });
         }).onError((error, stackTrace){
-          Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+          Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
         });
       }
     }).onError((error, stackTrace) {
-      Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
 }

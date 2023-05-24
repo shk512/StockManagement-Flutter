@@ -93,7 +93,7 @@ class _AssignShopState extends State<AssignShop> {
       Navigator.pop(context);
       showSnackbar(context, Colors.green.shade300, "Saved shop");
     }).onError((error, stackTrace){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
 }

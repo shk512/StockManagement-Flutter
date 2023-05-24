@@ -16,6 +16,6 @@ Future accountTransaction(String narration,num amount,String type,String desc,St
           type: type,
           dateTime: DateTime.now().toString()
       )).onError((error, stackTrace) {
-    Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+    Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"))));
   });
 }

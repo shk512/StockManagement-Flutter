@@ -89,7 +89,7 @@ class _SignupState extends State<Signup> {
      setState(() {
        snapshot=value;
      });
-   }).onError((error, stackTrace) =>Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+   }).onError((error, stackTrace) =>Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),))));
 
   }
 
@@ -236,7 +236,7 @@ class _SignupState extends State<Signup> {
               isLoading=false;
             });
             if(_role==UserRole.shopKeeper){
-              Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=>AssignShop(userId: value.toString(), companyId: widget.companyId)), (route) => false);
+              Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=>AssignShop(userId: value.toString(), companyId: widget.companyId,key: Key("assignShop"),)), (route) => false);
             }else{
               Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
             }
@@ -245,13 +245,13 @@ class _SignupState extends State<Signup> {
             setState(() {
               isLoading=false;
             });
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
           });
         }}).onError((error, stackTrace){
           setState(() {
             isLoading=false;
           });
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
         });
     }
   }

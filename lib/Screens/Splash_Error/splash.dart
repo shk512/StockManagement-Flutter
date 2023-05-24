@@ -60,13 +60,19 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         child:child
                     );
                   }),
-              SizedBox(height: MediaQuery.of(context).size.height*.04,),
+              SizedBox(height: MediaQuery.of(context).size.height*.03,),
               const Image(image: AssetImage("image/pos.png")),
-              SizedBox(height: MediaQuery.of(context).size.height*.04,),
+              SizedBox(height: MediaQuery.of(context).size.height*.03,),
               Text(
-                "Developed By\n360 Tech",
+                "Developed By",
                 textAlign:TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.brown.shade200,letterSpacing: 2),)
+                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.brown.shade200,letterSpacing: 2),),
+              const SizedBox(height: 5,),
+              SizedBox(
+                height: 75,
+                child: Image.asset("logo/company_logo.png"),
+              ),
+
             ],
           ),
         ),

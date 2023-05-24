@@ -33,6 +33,6 @@ class ReportDb{
 
   //GET REPORT
   Future getReport()async{
-    return await companyCollection.doc(companyId).collection("report").snapshots();
+    return await companyCollection.doc(companyId).collection("report").orderBy("date", descending: true).snapshots();
   }
 }

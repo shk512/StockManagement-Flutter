@@ -48,7 +48,7 @@ class _OrderFormState extends State<OrderForm> {
         });
       });
     }).onError((error, stackTrace){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
   getProducts()async{
@@ -81,7 +81,7 @@ class _OrderFormState extends State<OrderForm> {
                 width: 30.0,
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.push(context,MaterialPageRoute(builder: (context)=>Cart(shopId: widget.shopId,shopDetails: shopDetails, userModel: widget.userModel,companyModel: widget.companyModel,)));
+                    Navigator.push(context,MaterialPageRoute(builder: (context)=>Cart(shopId: widget.shopId,shopDetails: shopDetails, userModel: widget.userModel,companyModel: widget.companyModel,key: Key("cart"),)));
                   },
 
                   child: Stack(

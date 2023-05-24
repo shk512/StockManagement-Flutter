@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Order/view_order.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
@@ -42,7 +43,7 @@ class _DeliverOrderState extends State<DeliverOrder> {
               padding: EdgeInsets.symmetric(horizontal: 10),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: "Search by invoice#",
+                  hintText: "Search by invoice# or shop name",
                 ),
                 onChanged: (val){
                   setState(() {
@@ -85,7 +86,9 @@ class _DeliverOrderState extends State<DeliverOrder> {
                                 return const SizedBox();
                               }
                             }else{
-                              if(snapshot.data.docs[index]["orderId"].toString().contains(searchController.text)||snapshot.data.docs[index]["shopDetails"].trim().contains(searchController.text)){
+                              String date=DateFormat("yyyy-MM-dd").format(DateTime.parse(snapshot.data.docs[index]["dateTime"]));
+                              String str = date.replaceAll(RegExp('[^0-9]'), '');
+                              if(snapshot.data.docs[index]["orderId"].toString().contains(searchController.text)||snapshot.data.docs[index]["shopDetails"].toString().trim().toLowerCase().contains(searchController.text.trim().toLowerCase())||str.contains(searchController.text)){
                                 /*
                           * ENTERTAINS COMPANY
                            * */
@@ -116,7 +119,7 @@ class _DeliverOrderState extends State<DeliverOrder> {
   Widget listTile(DocumentSnapshot snapshot){
     return ListTile(
         onTap: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewOrder(orderId: snapshot["orderId"],companyModel: widget.companyModel,userModel: widget.userModel,)));
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewOrder(orderId: snapshot["orderId"],companyModel: widget.companyModel,userModel: widget.userModel,key: Key("viewOrder"),)));
         },
         title: Text("${snapshot["shopDetails"]}"),
         subtitle: Text("${snapshot["dateTime"]}"),

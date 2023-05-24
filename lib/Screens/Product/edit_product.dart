@@ -59,15 +59,16 @@ class _EditProductState extends State<EditProduct> {
         ),
         title: const Text("Edit Product",style: TextStyle(color: Colors.white),),
         centerTitle: true,
+        actions: [
+          ElevatedButton(
+              onPressed: (){
+                if(formKey.currentState!.validate()){
+                  updateProduct();
+                }
+              }, child: Text("Update"))
+        ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: (){
-          if(formKey.currentState!.validate()){
-            updateProduct();
-          }
-        },
-        label: const Text("Update",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
-      ),
+
       body: SingleChildScrollView(
         child: Form(
             key: formKey,
@@ -104,7 +105,7 @@ class _EditProductState extends State<EditProduct> {
                       width: 200,
                       child: imageUrl.isEmpty
                           ?Icon(Icons.image,size: 100,)
-                          :Image.network(imageUrl),
+                          : Image.network(imageUrl),
                     ),
                   ),
                 ],
@@ -130,7 +131,7 @@ class _EditProductState extends State<EditProduct> {
         showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(), key: Key("errorScreen"),)));
     });
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
@@ -22,6 +23,7 @@ class Area extends StatefulWidget {
 
 class _AreaState extends State<Area> {
   Stream? area;
+  TextEditingController searchController=TextEditingController();
 
   @override
   void initState() {
@@ -57,58 +59,88 @@ class _AreaState extends State<Area> {
               :const SizedBox(),
         ],
       ),
-      body: StreamBuilder(
-      stream: area,
-      builder: (context,snapshot){
-        if(snapshot.connectionState==ConnectionState.waiting){
-          return Center(child: CircularProgressIndicator(),);
-        }
-        if(snapshot.hasError){
-          return Center(child: Text("Error"),);
-        }
-        if(!snapshot.hasData){
-          return Center(child: Text("No Data Found"),);
-        }
-        else{
-          return ListView.builder(
-              itemCount: snapshot.data.docs.length,
-              itemBuilder: (context,index) {
-                return ListTile(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ShowAreaShop(areaId: snapshot.data.docs[index]["areaId"], companyModel: widget.companyModel, userModel: widget.userModel)));
-                  },
-                  title: Text("${snapshot.data.docs[index]["areaName"]}",style: TextStyle(fontWeight: FontWeight.bold),),
-                  trailing: widget.userModel.rights.contains(Rights.all)
-                      ? PopupMenuButton(
-                    icon: Icon(Icons.more_vert),
-                    onSelected: (value){
-                      if(value==0){
-                        showEditAreaDialogue(snapshot.data.docs[index]["areaId"], snapshot.data.docs[index]["areaName"]);
-                      }
-                      if(value==1){
-                        if(widget.userModel.rights.contains(Rights.all)||widget.userModel.rights.contains(Rights.deleteArea)){
-                          showWarningDialogue(snapshot.data.docs[index]["areaId"], snapshot.data.docs[index]["areaName"]);
-                        }
-                      }
-                    },
-                      itemBuilder: (context){
-                        return [
-                          PopupMenuItem(
-                            value: 0,
-                            child: Row(children: const [Icon(Icons.edit,color: Colors.black54,), SizedBox(width: 5,),Text("Edit")],),
-                          ),
-                          PopupMenuItem(
-                            value: 1,
-                            child: Row(children: const [Icon(Icons.delete,color: Colors.black54,), SizedBox(width: 5,),Text("Delete")],),
-                          ),
-                        ];
-                  }): const SizedBox()
-                );
-              });
-        }
-      }),
+      body: Column(
+        children: [
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: "Search here...",
+                ),
+                onChanged: (val){
+                  setState(() {
+                    searchController.text=val;
+                  });
+                },
+              )
+          ),
+          Expanded(
+              child: StreamBuilder(
+              stream: area,
+              builder: (context,snapshot){
+                if(snapshot.connectionState==ConnectionState.waiting){
+                  return Center(child: CircularProgressIndicator(),);
+                }
+                if(snapshot.hasError){
+                  return Center(child: Text("Error"),);
+                }
+                if(!snapshot.hasData){
+                  return Center(child: Text("No Data Found"),);
+                }
+                else{
+                  return ListView.builder(
+                      itemCount: snapshot.data.docs.length,
+                      itemBuilder: (context,index) {
+                       if(searchController.text.isEmpty){
+                         return listTile(snapshot.data.docs[index]);
+                       }else{
+                         if(snapshot.data.docs[index]["areaName"].toString().trim().toLowerCase().contains(searchController.text.trim().toLowerCase())){
+                           return listTile(snapshot.data.docs[index]);
+                         }else{
+                           return const SizedBox();
+                         }
+                       }
+                      });
+                }
+              }))
+        ],
+      ),
     );
   }
+  Widget listTile(DocumentSnapshot snapshot){
+    return ListTile(
+        onTap: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>ShowAreaShop(areaId: snapshot["areaId"], companyModel: widget.companyModel, userModel: widget.userModel,key: Key("showAreaShop"),)));
+        },
+        title: Text("${snapshot["areaName"]}",style: TextStyle(fontWeight: FontWeight.bold),),
+        trailing: widget.userModel.rights.contains(Rights.all)
+            ? PopupMenuButton(
+            icon: Icon(Icons.more_vert),
+            onSelected: (value){
+              if(value==0){
+                showEditAreaDialogue(snapshot["areaId"], snapshot["areaName"]);
+              }
+              if(value==1){
+                if(widget.userModel.rights.contains(Rights.all)||widget.userModel.rights.contains(Rights.deleteArea)){
+                  showWarningDialogue(snapshot["areaId"], snapshot["areaName"]);
+                }
+              }
+            },
+            itemBuilder: (context){
+              return [
+                PopupMenuItem(
+                  value: 0,
+                  child: Row(children: const [Icon(Icons.edit,color: Colors.black54,), SizedBox(width: 5,),Text("Edit")],),
+                ),
+                PopupMenuItem(
+                  value: 1,
+                  child: Row(children: const [Icon(Icons.delete,color: Colors.black54,), SizedBox(width: 5,),Text("Delete")],),
+                ),
+              ];
+            }): const SizedBox()
+    );
+  }
+
   showEditAreaDialogue(String areaId,  String areaName) {
     TextEditingController ctrl=TextEditingController();
     ctrl.text=areaName;
@@ -188,7 +220,7 @@ class _AreaState extends State<Area> {
     await AreaDb(areaId: areaId, companyId: widget.companyModel.companyId).deleteArea().then((value){
       showSnackbar(context, Colors.green.shade300, "Deleted");
     }).onError((error, stackTrace) {
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(), key: Key("errorScreen"),)));
     });
   }
   showWarningDialogue(String areaId, String areaName){

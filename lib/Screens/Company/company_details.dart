@@ -42,7 +42,7 @@ class _CompanyDetailsState extends State<CompanyDetails> {
       setState(() {
         area=value;
       });
-    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),))));
   }
   getLatitudeAndLongitude()async{
    await CompanyDb(id: widget.companyModel.companyId).getData().then((value){
@@ -101,7 +101,12 @@ class _CompanyDetailsState extends State<CompanyDetails> {
               InkWell(
                 onTap: ()async{
                   try{
-                    widget.companyModel.imageUrl=await uploadImage();
+                    await uploadImage().then((value){
+                      setState((){
+                        widget.companyModel.imageUrl=value;
+                      });
+                      showSnackbar(context, Colors.green.shade300, "Uploaded");
+                    });
                     updateCompanyData(context,widget.companyModel);
                   }catch(e){
                     showSnackbar(context, Colors.red, e);
@@ -110,7 +115,7 @@ class _CompanyDetailsState extends State<CompanyDetails> {
                 child: widget.companyModel.imageUrl.isNotEmpty
                     ?CircleAvatar(
                   backgroundImage: NetworkImage(widget.companyModel.imageUrl),
-                  radius: 100,
+                  radius: 150,
                 )
                     :Icon(Icons.image,size: 70,),
               ),

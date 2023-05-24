@@ -39,14 +39,14 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
     getUserAndCompanyData();
     Timer(Duration(seconds: 10), () {
       if(_companyModel.companyName.isEmpty){
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: "Something error")), (route) => false);
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: "Something error",key: Key("errorScreen"))), (route) => false);
       }
     });
-    pages.insert(0, OrderPageView(userModel: _userModel, companyModel: _companyModel));
-    pages.insert(1, NormalPageView(userModel: _userModel, companyModel: _companyModel, page: Product(userModel: _userModel, companyModel: _companyModel)));
-    pages.insert(2, NormalPageView(userModel: _userModel, companyModel: _companyModel, page: UserArea(userModel: _userModel, companyModel: _companyModel)));
-    pages.insert(3, NormalPageView(userModel: _userModel, companyModel: _companyModel, page: Stock(userModel: _userModel, companyModel: _companyModel)));
-    pages.insert(4, ShopPageView(userModel: _userModel, companyModel: _companyModel));
+    pages.insert(0, OrderPageView(userModel: _userModel, companyModel: _companyModel,key: Key("orderPageView"),));
+    pages.insert(1, NormalPageView(userModel: _userModel, companyModel: _companyModel, page: Product(userModel: _userModel, companyModel: _companyModel,key: Key('product'),)));
+    pages.insert(2, NormalPageView(userModel: _userModel, companyModel: _companyModel, page: UserArea(userModel: _userModel, companyModel: _companyModel,key: Key("userArea"))));
+    pages.insert(3, NormalPageView(userModel: _userModel, companyModel: _companyModel, page: Stock(userModel: _userModel, companyModel: _companyModel,key: Key("stock"))));
+    pages.insert(4, ShopPageView(userModel: _userModel, companyModel: _companyModel,key: Key("shopPageView")));
   }
 
   getUserAndCompanyData()async{
@@ -82,11 +82,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
         });
       }).onError((error, stackTrace){
         SPF.saveUserLogInStatus(false);
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())), (route) => false);
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"))), (route) => false);
       });
     }).onError((error, stackTrace){
       SPF.saveUserLogInStatus(false);
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())), (route) => false);
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"))), (route) => false);
     });
   }
 
@@ -112,15 +112,15 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
       }
       return Scaffold(
         body: pages[selectedPage],
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterDocked,
           floatingActionButton: FloatingActionButton(
+            heroTag: "addOrder",
             tooltip: "Place Order",
             onPressed: (){
               if(_userModel.rights.contains(Rights.placeOrder)||_userModel.rights.contains(Rights.all)){
                 setState(() {
                   selectedPage=2;
                 });
-                //Navigator.push(context, MaterialPageRoute(builder: (context)=>Area(companyModel: _companyModel, userModel: _userModel)));
               }
             },
             child: Icon(Icons.add,color: Colors.white,),
@@ -185,6 +185,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin{
   changePackageStatus()async{
     await CompanyDb(id: _companyModel.companyId).updateCompany({"isPackageActive":false}).then((value){
       getUserAndCompanyData();
-    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen")))));
   }
 }

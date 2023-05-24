@@ -72,7 +72,7 @@ class _ViewOrderState extends State<ViewOrder> {
         });
       }).onError((error, stackTrace) => Navigator.push(context,
           MaterialPageRoute(
-              builder: (context) => ErrorScreen(error: error.toString()))));
+              builder: (context) => ErrorScreen(error: error.toString(),key: Key("errorScreen"),))));
       await UserDb(id: value["orderBy"]).getData().then((value) {
         setState(() {
           orderBookerName = "${value["name"]}\t${value["phone"]}";
@@ -89,7 +89,7 @@ class _ViewOrderState extends State<ViewOrder> {
       }
 
     }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(
-        builder: (context) => ErrorScreen(error: error.toString()))));
+        builder: (context) => ErrorScreen(error: error.toString(),key: Key("errorScreen"),))));
   }
 
 
@@ -145,7 +145,7 @@ class _ViewOrderState extends State<ViewOrder> {
                     Navigator.push(context, MaterialPageRoute(
                         builder: (context) =>
                             EditOrder(orderId: widget.orderId,
-                                companyModel: widget.companyModel)));
+                                companyModel: widget.companyModel,key: Key("editOrder"),)));
                   }
                   if (value == 1 && (widget.userModel.rights.contains(
                       Rights.shopNavigation) ||
@@ -155,7 +155,7 @@ class _ViewOrderState extends State<ViewOrder> {
                     } catch (e) {
                       Navigator.push(context, MaterialPageRoute(
                           builder: (context) =>
-                              ErrorScreen(error: e.toString())));
+                              ErrorScreen(error: e.toString(),key: Key("errorScreen"),)));
                     }
                   }
                   if (value == 2 && (widget.userModel.rights.contains(
@@ -166,7 +166,7 @@ class _ViewOrderState extends State<ViewOrder> {
                     } catch (e) {
                       Navigator.push(context, MaterialPageRoute(
                           builder: (context) =>
-                              ErrorScreen(error: e.toString())));
+                              ErrorScreen(error: e.toString(),key: Key("errorScreen"),)));
                     }
                   }
                 },
@@ -220,7 +220,7 @@ class _ViewOrderState extends State<ViewOrder> {
               Navigator.push(context, MaterialPageRoute(builder: (context) =>
                   DeliverForm(companyModel: widget.companyModel,
                     userModel: widget.userModel,
-                    orderId: widget.orderId,)));
+                    orderId: widget.orderId,key: Key("deliverForm"),)));
             }
           },
           label: const Text("Deliver", style: TextStyle(color: Colors.white),),
@@ -230,9 +230,7 @@ class _ViewOrderState extends State<ViewOrder> {
             ? const Center(child: CircularProgressIndicator(),)
             : Column(
           children: [
-            Expanded(
-              flex: 7,
-              child: Padding(
+             Padding(
                 padding: EdgeInsets.symmetric(horizontal: 5),
                 child: Column(
                   children: [
@@ -260,10 +258,8 @@ class _ViewOrderState extends State<ViewOrder> {
                   ],
                 ),
               ),
-            ),
             const SizedBox(height: 5,),
             Expanded(
-              flex: 5,
               child: ListView.builder(
                   itemCount: OrderModel.products.length,
                   itemBuilder: (context, index) {
@@ -320,113 +316,4 @@ class _ViewOrderState extends State<ViewOrder> {
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
     });
   }
-
- /* generatePdf()async{
-    final pdf=pw.Document();
-    pdf.addPage(
-        pw.Page(
-          pageFormat: PdfPageFormat.a4,
-          build: (pw.Context context){
-            return pw.Padding(
-                padding:  pw.EdgeInsets.all(5),
-              child: pw.Column(
-                mainAxisAlignment: pw.MainAxisAlignment.center,
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                children: [
-                  pw.Text(widget.companyModel.companyName,style: pw.TextStyle(fontSize: 24,fontWeight: pw.FontWeight.bold)),
-                  pw.SizedBox(height: 5),
-                  pw.Text("Invoice# ${orderSnapshot!["orderId"]}"),
-                  pw.SizedBox(height: 5),
-                  OrderDetails(orderSnapshot!["shopDetails"], "Shop Details"),
-                  OrderDetails(orderSnapshot!["dateTime"],  "Order Date"),
-                  OrderDetails(orderSnapshot!["remarks"], "Remarks"),
-                  OrderDetails(orderSnapshot!["remarks"], "Remarks"),
-                  OrderDetails(orderBookerName, "Order By"),
-                  OrderDetails(deliveryManName, "Deliver By"),
-                pw.Row(
-                    children: [
-                      pw.Expanded(
-                        flex: 2,
-                        child: pw.Text("Product Description"),
-                      ),
-                      pw.Expanded(
-                        flex: 1,
-                        child: pw.Text("Quantity"),
-                      ),
-                      pw.Expanded(
-                        flex: 1,
-                        child: pw.Text("Price"),
-                      ),
-                      pw.Expanded(
-                        flex: 1,
-                        child: pw.Text("Total Amount"),
-                      ),
-                    ]
-                ),
-                  pw.Expanded(
-                    child: pw.ListView.builder(
-                        itemCount: OrderModel.products.length,
-                        itemBuilder: (context,index){
-                          if(OrderModel.products.isEmpty){
-                            return pw.Center(child: pw.Text("Cart is Empty"),);
-                          }else {
-                            return pw.Row(
-                                children: [
-                                  pw.Expanded(
-                                    flex: 2,
-                                    child: pw.Text("${OrderModel
-                                        .products[index]["productName"]}-${OrderModel
-                                        .products[index]["description"]}"),
-                                  ),
-                                  pw.Expanded(
-                                    flex: 1,
-                                    child: pw.Text("${OrderModel
-                                        .products[index]["totalQuantity"]}"),
-                                  ),
-                                  pw.Expanded(
-                                    flex: 1,
-                                    child: pw.Text("${OrderModel
-                                        .products[index]["minPrice"]}"),
-                                  ),
-                                  pw.Expanded(
-                                    flex: 1,
-                                    child: pw.Text("${OrderModel
-                                        .products[index]["totalPrice"]}"),
-                                  ),
-                                ]
-                            );
-                          }
-                        }
-                    ),
-                  ),
-                  OrderDetails(orderSnapshot!["totalAmount"].toString(),"Total Amount"),
-                  OrderDetails(orderSnapshot!["advanceAmount"].toString(), "Receive Amount"),
-                  OrderDetails(orderSnapshot!["concessionAmount"].toString(), "Concession Amount"),
-                  OrderDetails(orderSnapshot!["balanceAmount"].toString(), "Balance Amount"),
-                ]
-              )
-            );
-        }
-    ));
-
-    final file = File("${orderSnapshot!["orderId"]}.pdf");
-    await file.writeAsBytes(await pdf.save());
-  }
-  pw.Widget OrderDetails(String value,String label){
-    return  pw.Padding(
-      padding: pw.EdgeInsets.all(5),
-      child: pw.Row(
-        children: [
-          pw.Expanded(
-              flex: 1,
-              child: pw.Text(label,style: pw.TextStyle(fontWeight: pw.FontWeight.bold),)
-          ),
-          pw.Expanded(
-              flex: 3,
-              child: pw.Text(value)
-          ),
-        ],
-      ),
-    );
-  }*/
 }

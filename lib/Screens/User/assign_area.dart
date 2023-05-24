@@ -29,7 +29,7 @@ class _AssignAreaState extends State<AssignArea> {
       setState(() {
         area=value;
       });
-    }).onError((error, stackTrace) => Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+    }).onError((error, stackTrace) => Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),))));
   }
 
   @override

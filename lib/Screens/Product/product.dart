@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Models/company_model.dart';
@@ -20,6 +21,7 @@ class Product extends StatefulWidget {
 
 class _ProductState extends State<Product> {
   Stream? products;
+  TextEditingController searchController=TextEditingController();
 
   @override
   void initState() {
@@ -38,68 +40,95 @@ class _ProductState extends State<Product> {
     return Scaffold(
       floatingActionButton: widget.userModel.rights.contains(Rights.all)||widget.userModel.rights.contains(Rights.addProduct)
           ?FloatingActionButton.extended(
+        heroTag: "addProduct",
             onPressed: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>AddProduct(userModel: widget.userModel, companyModel: widget.companyModel)));
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>AddProduct(userModel: widget.userModel, companyModel: widget.companyModel, key: Key("addProduct"),)));
             },
             label: Text("Product"),
         icon: Icon(Icons.add),
       )
           :const SizedBox(),
-      body: StreamBuilder(
-            stream: products,
-            builder: (context,AsyncSnapshot snapshot){
-              if(snapshot.connectionState==ConnectionState.waiting){
-                return const Center(child: CircularProgressIndicator(),);
-              }
-              if(snapshot.hasError){
-                return const Center(child: Text("error"),);
-              }
-              if(!snapshot.hasData){
-                return const Center(child: Text("No Data Found"),);
-              }else {
-                return ListView.builder(
-                    itemCount: snapshot.data.docs.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        onTap: () {
-                          if (widget.userModel.rights.contains(
-                              Rights.editProduct) ||
-                              widget.userModel.rights.contains(Rights.all)) {
-                            Navigator.push(context, MaterialPageRoute(builder: (
-                                context) =>
-                                EditProduct(productId: snapshot.data
-                                    .docs[index]["productId"],
-                                  userModel: widget.userModel,
-                                  companyModel: widget.companyModel,)));
-                          }
-                        },
-                        leading: snapshot.data.docs[index]["imageUrl"]
-                            .toString()
-                            .isEmpty
-                            ? Icon(Icons.image)
-                            : CircleAvatar(
-                          backgroundImage: NetworkImage(
-                              snapshot.data.docs[index]["imageUrl"]),
-                        ),
-                        title: Text("${snapshot.data
-                            .docs[index]["productName"]}-${snapshot.data
-                            .docs[index]["description"]}"),
-                        subtitle: Text("Price: ${snapshot.data
-                            .docs[index]["totalPrice"]} Rs."),
-                        trailing: widget.userModel.rights.contains(
-                            Rights.deleteProduct)
-                            ? InkWell(
-                            onTap: () {
-                              showWarning(snapshot.data
-                                  .docs[index]["productId"]);
-                            },
-                            child: const Icon(Icons.delete, color: Colors.red,))
-                            : const SizedBox(height: 0,),
-                      );
+      body: Column(
+        children: [
+           Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "Search by product name",
+                  ),
+                  onChanged: (val){
+                    setState(() {
+                      searchController.text=val;
                     });
+                  },
+                )
+            ),
+          Expanded(
+              child: StreamBuilder(
+              stream: products,
+              builder: (context,AsyncSnapshot snapshot){
+                if(snapshot.connectionState==ConnectionState.waiting){
+                  return const Center(child: CircularProgressIndicator(),);
+                }
+                if(snapshot.hasError){
+                  return const Center(child: Text("error"),);
+                }
+                if(!snapshot.hasData){
+                  return const Center(child: Text("No Data Found"),);
+                }else {
+                  return ListView.builder(
+                      itemCount: snapshot.data.docs.length,
+                      itemBuilder: (context, index) {
+                        if(searchController.text.isEmpty){
+                          return listTile(snapshot.data.docs[index]);
+                        }else{
+                          if("${snapshot.data
+                              .docs[index]["productName"]}-${snapshot.data
+                              .docs[index]["description"]}".toString().trim().toLowerCase().contains(searchController.text.trim().toLowerCase())){
+                            return listTile(snapshot.data.docs[index]);
+                          }else{
+                            return const SizedBox();
+                          }
+                        }
+                      });
+                }
               }
-            }
+          ))
+        ],
       ),
+    );
+  }
+  Widget listTile(DocumentSnapshot snapshot){
+    return ListTile(
+      onTap: () {
+        if (widget.userModel.rights.contains(
+            Rights.editProduct) ||
+            widget.userModel.rights.contains(Rights.all)) {
+          Navigator.push(context, MaterialPageRoute(builder: (
+              context) =>
+              EditProduct(productId: snapshot["productId"],
+                userModel: widget.userModel,
+                companyModel: widget.companyModel,key: Key("editProduct"),)));
+        }
+      },
+      leading: snapshot["imageUrl"]
+          .toString()
+          .isEmpty
+          ? Icon(Icons.image)
+          :  CircleAvatar(
+        backgroundImage: NetworkImage(
+              snapshot["imageUrl"]),
+      ),
+      title: Text("${snapshot["productName"]}-${snapshot["description"]}"),
+      subtitle: Text("Price: ${snapshot["totalPrice"]} Rs."),
+      trailing: widget.userModel.rights.contains(
+          Rights.deleteProduct) || widget.userModel.rights.contains(Rights.all)
+          ? InkWell(
+          onTap: () {
+            showWarning(snapshot["productId"]);
+          },
+          child: const Icon(Icons.delete, color: Colors.red,))
+          : const SizedBox(height: 0,),
     );
   }
   showWarning(String productId){
@@ -134,7 +163,7 @@ class _ProductState extends State<Product> {
         showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(), key: Key("errorScreen"),)));
     });
   }
 }

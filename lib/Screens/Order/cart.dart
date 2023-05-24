@@ -201,7 +201,7 @@ class _CartState extends State<Cart> {
       }
     }).onError((error, stackTrace) {
       Navigator.push(context, MaterialPageRoute(
-          builder: (context) => ErrorScreen(error: error.toString())));
+          builder: (context) => ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
 }

@@ -32,7 +32,7 @@ class _EditUserIdState extends State<EditUserId> {
       setState(() {
         users=value;
       });
-    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),))));
   }
   @override
   Widget build(BuildContext context) {
@@ -88,6 +88,6 @@ class _EditUserIdState extends State<EditUserId> {
     }).then((value) {
       showSnackbar(context, Colors.green.shade300, "Order Dispatch");
       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>Order(userModel: widget.userModel, companyModel: widget.companyModel)), (route) => false);
-    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
+    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),))));
   }
 }

@@ -50,7 +50,7 @@ class _DeliverFormState extends State<DeliverForm> {
         OrderModel.products=List.from(value["products"]);
         OrderModel.totalAmount=value["totalAmount"];
       });
-    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),))));
+    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),))));
   }
 
 
@@ -174,7 +174,7 @@ class _DeliverFormState extends State<DeliverForm> {
         showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Screens/Report/product_report.dart';
@@ -15,6 +16,7 @@ class DisplayProduct extends StatefulWidget {
 
 class _DisplayProductState extends State<DisplayProduct> {
   Stream? products;
+  TextEditingController searchController=TextEditingController();
 
   @override
   void initState() {
@@ -41,39 +43,67 @@ class _DisplayProductState extends State<DisplayProduct> {
         title: const Text("Products",style: TextStyle(color: Colors.white),),
         centerTitle: true,
       ),
-      body:  StreamBuilder(
-          stream: products,
-          builder: (context,AsyncSnapshot snapshot){
-            if(snapshot.connectionState==ConnectionState.waiting){
-              return const Center(child: CircularProgressIndicator(),);
-            }
-            if(snapshot.hasError){
-              return const Center(child: Text("error"),);
-            }
-            if(!snapshot.hasData){
-              return const Center(child: Text("No Data Found"),);
-            }else{
-              return ListView.builder(
-                  itemCount: snapshot.data.docs.length,
-                  itemBuilder: (context,index){
-                    if(snapshot.data.docs[index]["isDeleted"]==true){
-                      return const SizedBox(height: 0,);
-                    }else{
-                      return ListTile(
-                        onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductReport(companyModel: widget.companyModel, productId: snapshot.data.docs[index]["productId"])));
-                        },
-                        leading:  snapshot.data.docs[index]["imageUrl"].toString().isEmpty
-                            ?Icon(Icons.image)
-                            :CircleAvatar(
-                          backgroundImage: NetworkImage(snapshot.data.docs[index]["imageUrl"]),
-                        ),
-                        title: Text(snapshot.data.docs[index]["productName"]),
-                        subtitle: Text("${snapshot.data.docs[index]["description"]}"),
-                      );
-                    }
+      body: Column(
+        children: [
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: "Search here",
+                ),
+                onChanged: (val){
+                  setState(() {
+                    searchController.text=val;
                   });
-            }}),
+                },
+              )
+          ),
+          Expanded(
+            child: StreamBuilder(
+              stream: products,
+              builder: (context,AsyncSnapshot snapshot){
+                if(snapshot.connectionState==ConnectionState.waiting){
+                  return const Center(child: CircularProgressIndicator(),);
+                }
+                if(snapshot.hasError){
+                  return const Center(child: Text("error"),);
+                }
+                if(!snapshot.hasData){
+                  return const Center(child: Text("No Data Found"),);
+                }else{
+                  return ListView.builder(
+                      itemCount: snapshot.data.docs.length,
+                      itemBuilder: (context,index){
+                        if(searchController.text.isEmpty){
+                          return listTile(snapshot.data.docs[index]);
+                        }else{
+                          if("${snapshot.data
+                              .docs[index]["productName"]}-${snapshot.data
+                              .docs[index]["description"]}".toString().trim().toLowerCase().contains(searchController.text.trim().toLowerCase())){
+                            return listTile(snapshot.data.docs[index]);
+                          }else{
+                            return const SizedBox();
+                          }
+                        }
+                      });
+                }}),
+          )
+        ],
+      )
+    );
+  }
+  Widget listTile(DocumentSnapshot snapshot){
+    return ListTile(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductReport(companyModel: widget.companyModel, productId: snapshot["productId"],key: Key("productReport"),)));
+      },
+      leading:  snapshot["imageUrl"].toString().isEmpty
+          ?Icon(Icons.image)
+          :CircleAvatar(
+        backgroundImage: NetworkImage(snapshot["imageUrl"]),
+      ),
+      title: Text(snapshot["productName"]),
+      subtitle: Text("${snapshot["description"]}"),
     );
   }
 }

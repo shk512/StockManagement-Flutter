@@ -103,7 +103,7 @@ class _AddShopState extends State<AddShop> {
           Navigator.pop(context);
           showSnackbar(context, Colors.green.shade300, "Saved");
     }).onError((error, stackTrace){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
 }

@@ -13,21 +13,21 @@ updateUserData(BuildContext context,UserModel _userModel) async{
     showSnackbar(context, Colors.green.shade300, "Updated");
   }).onError((error, stackTrace) {
     Navigator.push(context, MaterialPageRoute(
-        builder: (context) => ErrorScreen(error: error.toString())));
+        builder: (context) => ErrorScreen(error: error.toString(),key: Key("errorScreen"))));
   });
 }
 
 Future updateCompanyData(BuildContext context,CompanyModel _companyModel)async{
   await CompanyDb(id: _companyModel.companyId).updateCompany(_companyModel.toJson()).onError((error, stackTrace) {
     Navigator.push(context, MaterialPageRoute(
-        builder: (context) => ErrorScreen(error: error.toString())));
+        builder: (context) => ErrorScreen(error: error.toString(),key: Key("errorScreen"))));
   });
 }
 
 Future updateOrderDetails(BuildContext context, Map<String, dynamic> mapData, String companyId, String orderId)async{
   await OrderDB(companyId: companyId, orderId: orderId).updateOrder(mapData).onError((error, stackTrace){
     Navigator.push(context, MaterialPageRoute(
-        builder: (context) => ErrorScreen(error: error.toString())));
+        builder: (context) => ErrorScreen(error: error.toString(),key: Key("errorScreen"))));
   });
 }
 

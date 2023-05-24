@@ -16,7 +16,8 @@ Future uploadImage() async {
 
   if (permissionStatus.isGranted){
     //Select Image
-    image = await _imagePicker.pickImage(source: ImageSource.gallery);
+    image = await _imagePicker.pickImage(
+        source: ImageSource.gallery);
     var file = File(image.path);
 
     if (image != null){

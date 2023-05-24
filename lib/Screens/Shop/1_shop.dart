@@ -25,6 +25,7 @@ class Shop extends StatefulWidget {
 
 class _ShopState extends State<Shop> {
   Stream? shops;
+  TextEditingController searchController=TextEditingController();
 
   @override
   void initState() {
@@ -39,32 +40,70 @@ class _ShopState extends State<Shop> {
   }
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-              stream: shops,
-              builder: (context,AsyncSnapshot snapshot){
-                if(snapshot.connectionState==ConnectionState.waiting){
-                  return const Center(child: CircularProgressIndicator(),);
-                }
-                if(snapshot.hasError){
-                  return const Center(child: Text("error"),);
-                }
-                if(!snapshot.hasData){
-                  return const Center(child: Text("No Data Found"),);
-                }else{
-                  return ListView.builder(
-                      itemCount: snapshot.data.docs.length,
-                      itemBuilder: (context,index) {
-                        return listTile(snapshot.data.docs[index]);
-                      });
-                }
+    return Column(
+      children: [
+        Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: "Search by shop name",
+              ),
+              onChanged: (val){
+                setState(() {
+                  searchController.text=val;
+                });
               },
+            )
+        ),
+        Expanded(
+            child: StreamBuilder(
+          stream: shops,
+          builder: (context,AsyncSnapshot snapshot){
+            if(snapshot.connectionState==ConnectionState.waiting){
+              return const Center(child: CircularProgressIndicator(),);
+            }
+            if(snapshot.hasError){
+              return const Center(child: Text("error"),);
+            }
+            if(!snapshot.hasData){
+              return const Center(child: Text("No Data Found"),);
+            }else{
+              return ListView.builder(
+                  itemCount: snapshot.data.docs.length,
+                  itemBuilder: (context,index) {
+                    if(searchController.text.isEmpty){
+                      if(widget.userModel.role=="COMPANY"){
+                        return listTile(snapshot.data.docs[index]);
+                      }else if(widget.userModel.area.contains(snapshot.data.docs[index]["areaId"])){
+                        return listTile(snapshot.data.docs[index]);
+                      }else{
+                        return const SizedBox();
+                      }
+                    }else{
+                      if(snapshot.data.docs[index]["shopName"].toString().trim().toLowerCase().contains(searchController.text.trim().toLowerCase())){
+                        if(widget.userModel.role=="COMPANY"){
+                          return listTile(snapshot.data.docs[index]);
+                        }else if(widget.userModel.area.contains(snapshot.data.docs[index]["areaId"])){
+                          return listTile(snapshot.data.docs[index]);
+                        }else{
+                          return const SizedBox();
+                        }
+                      }else{
+                        return const SizedBox();
+                      }
+                    }
+                  });
+            }
+          },
+        ))
+      ],
     );
   }
   listTile(DocumentSnapshot snapshot){
     return ListTile(
       onTap: (){
         if(widget.userModel.rights.contains(Rights.editShop)||widget.userModel.rights.contains(Rights.all)){
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>EditShop(shopId: snapshot["shopId"], userModel: widget.userModel, companyModel: widget.companyModel,)));
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>EditShop(shopId: snapshot["shopId"], userModel: widget.userModel, companyModel: widget.companyModel,key: Key("editShop"),)));
         }
       },
       leading: IconButton(
@@ -117,7 +156,7 @@ class _ShopState extends State<Shop> {
         showSnackbar(context, Colors.red.shade400, "Error");
       }
     }).onError((error, stackTrace){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
   showTransactionDialogue(String shopId,String shopName){
@@ -210,11 +249,11 @@ class _ShopState extends State<Shop> {
 
           });
         }).onError((error, stackTrace){
-          Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+          Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
         });
       }
     }).onError((error, stackTrace) {
-      Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString())));
+      Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
 }

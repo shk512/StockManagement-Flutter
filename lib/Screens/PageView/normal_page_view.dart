@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
+import 'package:stock_management/Screens/Product/add_product.dart';
+import 'package:stock_management/Screens/Product/product.dart';
 
 import '../../Constants/rights.dart';
 import '../../Functions/sign_out.dart';
@@ -31,7 +33,7 @@ class _NormalPageViewState extends State<NormalPageView> {
             leading: InkWell(
                 onTap: (){
                   if(widget.userModel.rights.contains(Rights.viewCompany)||widget.userModel.rights.contains(Rights.all)){
-                    Navigator.push(context,MaterialPageRoute(builder: (context)=>CompanyDetails(userModel: widget.userModel,companyModel: widget.companyModel,)));
+                    Navigator.push(context,MaterialPageRoute(builder: (context)=>CompanyDetails(userModel: widget.userModel,companyModel: widget.companyModel,key: Key("companyDetails"),)));
                   }
                 },
                 child: widget.companyModel.imageUrl.isNotEmpty
@@ -47,26 +49,26 @@ class _NormalPageViewState extends State<NormalPageView> {
                   color: Colors.white,
                   onSelected: (value){
                     if(value==0){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewUser(userId: widget.userModel.userId, userModel: widget.userModel, companyModel: widget.companyModel)));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ViewUser(userId: widget.userModel.userId, userModel: widget.userModel, companyModel: widget.companyModel,key: Key("viewUser"),)));
                     }
                     if(value==1){
                       if(widget.userModel.rights.contains(Rights.all)||widget.userModel.rights.contains(Rights.viewCompany)){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Area(companyModel: widget.companyModel, userModel: widget.userModel,)));
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Area(companyModel: widget.companyModel, userModel: widget.userModel,key: Key("area"),)));
                       }
                     }
                     if(value==2){
                       if(widget.userModel.rights.contains(Rights.all)||widget.userModel.rights.contains(Rights.viewReport)){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>DisplayProduct(companyModel: widget.companyModel)));
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>DisplayProduct(companyModel: widget.companyModel,key: Key("displayProduct"),)));
                       }
                     }
                     if(value==3){
                       if(widget.userModel.rights.contains(Rights.all)||widget.userModel.rights.contains(Rights.viewTransactions)){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Accounts(companyModel: widget.companyModel, userModel: widget.userModel)));
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Accounts(companyModel: widget.companyModel, userModel: widget.userModel,key: Key("accounts"),)));
                       }
                     }
                     if(value==4){
                       if(widget.userModel.rights.contains(Rights.all)||widget.userModel.rights.contains(Rights.viewUser)){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Employee(companyModel: widget.companyModel, userModel: widget.userModel)));
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Employee(companyModel: widget.companyModel, userModel: widget.userModel,key: Key("employee"),)));
                       }
                     }
                     if(value==5){

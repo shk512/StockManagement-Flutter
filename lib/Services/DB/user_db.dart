@@ -9,7 +9,7 @@ class UserDb{
 
   //Get ALl users
   Future getAllUser(String companyId)async{
-    return userCollection.where("companyId", isEqualTo: companyId).snapshots();
+    return userCollection.where("companyId", isEqualTo: companyId).where("isDeleted", isEqualTo: false).snapshots();
   }
 
   //get UserData

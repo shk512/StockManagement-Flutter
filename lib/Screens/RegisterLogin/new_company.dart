@@ -66,7 +66,7 @@ class _NewCompanyState extends State<NewCompany> {
           setState(() {
             isLoading=false;
           });
-         Navigator.push(context, MaterialPageRoute(builder: (context)=>Signup(companyId: license.text)));
+         Navigator.push(context, MaterialPageRoute(builder: (context)=>Signup(companyId: license.text,key: Key("signup"),)));
         }else{
           setState(() {
             isLoading=false;
