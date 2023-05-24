@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
@@ -112,14 +111,14 @@ class _ViewUserState extends State<ViewUser> {
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>EditUser(userId: widget.userId,userModel: widget.userModel,)));
               }, icon: const Icon(Icons.edit,color: Colors.white,))
               :const SizedBox(),
-          widget.userId==FirebaseAuth.instance.currentUser!.uid
+          widget.userId==widget.userModel.userId
               ? IconButton(
               onPressed: (){
                 showPasswordChangeDialogue();
               },
               icon: Icon(Icons.lock_reset,color: Colors.white,))
               :const SizedBox(),
-          widget.userId==FirebaseAuth.instance.currentUser!.uid
+          widget.userId==widget.userModel.userId
               ? IconButton(
               onPressed: (){
                 showDeleteDialogue();
@@ -152,7 +151,7 @@ class _ViewUserState extends State<ViewUser> {
                             ? Expanded(
                               child :IconButton(
                                 onPressed: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>AssignArea(userModel: widget.userModel, companyModel: widget.companyModel,)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>AssignArea(userId: widget.userId, companyModel: widget.companyModel, userName: '${snapshot!["name"]}', userModel: widget.userModel,)));
                               },
                               icon: const Icon(Icons.add,color: Colors.brown,) ,
                               ),
@@ -161,7 +160,7 @@ class _ViewUserState extends State<ViewUser> {
                               ? Expanded(
                             child :IconButton(
                               onPressed: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>RemoveArea(userModel: widget.userModel, companyModel: widget.companyModel,)));
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>RemoveArea(userId: widget.userId, companyModel: widget.companyModel,userName: '${snapshot!["name"]}', userModel: widget.userModel,)));
                               },
                               icon: const Icon(Icons.remove,color: Colors.brown,) ,
                             ),

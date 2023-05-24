@@ -1,16 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stock_management/Functions/update_data.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/area_db.dart';
+import 'package:stock_management/Services/DB/user_db.dart';
+import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Models/company_model.dart';
 import '../../Models/user_model.dart';
 
 class AssignArea extends StatefulWidget {
-  final UserModel userModel;
+  final String userId;
+  final String userName;
   final CompanyModel companyModel;
-  const AssignArea({Key? key,required this.userModel, required this.companyModel}) : super(key: key);
+  final UserModel userModel;
+  const AssignArea({Key? key,required this.userModel,required this.userName,required this.userId, required this.companyModel}) : super(key: key);
 
   @override
   State<AssignArea> createState() => _AssignAreaState();
@@ -40,7 +43,7 @@ class _AssignAreaState extends State<AssignArea> {
             onPressed: (){
               Navigator.pop(context);
             }, icon: Icon(CupertinoIcons.back,color: Colors.white,)),
-        title: Text("${widget.userModel.name}", style: const TextStyle(fontWeight: FontWeight.bold),),
+        title: Text("${widget.userName}", style: const TextStyle(fontWeight: FontWeight.bold),),
       ),
       body: StreamBuilder(
         stream: area,
@@ -61,8 +64,7 @@ class _AssignAreaState extends State<AssignArea> {
                   if(!widget.userModel.area.contains(snapshot.data.docs[index]["areaId"])){
                     return ListTile(
                       onTap: (){
-                        widget.userModel.area.add(snapshot.data.docs[index]["areaId"]);
-                        updateUserData(context, widget.userModel);
+                        updateArea(snapshot.data.docs[index]["areaId"]);
                         Navigator.pop(context);
                       },
                       title: Text("${snapshot.data.docs[index]["areaName"]}"),
@@ -75,5 +77,14 @@ class _AssignAreaState extends State<AssignArea> {
         },
       ),
     );
+  }
+  updateArea(String areaId)async{
+    await UserDb(id: widget.userId).updateAreaList(areaId).then((value){
+      if(value==true){
+        showSnackbar(context,Colors.green.shade300, "Added");
+      }else{
+        showSnackbar(context, Colors.red.shade400, "Already exist");
+      }
+    });
   }
 }

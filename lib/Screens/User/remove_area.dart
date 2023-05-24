@@ -4,13 +4,16 @@ import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Services/DB/area_db.dart';
 
-import '../../Functions/update_data.dart';
 import '../../Models/company_model.dart';
+import '../../Services/DB/user_db.dart';
+import '../../utils/snack_bar.dart';
 
 class RemoveArea extends StatefulWidget {
   final CompanyModel companyModel;
   final UserModel userModel;
-  const RemoveArea({Key? key, required this.userModel, required this.companyModel}) : super(key: key);
+  final String userId;
+  final String userName;
+  const RemoveArea({Key? key,required this.userName, required this.userModel, required this.userId, required this.companyModel}) : super(key: key);
 
   @override
   State<RemoveArea> createState() => _RemoveAreaState();
@@ -39,7 +42,7 @@ class _RemoveAreaState extends State<RemoveArea> {
             onPressed: (){
               Navigator.pop(context);
             }, icon: Icon(CupertinoIcons.back,color: Colors.white,)),
-        title: Text("${widget.userModel.name}", style: const TextStyle(fontWeight: FontWeight.bold),),
+        title: Text("${widget.userName}", style: const TextStyle(fontWeight: FontWeight.bold),),
       ),
       body: StreamBuilder(
         stream: area,
@@ -60,8 +63,7 @@ class _RemoveAreaState extends State<RemoveArea> {
                   if(widget.userModel.area.contains(snapshot.data.docs[index]["areaId"])){
                     return ListTile(
                       onTap: (){
-                        widget.userModel.area.remove(snapshot.data.docs[index]["areaId"]);
-                        updateUserData(context, widget.userModel);
+                        updateArea(snapshot.data.docs[index]["areaId"]);
                         Navigator.pop(context);
                       },
                       title: Text("${snapshot.data.docs[index]["areaName"]}"),
@@ -74,5 +76,14 @@ class _RemoveAreaState extends State<RemoveArea> {
         },
       ),
     );
+  }
+  updateArea(String areaId)async{
+    await UserDb(id: widget.userId).deleteUserArea(areaId).then((value){
+      if(value==true){
+        showSnackbar(context,Colors.green.shade300, "Remove");
+      }else{
+        showSnackbar(context, Colors.red.shade400, "Doesn't exist");
+      }
+    });
   }
 }
