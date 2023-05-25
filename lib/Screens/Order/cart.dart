@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:stock_management/Functions/location.dart';
 import 'package:stock_management/Models/account_model.dart';
@@ -24,7 +24,8 @@ class Cart extends StatefulWidget {
   final String shopDetails;
   final CompanyModel companyModel;
   final UserModel userModel;
-  const Cart({Key? key,required this.shopDetails,required this.shopId,required this.userModel,required this.companyModel}) : super(key: key);
+  final OrderModel orderModel;
+  const Cart({Key? key,required this.orderModel, required this.shopDetails,required this.shopId,required this.userModel,required this.companyModel}) : super(key: key);
 
   @override
   State<Cart> createState() => _CartState();
@@ -52,7 +53,7 @@ class _CartState extends State<Cart> {
         elevation: 0,
         leading:IconButton(
           onPressed: (){
-            Navigator.pop(context);
+            Navigator.pop(context, widget.orderModel);
           },
           icon: const Icon(CupertinoIcons.back,color: Colors.white,),
         ),
@@ -76,22 +77,22 @@ class _CartState extends State<Cart> {
             Expanded(
               flex: 3,
               child: ListView.builder(
-                itemCount: OrderModel.products.length,
+                itemCount: widget.orderModel.products.length,
                 itemBuilder: (context,index){
-                  if(OrderModel.products.isEmpty){
+                  if(widget.orderModel.products.isEmpty){
                     return const Center(child: Text("Cart is Empty"),);
                   }else{
                     return ListTile(
-                      title: Text("${OrderModel.products[index]["productName"]}-${OrderModel.products[index]["description"]}"),
-                      subtitle: Text("Detail: ${OrderModel.products[index]["totalQuantity"]}x${OrderModel.products[index]["minPrice"]}=${OrderModel.products[index]["totalPrice"]}"),
+                      title: Text("${widget.orderModel.products[index]["productName"]}-${widget.orderModel.products[index]["description"]}"),
+                      subtitle: Text("Detail: ${widget.orderModel.products[index]["totalQuantity"]}x${widget.orderModel.products[index]["minPrice"]}=${widget.orderModel.products[index]["totalPrice"]}"),
                       trailing: IconButton(
                           onPressed: ()async{
-                            await ProductDb(companyId: widget.companyModel.companyId, productId: OrderModel.products[index]["productId"]).increment(OrderModel.products[index]["totalQuantity"]).then((value)async{
+                            await ProductDb(companyId: widget.companyModel.companyId, productId: widget.orderModel.products[index]["productId"]).increment(widget.orderModel.products[index]["totalQuantity"]).then((value)async{
                               String formattedDate=DateFormat("yyyy-MM-dd").format(DateTime.now());
-                              await ReportDb(companyId: widget.companyModel.companyId, productId: OrderModel.products[index]["productId"]).decrement(OrderModel.products[index]["totalQuantity"], formattedDate).then((value){
+                              await ReportDb(companyId: widget.companyModel.companyId, productId: widget.orderModel.products[index]["productId"]).decrement(widget.orderModel.products[index]["totalQuantity"], formattedDate).then((value){
                                 setState(() {
-                                  OrderModel.totalAmount=OrderModel.totalAmount-OrderModel.products[index]["totalPrice"];
-                                  OrderModel.products.removeAt(index);
+                                  widget.orderModel.totalAmount=widget.orderModel.totalAmount-widget.orderModel.products[index]["totalPrice"];
+                                  widget.orderModel.products.removeAt(index);
                                 });
                                 showSnackbar(context, Colors.green.shade300, "Removed");
                               });
@@ -132,11 +133,11 @@ class _CartState extends State<Cart> {
                               labelText: "Advance amount (if-any)",
                             ),
                             onChanged: (val){
-                              advanceAmount=int.parse(val);
+                              advanceAmount=val.isEmpty?0:int.parse(val);
                             },
                           ),
                       const SizedBox(height: 10,),
-                      Text("Total Amount: ${OrderModel.totalAmount}",style: const TextStyle(fontWeight: FontWeight.w900),)
+                      Text("Total Amount: ${widget.orderModel.totalAmount}",style: const TextStyle(fontWeight: FontWeight.w900),)
                     ],
                   ),
                   ),
@@ -146,32 +147,26 @@ class _CartState extends State<Cart> {
     );
   }
   placeOrder() async {
-    String orderId = DateTime
+    widget.orderModel.orderId = DateTime
         .now()
         .microsecondsSinceEpoch
         .toString();
-    await OrderDB(companyId: widget.companyModel.companyId, orderId: orderId)
-        .saveOrder(OrderModel.toJson(
-        orderId: orderId,
-        userId: widget.userModel.userId,
-        shopId: widget.shopId,
-        shopDetails: widget.shopDetails,
-        status: "Processing".toUpperCase(),
-        remarks: remarks,
-        desc: "",
-        dateTime: DateTime.now().toString(),
-        products: OrderModel.products,
-        totalAmount: OrderModel.totalAmount,
-        advanceAmount: advanceAmount,
-        concessionAmount: 0,
-        balanceAmount: OrderModel.totalAmount - advanceAmount,
-        location: LatLng(lat, lng),
-        deliverId: ''
-    )
+    widget.orderModel.orderBy=widget.userModel.userId;
+    widget.orderModel.shopId=widget.shopId;
+    widget.orderModel.shopDetails=widget.shopDetails;
+    widget.orderModel.status="Processing".toUpperCase();
+    widget.orderModel.remarks=remarks;
+    widget.orderModel.dateTime=DateTime.now().toString();
+    widget.orderModel.advanceAmount=advanceAmount;
+    widget.orderModel.balanceAmount=widget.orderModel.totalAmount-advanceAmount;
+    widget.orderModel.location=GeoPoint(lat, lng);
+    await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderModel.orderId)
+        .saveOrder(
+        widget.orderModel.toJson()
     ).then((value)async {
       if (value == true) {
         await UserDb(id: widget.userModel.userId).updateWalletBalance(advanceAmount).then((value) async{
-          await ShopDB(companyId: widget.companyModel.companyId, shopId: widget.shopId).updateWallet(OrderModel.totalAmount-advanceAmount).then((value)async{
+          await ShopDB(companyId: widget.companyModel.companyId, shopId: widget.shopId).updateWallet(widget.orderModel.totalAmount-advanceAmount).then((value)async{
             if(advanceAmount!=0){
               String tId=DateTime.now().microsecondsSinceEpoch.toString();
               await AccountDb(companyId: widget.companyModel.companyId, transactionId: tId).saveTransaction(
@@ -187,10 +182,6 @@ class _CartState extends State<Cart> {
               Navigator.pop(context);
               Navigator.pop(context);
               showSnackbar(context, Colors.green.shade300, "Order has been placed");
-              setState(() {
-                OrderModel.products=[];
-                OrderModel.totalAmount=0;
-              });
             });
             });
       } else {

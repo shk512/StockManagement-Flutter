@@ -44,7 +44,7 @@ class _OrderState extends State<Order> {
               padding: EdgeInsets.symmetric(horizontal: 10),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: "Search by invoice# or shop name",
+                  hintText: "Search by invoice# or shop name or date",
                 ),
                 onChanged: (val){
                   setState(() {

@@ -7,6 +7,7 @@ import 'package:stock_management/Services/DB/shop_db.dart';
 
 import '../../Constants/narration.dart';
 import '../../Constants/rights.dart';
+import '../../Functions/update_data.dart';
 import '../../Models/account_model.dart';
 import '../../Services/DB/account_db.dart';
 import '../../Widgets/num_field.dart';
@@ -250,7 +251,8 @@ class _InActiveShopState extends State<InActiveShop> {
         await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).updateWallet(-amount).then((value){
           showSnackbar(context, Colors.green.shade300, "Saved");
           setState(() {
-
+            widget.userModel.wallet=widget.userModel.wallet+amount;
+            updateUserData(context, widget.userModel);
           });
         }).onError((error, stackTrace){
           Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));

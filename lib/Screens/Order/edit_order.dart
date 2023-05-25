@@ -14,34 +14,20 @@ import '../../utils/snack_bar.dart';
 import '../Splash_Error/error.dart';
 
 class EditOrder extends StatefulWidget {
-  final String orderId;
+  final OrderModel orderModel;
   final CompanyModel companyModel;
-  const EditOrder({Key? key,required this.orderId,required this.companyModel}) : super(key: key);
+  const EditOrder({Key? key,required this.orderModel,required this.companyModel}) : super(key: key);
 
   @override
   State<EditOrder> createState() => _EditOrderState();
 }
 
 class _EditOrderState extends State<EditOrder> {
-  DocumentSnapshot? snapshot;
   bool isLoading=false;
-  num balanceAmount=0;
-
-  getOrderData()async{
-    await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderId).getOrderById().then((value) {
-      setState(() {
-        snapshot = value;
-        OrderModel.products=List.from(value["products"]);
-        OrderModel.totalAmount=value["totalAmount"];
-        balanceAmount=value["balanceAmount"];
-      });
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    getOrderData();
   }
 
   @override
@@ -59,7 +45,7 @@ class _EditOrderState extends State<EditOrder> {
         actions: [
           IconButton(
               onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderProduct(companyModel: widget.companyModel,shopId: snapshot!["shopId"],)));
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderProduct(companyModel: widget.companyModel,shopId: widget.orderModel.shopId, orderModel: widget.orderModel,)));
               },
               icon: Icon(Icons.add,color: Colors.white,))
         ],
@@ -71,25 +57,25 @@ class _EditOrderState extends State<EditOrder> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator(),)
           :ListView.builder(
-        itemCount: OrderModel.products.length,
+        itemCount: widget.orderModel.products.length,
         itemBuilder: (context,index){
-          if(OrderModel.products==[]){
+          if(widget.orderModel.products.isEmpty){
             return const Center(child: Text("No Products"),);
           }else{
             return ListTile(
-              title: Text("${OrderModel.products[index]["productName"]}-${OrderModel.products[index]["description"]}"),
-              subtitle: Text("Detail: ${OrderModel.products[index]["totalQuantity"]}x${OrderModel.products[index]["minPrice"]}=${OrderModel.products[index]["totalPrice"]}"),
+              title: Text("${widget.orderModel.products[index]["productName"]}-${widget.orderModel.products[index]["description"]}"),
+              subtitle: Text("Detail: ${widget.orderModel.products[index]["totalQuantity"]}x${widget.orderModel.products[index]["minPrice"]}=${widget.orderModel.products[index]["totalPrice"]}"),
               trailing: IconButton(
                   onPressed: ()async{
-                    await ProductDb(companyId: widget.companyModel.companyId, productId: OrderModel.products[index]["productId"]).increment(OrderModel.products[index]["totalQuantity"]).then((value)async{
-                      String formattedDate=DateFormat("yyyy-MM-dd").format(DateTime.parse(snapshot!["dateTime"]));
-                      await ReportDb(companyId: widget.companyModel.companyId, productId: OrderModel.products[index]["productId"]).decrement(OrderModel.products[index]["totalQuantity"], formattedDate).then((value)async{
-                        num amount=OrderModel.totalAmount-OrderModel.products[index]["totalPrice"];
-                        await ShopDB(companyId: widget.companyModel.companyId, shopId: snapshot!["shopId"]).updateWallet(-amount).then((value)async{
+                    await ProductDb(companyId: widget.companyModel.companyId, productId: widget.orderModel.products[index]["productId"]).increment(widget.orderModel.products[index]["totalQuantity"]).then((value)async{
+                      String formattedDate=DateFormat("yyyy-MM-dd").format(DateTime.parse(widget.orderModel.dateTime));
+                      await ReportDb(companyId: widget.companyModel.companyId, productId: widget.orderModel.products[index]["productId"]).decrement(widget.orderModel.products[index]["totalQuantity"], formattedDate).then((value)async{
+                        num amount=widget.orderModel.totalAmount-widget.orderModel.products[index]["totalPrice"];
+                        await ShopDB(companyId: widget.companyModel.companyId, shopId: widget.orderModel.shopId).updateWallet(-amount).then((value)async{
                           setState(() {
-                            OrderModel.totalAmount=OrderModel.totalAmount-OrderModel.products[index]["totalPrice"];
-                            OrderModel.products.removeAt(index);
-                            balanceAmount=OrderModel.totalAmount-snapshot!["advanceAmount"];
+                            widget.orderModel.totalAmount-=widget.orderModel.products[index]["totalPrice"];
+                            widget.orderModel.products.removeAt(index);
+                            widget.orderModel.balanceAmount=widget.orderModel.totalAmount-widget.orderModel.advanceAmount;
                           });
                           showSnackbar(context, Colors.green.shade300, "Removed");
                         });
@@ -104,17 +90,13 @@ class _EditOrderState extends State<EditOrder> {
     );
   }
   updateOrder()async{
-    await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderId).updateOrder({
-      "products":OrderModel.products,
-      "totalAmount":OrderModel.totalAmount,
-      "balanceAmount":balanceAmount
+    await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderModel.orderId).updateOrder({
+      "products":widget.orderModel.products,
+      "totalAmount":widget.orderModel.totalAmount,
+      "balanceAmount":widget.orderModel.balanceAmount
     }).then((value)async {
       if (value == true) {
         showSnackbar(context, Colors.green.shade300, "Updated");
-        setState(() {
-          OrderModel.products=[];
-          OrderModel.totalAmount=0;
-        });
       } else {
         setState(() {
           isLoading=false;

@@ -43,7 +43,7 @@ class _DeliverOrderState extends State<DeliverOrder> {
               padding: EdgeInsets.symmetric(horizontal: 10),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: "Search by invoice# or shop name",
+                  hintText: "Search by invoice# or shop name or date",
                 ),
                 onChanged: (val){
                   setState(() {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stock_management/Models/order_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/utils/snack_bar.dart';
@@ -24,8 +25,8 @@ Future updateCompanyData(BuildContext context,CompanyModel _companyModel)async{
   });
 }
 
-Future updateOrderDetails(BuildContext context, Map<String, dynamic> mapData, String companyId, String orderId)async{
-  await OrderDB(companyId: companyId, orderId: orderId).updateOrder(mapData).onError((error, stackTrace){
+Future updateOrderDetails(BuildContext context, OrderModel orderModel, String companyId)async{
+  await OrderDB(companyId: companyId, orderId: orderModel.orderId).updateOrder(orderModel.toJson()).onError((error, stackTrace){
     Navigator.push(context, MaterialPageRoute(
         builder: (context) => ErrorScreen(error: error.toString(),key: Key("errorScreen"))));
   });

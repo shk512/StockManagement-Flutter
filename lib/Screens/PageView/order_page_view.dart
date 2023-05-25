@@ -54,7 +54,7 @@ class _OrderPageViewState extends State<OrderPageView>{
                         )
                             :Icon(Icons.image)
                     ),
-                    title: Text(widget.companyModel.companyName,style: const TextStyle(fontWeight: FontWeight.w900,color: Colors.white),),
+                    title: Text(widget.companyModel.companyName,style: const TextStyle(fontWeight: FontWeight.w900,color: Colors.white, fontFamily:"Lobster Two",letterSpacing: 2),),
                     actions: [
                       PopupMenuButton(
                           color: Colors.white,

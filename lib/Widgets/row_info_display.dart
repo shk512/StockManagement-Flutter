@@ -15,6 +15,7 @@ class RowInfoDisplay extends StatelessWidget {
               flex: 1,
               child: Text(label,style: const TextStyle(fontWeight: FontWeight.w900),)
           ),
+          const SizedBox(width: 5,),
           Expanded(
               flex: 2,
               child: Text(value)

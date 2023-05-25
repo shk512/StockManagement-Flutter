@@ -31,11 +31,10 @@ class ViewOrder extends StatefulWidget {
 }
 
 class _ViewOrderState extends State<ViewOrder> {
-  DocumentSnapshot? orderSnapshot;
+  OrderModel orderModel=OrderModel();
   DocumentSnapshot? shopSnapshot;
   String orderBookerName = "";
   String deliveryManName = "";
-  GeoPoint orderLocation = GeoPoint(0, 0);
   GeoPoint shopLocation = GeoPoint(0, 0);
   bool isLoading=false;
 
@@ -47,8 +46,6 @@ class _ViewOrderState extends State<ViewOrder> {
   }
   @override
   void dispose(){
-    OrderModel.products=[];
-    OrderModel.totalAmount=0;
     super.dispose();
   }
   getOrderData() async {
@@ -57,10 +54,7 @@ class _ViewOrderState extends State<ViewOrder> {
         .getOrderById()
         .then((value) async {
       setState(() {
-        orderSnapshot = value;
-        OrderModel.products = List.from(value["products"]);
-        OrderModel.totalAmount = value["totalAmount"];
-        orderLocation = value["geoLocation"];
+        orderModel.fromJson(value);
       });
       await ShopDB(
           companyId: widget.companyModel.companyId, shopId: value["shopId"])
@@ -95,7 +89,7 @@ class _ViewOrderState extends State<ViewOrder> {
 
   @override
   Widget build(BuildContext context) {
-    if (orderSnapshot == null || shopSnapshot==null) {
+    if (orderModel.products.isEmpty || shopSnapshot==null) {
       return Scaffold(
         body: const Center(child: CircularProgressIndicator(),),
       );
@@ -116,16 +110,16 @@ class _ViewOrderState extends State<ViewOrder> {
                   setState(() {
                     isLoading=true;
                   });
-                  if(orderSnapshot!=null && shopSnapshot!=null){
+                  if(orderModel.products.isNotEmpty && shopSnapshot!=null){
                     await BuildPdf.generate(
                         companyName: widget.companyModel.companyName,
                         invoiceNo: widget.orderId,
-                        products: OrderModel.products,
-                        totalAmount: orderSnapshot!["totalAmount"].toString(),
-                        balanceAmount: orderSnapshot!["balanceAmount"].toString(),
-                        advanceAmount: orderSnapshot!["advanceAmount"].toString(),
-                        concessionAmount: orderSnapshot!["concessionAmount"].toString(),
-                        shopName: orderSnapshot!["shopDetails"],
+                        products: orderModel.products,
+                        totalAmount: orderModel.totalAmount.toString(),
+                        balanceAmount: orderModel.balanceAmount.toString(),
+                        advanceAmount: orderModel.advanceAmount.toString(),
+                        concessionAmount: orderModel.concessionAmount.toString(),
+                        shopName: orderModel.shopDetails,
                         contactPerson: "${shopSnapshot!["ownerName"]}\t${shopSnapshot!["contact"]}").then((file){
                       PdfApi.openFile(file);
                       setState(() {
@@ -134,7 +128,7 @@ class _ViewOrderState extends State<ViewOrder> {
                     });
                   }
                 }, icon: Icon(Icons.download, color: Colors.white,)),
-            orderSnapshot!["status"] == "Deliver".toUpperCase()
+            orderModel.status == "Deliver".toUpperCase()
                 ? const SizedBox()
                 : PopupMenuButton(
                 color: Colors.white,
@@ -144,8 +138,7 @@ class _ViewOrderState extends State<ViewOrder> {
                           widget.userModel.rights.contains(Rights.all))) {
                     Navigator.push(context, MaterialPageRoute(
                         builder: (context) =>
-                            EditOrder(orderId: widget.orderId,
-                                companyModel: widget.companyModel,key: Key("editOrder"),)));
+                            EditOrder(companyModel: widget.companyModel,key: Key("editOrder"), orderModel: orderModel,)));
                   }
                   if (value == 1 && (widget.userModel.rights.contains(
                       Rights.shopNavigation) ||
@@ -201,7 +194,7 @@ class _ViewOrderState extends State<ViewOrder> {
             ),
           ],
         ),
-        floatingActionButton: orderSnapshot!["status"] ==
+        floatingActionButton: orderModel.status ==
             "processing".toUpperCase()
             ? FloatingActionButton.extended(
           onPressed: () {
@@ -212,15 +205,14 @@ class _ViewOrderState extends State<ViewOrder> {
           },
           label: const Text("Dispatch", style: TextStyle(color: Colors.white),),
         )
-            : orderSnapshot!["status"] == "dispatch".toUpperCase()
+            : orderModel.status == "dispatch".toUpperCase()
             ? FloatingActionButton.extended(
           onPressed: () {
             if (widget.userModel.rights.contains(Rights.deliverOrder) ||
                 widget.userModel.rights.contains(Rights.all)) {
               Navigator.push(context, MaterialPageRoute(builder: (context) =>
                   DeliverForm(companyModel: widget.companyModel,
-                    userModel: widget.userModel,
-                    orderId: widget.orderId,key: Key("deliverForm"),)));
+                    userModel: widget.userModel, key: Key("deliverForm"), orderModel: orderModel,)));
             }
           },
           label: const Text("Deliver", style: TextStyle(color: Colors.white),),
@@ -234,24 +226,24 @@ class _ViewOrderState extends State<ViewOrder> {
                 padding: EdgeInsets.symmetric(horizontal: 5),
                 child: Column(
                   children: [
-                    RowInfoDisplay(value: orderSnapshot!["orderId"], label: "Invoice#"),
-                    RowInfoDisplay(value: orderSnapshot!["shopDetails"],
+                    RowInfoDisplay(value: orderModel.orderId, label: "Invoice#"),
+                    RowInfoDisplay(value: orderModel.shopDetails,
                         label: "Shop Details"),
                     RowInfoDisplay(
-                        value: orderSnapshot!["dateTime"], label: "Order Date"),
+                        value: orderModel.dateTime, label: "Order Date"),
                     RowInfoDisplay(
-                        value: orderSnapshot!["remarks"], label: "Remarks"),
+                        value: orderModel.remarks, label: "Remarks"),
                     RowInfoDisplay(
-                        value: orderSnapshot!["totalAmount"].toString(),
+                        value: orderModel.totalAmount.toString(),
                         label: "Total Amount"),
                     RowInfoDisplay(
-                        value: orderSnapshot!["advanceAmount"].toString(),
+                        value: orderModel.advanceAmount.toString(),
                         label: "Receive Amount"),
                     RowInfoDisplay(
-                        value: orderSnapshot!["concessionAmount"].toString(),
+                        value: orderModel.concessionAmount.toString(),
                         label: "Concession Amount"),
                     RowInfoDisplay(
-                        value: orderSnapshot!["balanceAmount"].toString(),
+                        value: orderModel.balanceAmount.toString(),
                         label: "Balance Amount"),
                     RowInfoDisplay(value: orderBookerName, label: "Order By"),
                     RowInfoDisplay(value: deliveryManName, label: "Deliver By"),
@@ -261,18 +253,18 @@ class _ViewOrderState extends State<ViewOrder> {
             const SizedBox(height: 5,),
             Expanded(
               child: ListView.builder(
-                  itemCount: OrderModel.products.length,
+                  itemCount: orderModel.products.length,
                   itemBuilder: (context, index) {
-                    if (OrderModel.products.isEmpty) {
+                    if (orderModel.products.isEmpty) {
                       return const Center(child: Text("Cart is Empty"),);
                     } else {
                       return ListTile(
-                          title: Text("${OrderModel
-                              .products[index]["productName"]}-${OrderModel
+                          title: Text("${orderModel
+                              .products[index]["productName"]}-${orderModel
                               .products[index]["description"]}"),
-                          subtitle: Text("Detail: ${OrderModel
-                              .products[index]["totalQuantity"]}x${OrderModel
-                              .products[index]["minPrice"]}=${OrderModel
+                          subtitle: Text("Detail: ${orderModel
+                              .products[index]["totalQuantity"]}x${orderModel
+                              .products[index]["minPrice"]}=${orderModel
                               .products[index]["totalPrice"]}"),
                           trailing: ClipOval(
                               child: SizedBox(
@@ -283,7 +275,7 @@ class _ViewOrderState extends State<ViewOrder> {
                                   child: Align(
                                     alignment: Alignment.center,
                                     child: Text(
-                                      "${OrderModel
+                                      "${orderModel
                                           .products[index]["totalQuantity"]}",
                                       style: TextStyle(fontSize: 16,
                                           fontWeight: FontWeight.w900,
@@ -304,10 +296,6 @@ class _ViewOrderState extends State<ViewOrder> {
       "status": "Dispatch".toUpperCase()
     }).then((value){
       if(value==true){
-        setState(() {
-          OrderModel.products=[];
-          OrderModel.totalAmount=0;
-        });
         Navigator.push(context, MaterialPageRoute(builder: (context)=>EditUserId(orderId: widget.orderId, companyModel: widget.companyModel,userModel: widget.userModel,)));
       }else{
         showSnackbar(context, Colors.red.shade400, "Error");

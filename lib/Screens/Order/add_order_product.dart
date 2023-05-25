@@ -15,8 +15,9 @@ import '../../utils/snack_bar.dart';
 
 class OrderProduct extends StatefulWidget {
   final CompanyModel companyModel;
+  final OrderModel orderModel;
   final shopId;
-  const OrderProduct({Key? key,required this.companyModel,required this.shopId}) : super(key: key);
+  const OrderProduct({Key? key,required this.orderModel,required this.companyModel,required this.shopId}) : super(key: key);
 
   @override
   State<OrderProduct> createState() => _OrderProductState();
@@ -158,7 +159,7 @@ class _OrderProductState extends State<OrderProduct> {
                   onPressed: ()async{
                     if(formKey.currentState!.validate()){
                       num totalPrice=quantity*price;
-                      OrderModel.products.add(ProductModel.toJson(
+                      widget.orderModel.products.add(ProductModel.toJson(
                           imageUrl: snapshot["imageUrl"],
                           productId: snapshot["productId"],
                           productName: snapshot["productName"],
@@ -177,7 +178,7 @@ class _OrderProductState extends State<OrderProduct> {
                             Navigator.pop(context);
                             showSnackbar(context, Colors.green.shade300, "Added");
                             setState(() {
-                              OrderModel.totalAmount+=totalPrice;
+                              widget.orderModel.totalAmount+=totalPrice;
                             });
                           });
                         });

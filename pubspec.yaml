@@ -54,6 +54,7 @@ dependencies:
   pdf: ^3.10.3
   path_provider: ^2.0.15
   open_file: ^3.3.1
+  document_file_save_plus: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -97,7 +98,6 @@ flutter:
   assets:
     - image/
     - logo/
-    - assets/open-sans/OpenSans-Bold.ttf
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -111,15 +111,24 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
+  fonts:
+    - family: FFF Tusj
+      fonts:
+        - asset: assets/FFF-Tusj/FFF_Tusj.ttf
+  #        style: italic
+    - family: Lobster Two
+      fonts:
+        - asset: assets/lobster-two/LobsterTwo-Regular.otf
+        - asset: assets/lobster-two/LobsterTwo-Bold.otf
+        - asset: assets/lobster-two/LobsterTwo-BoldItalic.otf
+        - asset: assets/lobster-two/LobsterTwo-Italic.otf
+
+    - family: Open Sans
+      fonts:
+        - asset: assets/open-sans/OpenSans-Regular.ttf
+        - asset: assets/open-sans/OpenSans-Bold.ttf
+        - asset: assets/open-sans/OpenSans-Semibold.ttf
+        - asset: assets/open-sans/OpenSans-Light.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #

@@ -43,7 +43,7 @@ class _ProcessOrderState extends State<ProcessOrder> {
               padding: EdgeInsets.symmetric(horizontal: 10),
             child: TextField(
               decoration: InputDecoration(
-                hintText: "Search by shop name or date",
+                hintText: "Search by invoice# or shop name or date",
               ),
               onChanged: (val){
                 setState(() {

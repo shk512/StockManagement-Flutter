@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Widgets/row_info_display.dart';
 
 import '../../Constants/narration.dart';
+import '../../Constants/routes.dart';
 import '../../Functions/create_transaction.dart';
 import '../../Functions/update_data.dart';
 import '../../Models/company_model.dart';
@@ -19,8 +19,8 @@ import '../Splash_Error/error.dart';
 class DeliverForm extends StatefulWidget {
   final CompanyModel companyModel;
   final UserModel userModel;
-  final orderId;
-  const DeliverForm({Key? key,required this.orderId, required this.companyModel, required this.userModel}) : super(key: key);
+  final OrderModel orderModel;
+  const DeliverForm({Key? key,required this.orderModel, required this.companyModel, required this.userModel}) : super(key: key);
 
   @override
   State<DeliverForm> createState() => _DeliverFormState();
@@ -35,24 +35,11 @@ class _DeliverFormState extends State<DeliverForm> {
   TransactionType type=TransactionType.cash;
   String narration=Narration.minus;
   String transactionType="Cash";
-  DocumentSnapshot? orderSnapshot;
 
   @override
   void initState() {
     super.initState();
-    getOrderData();
   }
-
-  getOrderData() async{
-    await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderId).getOrderById().then((value)async{
-      setState(() {
-        orderSnapshot=value;
-        OrderModel.products=List.from(value["products"]);
-        OrderModel.totalAmount=value["totalAmount"];
-      });
-    }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),))));
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -73,18 +60,15 @@ class _DeliverFormState extends State<DeliverForm> {
                 setState(() {
                   isLoading=true;
                 });
-                Map<String,dynamic> mapData={
-                  "advanceAmount":orderSnapshot!["advanceAmount"]+int.parse(amount.text),
-                  "balanceAmount":orderSnapshot!["balanceAmount"]-int.parse(amount.text)-int.parse(concession.text),
-                  "concessionAmount": int.parse(concession.text),
-                  "description":detail.text,
-                  "deliverBy":widget.userModel.userId
-                };
-                updateOrderDetails(context, mapData, widget.companyModel.companyId, widget.orderId).then((value){
-                  accountTransaction(narration, int.parse(amount.text), transactionType, orderSnapshot!["shopDetails"],widget.companyModel.companyId,widget.userModel.userId,context).then((value){
+                widget.orderModel.advanceAmount+=int.parse(amount.text);
+                widget.orderModel.balanceAmount=widget.orderModel.balanceAmount-int.parse(amount.text)-int.parse(concession.text);
+                widget.orderModel.description=detail.text;
+                widget.orderModel.deliverBy=widget.userModel.userId;
+                updateOrderDetails(context, widget.orderModel, widget.companyModel.companyId).then((value){
+                  accountTransaction(narration, int.parse(amount.text), transactionType, widget.orderModel.shopDetails,widget.companyModel.companyId,widget.userModel.userId,context).then((value){
                     widget.userModel.wallet+=int.parse(amount.text);
                     updateUserData(context, widget.userModel).then((value)async{
-                      await ShopDB(companyId: widget.companyModel.companyId, shopId: orderSnapshot!["shopId"]).updateWallet(-(int.parse(amount.text)+int.parse(concession.text))).then((value)async{
+                      await ShopDB(companyId: widget.companyModel.companyId, shopId:widget.orderModel.shopId).updateWallet(-(int.parse(amount.text)+int.parse(concession.text))).then((value)async{
                         updateOrderStatus();
                         setState(() {
                           isLoading=false;
@@ -102,7 +86,7 @@ class _DeliverFormState extends State<DeliverForm> {
           ),
         ],
       ),
-      body: isLoading || orderSnapshot==null
+      body: isLoading
           ? const Center(child: CircularProgressIndicator(),)
           :SingleChildScrollView(
         child: Padding(
@@ -111,7 +95,7 @@ class _DeliverFormState extends State<DeliverForm> {
             key: formKey,
             child: Column(
               children: [
-                RowInfoDisplay(value: "${orderSnapshot!["balanceAmount"]}", label: "Balance Amount"),
+                RowInfoDisplay(value: "${widget.orderModel.balanceAmount}", label: "Balance Amount"),
                 const SizedBox(height: 10,),
                 ListTile(
                     title: Text(
@@ -161,15 +145,11 @@ class _DeliverFormState extends State<DeliverForm> {
     );
   }
   updateOrderStatus()async{
-    await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderId).updateOrder({
+    await OrderDB(companyId: widget.companyModel.companyId, orderId: widget.orderModel.orderId).updateOrder({
       "status":"Deliver".toUpperCase()
     }).then((value){
       if(value==true){
-        setState(() {
-          OrderModel.products=[];
-          OrderModel.totalAmount=0;
-        });
-        Navigator.pop(context);
+        Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard , (route) => false);
       }else{
         showSnackbar(context, Colors.red.shade400, "Error");
       }

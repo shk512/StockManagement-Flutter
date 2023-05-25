@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
-import 'package:stock_management/Screens/Product/add_product.dart';
-import 'package:stock_management/Screens/Product/product.dart';
 
 import '../../Constants/rights.dart';
 import '../../Functions/sign_out.dart';
@@ -43,7 +41,7 @@ class _NormalPageViewState extends State<NormalPageView> {
                 )
                     :Icon(Icons.image)
             ),
-            title: Text(widget.companyModel.companyName,style: const TextStyle(fontWeight: FontWeight.w900,color: Colors.white),),
+            title: Text(widget.companyModel.companyName,style: const TextStyle(fontWeight: FontWeight.w900,color: Colors.white, fontFamily:"Lobster Two",letterSpacing: 2),),
             actions: [
               PopupMenuButton(
                   color: Colors.white,

@@ -27,10 +27,12 @@ class OrderForm extends StatefulWidget {
 }
 
 class _OrderFormState extends State<OrderForm> {
+  OrderModel orderModel=OrderModel();
   String shopName="";
   String shopDetails="";
   Stream? products;
   String areaName="";
+  bool isLoading=false;
 
   @override
   void initState() {
@@ -80,8 +82,11 @@ class _OrderFormState extends State<OrderForm> {
                 height: 150.0,
                 width: 30.0,
                 child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(context,MaterialPageRoute(builder: (context)=>Cart(shopId: widget.shopId,shopDetails: shopDetails, userModel: widget.userModel,companyModel: widget.companyModel,key: Key("cart"),)));
+                  onTap: () async{
+                    orderModel=await Navigator.push(context,MaterialPageRoute(builder: (context)=>Cart(shopId: widget.shopId,shopDetails: shopDetails, userModel: widget.userModel,companyModel: widget.companyModel,key: Key("cart"), orderModel: orderModel,)));
+                    setState(() {
+
+                    });
                   },
 
                   child: Stack(
@@ -91,9 +96,8 @@ class _OrderFormState extends State<OrderForm> {
                         color: Colors.white,),
                         onPressed: null,
                       ),
-                      OrderModel.products.isEmpty?Container() :
+                      orderModel.products.isEmpty?const SizedBox():
                       Positioned(
-
                           child: Stack(
                             children: <Widget>[
                               const Icon(
@@ -104,27 +108,28 @@ class _OrderFormState extends State<OrderForm> {
                                   right: 4.0,
                                   child: Center(
                                     child: Text(
-                                      OrderModel.products.length.toString(),
+                                      orderModel.products.length.toString(),
                                       style: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 11.0,
                                           fontWeight: FontWeight.w500
                                       ),
                                     ),
-                                  )),
-
-
+                                  )
+                              ),
                             ],
-                          )),
-
+                          )
+                      ),
                     ],
                   ),
                 )
-            )
-
-            ,)],
+            ),
+           ),
+        ],
       ),
-      body: StreamBuilder(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator(),)
+          :StreamBuilder(
           stream: products,
           builder: (context,AsyncSnapshot snapshot){
             if(snapshot.connectionState==ConnectionState.waiting){
@@ -235,8 +240,12 @@ class _OrderFormState extends State<OrderForm> {
               ElevatedButton(
                   onPressed: ()async{
                     if(formKey.currentState!.validate()){
+                      setState(() {
+                        isLoading=true;
+                      });
                       num totalPrice=quantity*price;
-                     OrderModel.products.add(ProductModel.toJson(
+                      orderModel.products.add(
+                          ProductModel.toJson(
                           imageUrl: snapshot["imageUrl"],
                           productId: snapshot["productId"],
                           productName: snapshot["productName"],
@@ -251,14 +260,14 @@ class _OrderFormState extends State<OrderForm> {
                      await ProductDb(companyId: widget.companyModel.companyId, productId: snapshot["productId"]).decrement(quantity).then((value)async{
                        String formattedDate=DateFormat("yyyy-MM-dd").format(DateTime.now());
                        await ReportDb(companyId: widget.companyModel.companyId, productId: snapshot["productId"]).increment(quantity, formattedDate).then((value){
-                         Navigator.pop(context);
-                         showSnackbar(context, Colors.green.shade300, "Added to cart");
                          setState(() {
-                           OrderModel.totalAmount+=totalPrice;
+                           orderModel.totalAmount=orderModel.totalAmount+totalPrice;
+                           isLoading=false;
                          });
+                         showSnackbar(context, Colors.green.shade300, "Added to cart");
+                         Navigator.pop(context);
                        });
                      });
-
                     }
                   },
                   child: const Text("Add to Cart",style: TextStyle(color: Colors.white),)),

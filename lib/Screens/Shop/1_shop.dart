@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Functions/update_data.dart';
 import 'package:stock_management/Models/account_model.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
@@ -246,7 +247,8 @@ class _ShopState extends State<Shop> {
         await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).updateWallet(-amount).then((value){
           showSnackbar(context, Colors.green.shade300, "Saved");
           setState(() {
-
+            widget.userModel.wallet=widget.userModel.wallet+amount;
+            updateUserData(context, widget.userModel);
           });
         }).onError((error, stackTrace){
           Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));

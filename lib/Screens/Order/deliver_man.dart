@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
+import 'package:stock_management/Constants/routes.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
-import 'package:stock_management/Screens/Order/4_order.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 
 import '../../Services/DB/order_db.dart';
@@ -87,7 +87,7 @@ class _EditUserIdState extends State<EditUserId> {
       "deliverBy":id
     }).then((value) {
       showSnackbar(context, Colors.green.shade300, "Order Dispatch");
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>Order(userModel: widget.userModel, companyModel: widget.companyModel)), (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
     }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),))));
   }
 }

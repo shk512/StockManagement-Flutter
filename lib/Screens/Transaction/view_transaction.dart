@@ -5,6 +5,7 @@ import 'package:stock_management/Constants/narration.dart';
 import 'package:stock_management/Models/account_model.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
+import 'package:stock_management/Screens/Transaction/transaction.dart';
 import 'package:stock_management/Services/DB/account_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/Widgets/row_info_display.dart';
@@ -59,7 +60,7 @@ class _ViewTransactionState extends State<ViewTransaction> {
           widget.userModel.rights.contains(Rights.rollBackTransaction)||widget.userModel.rights.contains(Rights.all)
               ?IconButton(
               onPressed: (){
-                showConfirmDialgue();
+                showConfirmDialogue();
               },
               icon: Icon(Icons.replay_circle_filled_rounded,color: Colors.white,))
               :const SizedBox()
@@ -74,7 +75,7 @@ class _ViewTransactionState extends State<ViewTransaction> {
             children: [
               RowInfoDisplay(value: transactionSnapshot!["description"], label: "Description"),
               RowInfoDisplay(value: "${transactionSnapshot!["amount"]}", label: "Amount"),
-              RowInfoDisplay(value: userSnapshot!["name"], label: "Transaction By"),
+              RowInfoDisplay(value: "${userSnapshot!["name"]} / ${userSnapshot!["designation"]}", label: "Transaction By"),
               RowInfoDisplay(value: transactionSnapshot!["narration"], label: "Narration"),
               RowInfoDisplay(value: transactionSnapshot!["date"], label: "Date-Time"),
               RowInfoDisplay(value: "${transactionSnapshot!["type"]}", label: "Transaction Type")
@@ -84,7 +85,7 @@ class _ViewTransactionState extends State<ViewTransaction> {
       ),
     );
   }
-  showConfirmDialgue(){
+  showConfirmDialogue(){
     return showDialog(
         context: context,
         builder: (context){
@@ -120,11 +121,12 @@ class _ViewTransactionState extends State<ViewTransaction> {
       if(value==true){
         if(transactionSnapshot!["narration"]==Narration.minus){
           widget.companyModel.wallet+=transactionSnapshot!["amount"];
-          updateCompanyData(context, widget.companyModel);
         }else{
           widget.companyModel.wallet-=transactionSnapshot!["amount"];
-          updateCompanyData(context, widget.companyModel);
         }
+        updateCompanyData(context, widget.companyModel);
+        Navigator.pop(context);
+        //Navigator.push(context, MaterialPageRoute(builder: (context)=>Accounts(companyModel: widget.companyModel, userModel: widget.userModel)));
       }else{
         showSnackbar(context,Colors.red.shade400, "Error");
       }

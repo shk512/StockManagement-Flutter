@@ -17,12 +17,21 @@ class BuildPdf{
     required String shopName,
     required String contactPerson
 })async{
-    final pdf=Document();
-    /*var data= await rootBundle.load("assets/open-sans/OpenSans-Bold.ttf");
-    var myFont = Font.ttf(data);
-    var myStyle = TextStyle(font: myFont);*/
+   /* final font = await rootBundle.load("assets/open-sans/OpenSans-Regular.ttf");
+    final ttf = Font.ttf(font);*/
+    var myTheme = ThemeData.withFont(
+      base: Font.ttf(await rootBundle.load("assets/open-sans/OpenSans-Regular.ttf")),
+      bold: Font.ttf(await rootBundle.load("assets/open-sans/OpenSans-Bold.ttf")),
+      italic: Font.ttf(await rootBundle.load("assets/open-sans/OpenSans-Semibold.ttf")),
+      boldItalic: Font.ttf(await rootBundle.load("assets/open-sans/OpenSans-Light.ttf")),
+    );
+    final pdf=Document(
+      theme: myTheme
+    );
     pdf.addPage(
-        MultiPage(build: (context)=>[
+        MultiPage(
+            pageFormat: PdfPageFormat.a4,
+            build: (context)=>[
           Column(
               crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -32,6 +41,8 @@ class BuildPdf{
               SizedBox(height: 0.1 * PdfPageFormat.cm),
               buildHeaderRow("Shop Details ",shopName),
               buildHeaderRow("Contact Person ",contactPerson),
+              SizedBox(height: 0.1 * PdfPageFormat.cm),
+              Divider(thickness: 1),
               SizedBox(height: 0.7 * PdfPageFormat.cm),
               Row(
                   children:[
@@ -45,7 +56,7 @@ class BuildPdf{
                     ),
                     Expanded(
                       flex: 2,
-                      child: Text("Price",style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: Text("Retail Price",style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                     Expanded(
                       flex: 2,
@@ -60,7 +71,9 @@ class BuildPdf{
                       "${products[index]["productName"]}-${products[index]["description"]}", products[index]["totalQuantity"].toString(), products[index]["minPrice"].toString(), products[index]["totalPrice"].toString());
                 }
               ),
-              SizedBox(height: 0.3 * PdfPageFormat.cm),
+              SizedBox(height: 0.7 * PdfPageFormat.cm),
+              Divider(thickness: 1),
+              SizedBox(height: 0.7 * PdfPageFormat.cm),
               Padding(
                   padding: EdgeInsets.all(0.1*PdfPageFormat.cm),
                 child: Align(
@@ -70,7 +83,7 @@ class BuildPdf{
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Text("Total Amount:\t$totalAmount Rs.",style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text("Advance Amount:\t$advanceAmount Rs.",style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text("Received Amount:\t$advanceAmount Rs.",style: TextStyle(fontWeight: FontWeight.bold)),
                           Text("Concession Amount:\t$concessionAmount Rs.",style: TextStyle(fontWeight: FontWeight.bold)),
                           Text("Balance Amount:\t$balanceAmount Rs.",style: TextStyle(fontWeight: FontWeight.bold)),
                         ]
@@ -89,6 +102,7 @@ class BuildPdf{
         }
         )
     );
+
     return PdfApi.saveDocument(fileName: DateTime.now().toString(), document: pdf);
   }
   static Widget buildHeaderRow(String label, String value)=>Padding(
@@ -114,15 +128,15 @@ class BuildPdf{
           ),
           Expanded(
             flex: 2,
-            child: Text(quan),
+            child: Text(quan, textAlign: TextAlign.center),
           ),
           Expanded(
             flex: 2,
-            child: Text(price),
+            child: Text(price,textAlign: TextAlign.center),
           ),
           Expanded(
             flex: 2,
-            child: Text(total),
+            child: Text(total, textAlign: TextAlign.center),
           ),
         ]
     ),
