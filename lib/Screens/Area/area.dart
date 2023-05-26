@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stock_management/Constants/rights.dart';
 import 'package:stock_management/Models/user_model.dart';
-import 'package:stock_management/Screens/Area/show_area_shop.dart';
+import 'package:stock_management/Screens/Area/area_wise_shop.dart';
 import 'package:stock_management/Services/DB/area_db.dart';
 import 'package:stock_management/Widgets/text_field.dart';
 

@@ -6,14 +6,13 @@ import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Models/company_model.dart';
-import '../../Models/user_model.dart';
 
 class AssignArea extends StatefulWidget {
   final String userId;
+  final List userArea;
   final String userName;
   final CompanyModel companyModel;
-  final UserModel userModel;
-  const AssignArea({Key? key,required this.userModel,required this.userName,required this.userId, required this.companyModel}) : super(key: key);
+  const AssignArea({Key? key,required this.userArea,required this.userName,required this.userId, required this.companyModel}) : super(key: key);
 
   @override
   State<AssignArea> createState() => _AssignAreaState();
@@ -61,11 +60,10 @@ class _AssignAreaState extends State<AssignArea> {
             return ListView.builder(
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context,index){
-                  if(!widget.userModel.area.contains(snapshot.data.docs[index]["areaId"])){
+                  if(!widget.userArea.contains(snapshot.data.docs[index]["areaId"])){
                     return ListTile(
                       onTap: (){
                         updateArea(snapshot.data.docs[index]["areaId"]);
-                        Navigator.pop(context);
                       },
                       title: Text("${snapshot.data.docs[index]["areaName"]}"),
                     );
@@ -81,7 +79,9 @@ class _AssignAreaState extends State<AssignArea> {
   updateArea(String areaId)async{
     await UserDb(id: widget.userId).updateAreaList(areaId).then((value){
       if(value==true){
+        widget.userArea.add(areaId);
         showSnackbar(context,Colors.green.shade300, "Added");
+        Navigator.pop(context, widget.userArea);
       }else{
         showSnackbar(context, Colors.red.shade400, "Already exist");
       }

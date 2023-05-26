@@ -6,7 +6,6 @@ import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/User/assign_area.dart';
 import 'package:stock_management/Screens/User/edit_user.dart';
-import 'package:stock_management/Screens/User/remove_area.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 
@@ -31,7 +30,7 @@ class ViewUser extends StatefulWidget {
 
 class _ViewUserState extends State<ViewUser> {
   DocumentSnapshot? snapshot;
-  List area=[];
+  Stream? area;
   String shopName="";
   String shopId="";
   List userArea=[];
@@ -42,6 +41,7 @@ class _ViewUserState extends State<ViewUser> {
   void initState() {
     super.initState();
     getData();
+    getArea();
   }
   getArea() async{
     await AreaDb(areaId: "", companyId: widget.companyModel.companyId).getArea().then((value){
@@ -66,14 +66,6 @@ class _ViewUserState extends State<ViewUser> {
             shopName="${value["shopName"]}-${value["areaId"]}";
           });
         }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
-      }else{
-        for(String id in userArea){
-          await AreaDb(areaId: id, companyId: widget.companyModel.companyId).getAreaById().then((value){
-            setState(() {
-              area.add(value["areaName"]);
-            });
-          });
-        }
       }
     }).onError((error, stackTrace) => Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString()))));
   }
@@ -107,8 +99,11 @@ class _ViewUserState extends State<ViewUser> {
           const SizedBox(width: 5,),
           widget.userModel.rights.contains(Rights.editUser) || widget.userModel.rights.contains(Rights.all) || widget.userModel.userId==widget.userId
               ? IconButton(
-              onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>EditUser(userId: widget.userId,userModel: widget.userModel,)));
+              onPressed: ()async{
+               await Navigator.push(context, MaterialPageRoute(builder: (context)=>EditUser(userId: widget.userId,userModel: widget.userModel,)));
+               setState(() {
+                 getData();
+               });
               }, icon: const Icon(Icons.edit,color: Colors.white,))
               :const SizedBox(),
           widget.userId==widget.userModel.userId
@@ -128,66 +123,93 @@ class _ViewUserState extends State<ViewUser> {
       ),
       body:  isLoading
           ?const Center(child: CircularProgressIndicator(),)
-          :SingleChildScrollView(
-        child: Padding(
+          :Padding(
           padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
           child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RowInfoDisplay(label: "Email", value: snapshot!["mail"].toLowerCase()),
-                RowInfoDisplay(label: "Name", value: snapshot!["name"].toUpperCase()),
-                RowInfoDisplay(label:"Contact", value: snapshot!["phone"]),
-                RowInfoDisplay(label:"Status", value: snapshot!["isDeleted"]?"InActive":"Active"),
-                snapshot!["role"]=="Employee".toUpperCase()?RowInfoDisplay(label: "Designation", value: snapshot!["designation"]):const SizedBox(),
-                snapshot!["role"]=="Employee".toUpperCase()?RowInfoDisplay(label: "Salary", value:snapshot!["salary"].toString()):const SizedBox(),
-                const SizedBox(height: 5),
-                snapshot!["role"]=="shop keeper".toUpperCase()
-                      ?Text("Shop",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.brown))
-                      :Row(
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RowInfoDisplay(label: "Email", value: snapshot!["mail"].toLowerCase()),
+                  RowInfoDisplay(label: "Name", value: snapshot!["name"].toUpperCase()),
+                  RowInfoDisplay(label:"Contact", value: snapshot!["phone"]),
+                  RowInfoDisplay(label:"Status", value: snapshot!["isDeleted"]?"InActive":"Active"),
+                  snapshot!["role"]=="Employee".toUpperCase()?RowInfoDisplay(label: "Designation", value: snapshot!["designation"]):const SizedBox(),
+                  snapshot!["role"]=="Employee".toUpperCase()?RowInfoDisplay(label: "Salary", value:snapshot!["salary"].toString()):const SizedBox(),
+                  const SizedBox(height: 5),
+                  widget.userModel.role=="Company".toUpperCase()
+                      ?Column(
                         children: [
-                          Expanded(child: Text("Area",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.brown),)),
-                            widget.userModel.rights.contains(Rights.addArea) || widget.userModel.rights.contains(Rights.all)
-                            ? Expanded(
-                              child :IconButton(
-                                onPressed: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>AssignArea(userId: widget.userId, companyModel: widget.companyModel, userName: '${snapshot!["name"]}', userModel: widget.userModel,)));
-                              },
-                              icon: const Icon(Icons.add,color: Colors.brown,) ,
-                              ),
-                            ): const SizedBox(),
-                          widget.userModel.rights.contains(Rights.addArea) || widget.userModel.rights.contains(Rights.all)
-                              ? Expanded(
-                            child :IconButton(
-                              onPressed: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>RemoveArea(userId: widget.userId, companyModel: widget.companyModel,userName: '${snapshot!["name"]}', userModel: widget.userModel,)));
-                              },
-                              icon: const Icon(Icons.remove,color: Colors.brown,) ,
-                            ),
-                          ): const SizedBox(),
-                        ],
-                      ),
-                snapshot!["role"]=="Shop Keeper".toUpperCase()
-                      ? Text(snapshot!["designation"].toString().isNotEmpty ? shopName : "No Shop Assigned")
-                      :userArea.isEmpty
-                          ?const Text("No Area Assigned")
-                          :areaList(),
-                const SizedBox(height: 10,),
-                widget.userModel.role=="Company".toUpperCase()
-                    ?Column(
-                      children: [
-                        const Align(
-                          alignment: AlignmentDirectional.bottomStart,
-                          child: Text(
-                          "Rights:", style: TextStyle(color:Colors.brown,fontWeight: FontWeight.bold,fontSize: 20),),
-                      ),
-                    showRights()
-                  ],
-                ):const SizedBox()
-              ],
-            ),
+                          const Align(
+                            alignment: AlignmentDirectional.bottomStart,
+                            child: Text(
+                            "Rights:", style: TextStyle(color:Colors.brown,fontWeight: FontWeight.bold,fontSize: 20),),
+                        ),
+                      showRights()
+                    ],
+                  ):const SizedBox(),
+                  const SizedBox(height: 10,),
+                ],
+              ),
+              snapshot!["role"]=="shop keeper".toUpperCase()
+                  ?Text("Shop",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.brown))
+                  :Row(
+                children: [
+                  Expanded(child: Text("Area",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w900,color: Colors.brown,),)),
+                  widget.userModel.rights.contains(Rights.addArea) || widget.userModel.rights.contains(Rights.all)
+                      ? Expanded(
+                    child :FloatingActionButton(
+                      onPressed: ()async{
+                        userArea=await Navigator.push(context, MaterialPageRoute(builder: (context)=>AssignArea(userId: widget.userId, companyModel: widget.companyModel, userName: '${snapshot!["name"]}', userArea: userArea,)));
+                        setState(() {
+
+                        });
+                      },
+                      child: const Icon(Icons.add,color: Colors.white,) ,
+                    ),
+                  ): const SizedBox(),
+                ],
+              ),
+              snapshot!["role"]=="Shop Keeper".toUpperCase()
+                  ? Text(snapshot!["designation"].toString().isNotEmpty ? shopName : "No Shop Assigned")
+                  :userArea.isEmpty
+                  ?const Text("No Area Assigned")
+                  :Expanded(
+                  child: StreamBuilder(
+                    stream: area,
+                    builder: (context,snapshot){
+                      if(snapshot.connectionState==ConnectionState.waiting){
+                        return Center(child: CircularProgressIndicator(),);
+                      }
+                      if(snapshot.hasError){
+                        return Center(child: Text("Error"),);
+                      }
+                      if(!snapshot.hasData){
+                        return Center(child: Text("N Data Found"),);
+                      }
+                      else{
+                        return ListView.builder(
+                            itemCount: snapshot.data.docs.length,
+                            itemBuilder: (context,index){
+                              if(userArea.contains(snapshot.data.docs[index]["areaId"])){
+                                return ListTile(
+                                  onTap: (){
+                                    if(widget.userModel.rights.contains(Rights.deleteArea)||widget.userModel.rights.contains(Rights.all)){
+                                      showWarningDialogue(snapshot.data.docs[index]["areaId"], snapshot.data.docs[index]["areaName"]);
+                                    }
+                                  },
+                                  title: Text(snapshot.data.docs[index]["areaName"]),
+                                );
+                              }else{
+                                return const SizedBox();
+                              }
+                            });
+                      }
+                    },
+                  )),
+        ],),
         ),
-      ),
     );
   }
 
@@ -275,18 +297,7 @@ class _ViewUserState extends State<ViewUser> {
           );
         });
   }
-  
-  Widget areaList(){
-    return Column(
-      children: area.map((e) => Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 5),
-          child: InkWell(child: Text("$e")),
-        ),
-      )).toList(),
-    );
-  }
+
   Widget showRights(){
     return Column(
       children: rights.map((e) => Align(
@@ -299,24 +310,10 @@ class _ViewUserState extends State<ViewUser> {
     );
   }
 
-  saveArea(String areaId)async{
-    await UserDb(id: snapshot!["userId"]).updateAreaList(areaId).then((value)async{
-      if(value==true){
-        setState(() {
-          userArea.add(areaId);
-        });
-      }else{
-        showSnackbar(context, Colors.red.shade400, "Area with same name already available");
-      }
-    }).onError((error, stackTrace){
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
-    });
-  }
-
   deleteArea(String areaId)async{
     await UserDb(id: snapshot!["userId"]).deleteUserArea(areaId).then((value){
       if(value==true){
-        showSnackbar(context, Colors.green.shade300, "Deleted");
+        showSnackbar(context, Colors.green.shade300, "Removed");
         setState(() {
           userArea.remove(areaId);
         });
@@ -327,13 +324,13 @@ class _ViewUserState extends State<ViewUser> {
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
-  showWarningDialogue(String areaName){
+  showWarningDialogue(String areaId, String areaName){
     return showDialog(
         context: context,
         builder: (context){
           return AlertDialog(
             title: const Text("Warning"),
-            content: Text("Are you sure to delete area $areaName?"),
+            content: Text("Are you sure to remove $areaName?"),
             actions: [
               IconButton(
                   onPressed: (){
@@ -343,7 +340,7 @@ class _ViewUserState extends State<ViewUser> {
               IconButton(
                   onPressed: (){
                     Navigator.pop(context);
-                    deleteArea(areaName);
+                    deleteArea(areaId);
                   },
                   icon: const Icon(Icons.check_circle_rounded,color: Colors.green,)),
             ],

@@ -85,8 +85,11 @@ class _CompanyDetailsState extends State<CompanyDetails> {
               :const SizedBox(),
           widget.userModel.rights.contains(Rights.editCompany)||widget.userModel.rights.contains(Rights.all)
               ?IconButton(
-              onPressed: (){
-                Navigator.push(context,MaterialPageRoute(builder: (context)=>EditCompany(companyModel: widget.companyModel)));
+              onPressed: ()async{
+                await Navigator.push(context,MaterialPageRoute(builder: (context)=>EditCompany(companyModel: widget.companyModel)));
+                setState(() {
+
+                });
               }, icon: const Icon(Icons.edit,color: Colors.white,))
               :const SizedBox()
         ],

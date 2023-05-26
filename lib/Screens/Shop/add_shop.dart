@@ -36,12 +36,7 @@ class _AddShopState extends State<AddShop> {
   @override
   void initState() {
     super.initState();
-    getCurrentLocation(context).then((value){
-      setState(() {
-        lat=value.latitude;
-        lng=value.longitude;
-      });
-    });
+
   }
   @override
   Widget build(BuildContext context) {
@@ -56,8 +51,14 @@ class _AddShopState extends State<AddShop> {
         title: Text(widget.areaName,style: const TextStyle(color: Colors.white),),
         actions: [
           ElevatedButton(
-            onPressed: (){
+            onPressed: ()async{
               if(formKey.currentState!.validate()){
+                await getCurrentLocation(context).then((value){
+                  setState(() {
+                    lat=value.latitude;
+                    lng=value.longitude;
+                  });
+                });
                 saveShop();
               }
             },

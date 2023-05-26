@@ -205,7 +205,9 @@ class _EditUserState extends State<EditUser> {
       ),
       floatingActionButton: FloatingActionButton.extended(
           onPressed: (){
-            updateData();
+            if(formKey.currentState!.validate()){
+              updateData();
+            }
           }, label: Text("Update",style: TextStyle(color: Colors.white),)),
       body: SingleChildScrollView(
         child: Padding(

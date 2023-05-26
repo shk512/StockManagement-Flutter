@@ -41,10 +41,6 @@ class _CartState extends State<Cart> {
   @override
   void initState() {
     super.initState();
-    getCurrentLocation(context).then((value){
-      lat=value.latitude;
-      lng=value.longitude;
-    });
   }
   @override
   Widget build(BuildContext context) {
@@ -60,7 +56,11 @@ class _CartState extends State<Cart> {
         title: const Text("Cart",style: TextStyle(color: Colors.white),),
         actions: [
           ElevatedButton(
-            onPressed: (){
+            onPressed: ()async{
+              await getCurrentLocation(context).then((value){
+                lat=value.latitude;
+                lng=value.longitude;
+              });
               placeOrder();
               setState(() {
                 isLoading=true;

@@ -132,13 +132,16 @@ class _ViewOrderState extends State<ViewOrder> {
                 ? const SizedBox()
                 : PopupMenuButton(
                 color: Colors.white,
-                onSelected: (value) {
+                onSelected: (value) async{
                   if (value == 0 &&
                       (widget.userModel.rights.contains(Rights.editOrder) ||
                           widget.userModel.rights.contains(Rights.all))) {
-                    Navigator.push(context, MaterialPageRoute(
+                    await Navigator.push(context, MaterialPageRoute(
                         builder: (context) =>
                             EditOrder(companyModel: widget.companyModel,key: Key("editOrder"), orderModel: orderModel,)));
+                    setState(() {
+                      getOrderData();
+                    });
                   }
                   if (value == 1 && (widget.userModel.rights.contains(
                       Rights.shopNavigation) ||
