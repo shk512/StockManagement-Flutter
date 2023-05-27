@@ -158,7 +158,7 @@ class _ViewOrderState extends State<ViewOrder> {
                       Rights.orderNavigation) ||
                       widget.userModel.rights.contains(Rights.all))) {
                     try {
-                      openMap(shopLocation.latitude, shopLocation.longitude);
+                      openMap(orderModel.location.latitude, orderModel.location.longitude);
                     } catch (e) {
                       Navigator.push(context, MaterialPageRoute(
                           builder: (context) =>

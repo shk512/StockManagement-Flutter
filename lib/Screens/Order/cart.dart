@@ -61,7 +61,11 @@ class _CartState extends State<Cart> {
                 lat=value.latitude;
                 lng=value.longitude;
               });
-              placeOrder();
+              if(lat!=0&&lng!=0){
+                placeOrder();
+              }else{
+                showSnackbar(context, Colors.red.shade400, "Oops! App doesn't able to pick location. So, Order couldn't post.");
+              }
               setState(() {
                 isLoading=true;
               });
