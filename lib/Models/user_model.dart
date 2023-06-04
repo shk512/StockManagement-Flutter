@@ -1,4 +1,6 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserModel{
   String _userId="";
   String _designation="";
@@ -28,6 +30,21 @@ class UserModel{
       "right":rights,
       "area":area
     };
+  }
+
+  fromJson(DocumentSnapshot snapshot){
+    userId=snapshot["userId"];
+    name=snapshot["name"];
+    salary=snapshot["salary"];
+    mail=snapshot["mail"];
+    companyId=snapshot["companyId"];
+    phone=snapshot["phone"];
+    role=snapshot["role"];
+    designation=snapshot["designation"];
+    wallet=snapshot["wallet"];
+    isDeleted=snapshot["isDeleted"];
+    rights=List.from(snapshot["right"]);
+    area=List.from(snapshot["area"]);
   }
 
   String get userId => _userId;

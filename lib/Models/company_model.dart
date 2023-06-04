@@ -30,6 +30,20 @@ class CompanyModel{
     };
   }
 
+  fromJson(DocumentSnapshot snapshot){
+    imageUrl=snapshot["imageUrl"];
+    companyId=snapshot["companyId"];
+    companyName=snapshot["companyName"];
+    isPackageActive=snapshot["isPackageActive"];
+    contact=snapshot["contact"];
+    packageEndsDate=snapshot["packageEndsDate"];
+    wallet=snapshot["wallet"];
+    whatsApp=snapshot["whatsApp"];
+    packageType=snapshot["packageType"];
+    city=snapshot["city"];
+    location=snapshot["geoLocation"];
+  }
+
   String get imageUrl => _imageUrl;
 
   set imageUrl(String value) {

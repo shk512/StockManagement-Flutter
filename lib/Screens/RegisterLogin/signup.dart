@@ -100,7 +100,7 @@ class _SignupState extends State<Signup> {
           ?const Center(child: CircularProgressIndicator(),)
           :SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                 child: Form(
                   key: formKey,
                   child: Column(
@@ -113,38 +113,34 @@ class _SignupState extends State<Signup> {
                           onPressed: (){
                             Navigator.pop(context);
                           },
-                          icon: const Icon(CupertinoIcons.back,color: Colors.white,),
+                          icon: const Icon(CupertinoIcons.back,color: Colors.black,),
                         ),
                       ),
-                      const SizedBox(height: 10,),
-                      const Image(image: AssetImage("image/signup.png")),
-                      Center(child: Text(snapshot!["companyName"],style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 25),)),
-                      const SizedBox(height: 20,),
+                      SizedBox(height: MediaQuery.of(context).size.height*.01,),
+                      const Text("Account Registration",style: TextStyle(fontWeight: FontWeight.w900,color: Colors.brown,fontSize: 25, fontFamily:"Lobster Two",letterSpacing: 2),),
+                      SizedBox(height: MediaQuery.of(context).size.height*.01,),
+                      Center(child: Text(snapshot!["companyName"],style: const TextStyle(fontWeight: FontWeight.bold),)),
+                      SizedBox(height: MediaQuery.of(context).size.height*.02,),
                       TxtField(labelTxt: "Email",
                           hintTxt: "john@gmail.com",
                           ctrl: mail,
                           icon: const Icon(Icons.mail)),
-                      const SizedBox(height: 20,),
                       TxtField(labelTxt: "Name",
                           hintTxt: "Your Name",
                           ctrl: name,
                           icon: const Icon(Icons.perm_identity)),
-                      const SizedBox(height: 20,),
                       NumField(labelTxt: "Contact",
                           hintTxt: "03001234567",
                           ctrl: contact,
                           icon: const Icon(Icons.phone)),
-                      const SizedBox(height: 20,),
                       TxtField(labelTxt: "Password",
                           hintTxt: "Enter your password",
                           ctrl: pass,
                           icon: const Icon(Icons.password)),
-                      const SizedBox(height: 20,),
                       TxtField(labelTxt: "Confirm Password",
                           hintTxt: "Retype your password",
                           ctrl: cPass,
                           icon: const Icon(Icons.password)),
-                      const SizedBox(height: 20,),
                       const Align(
                         alignment: AlignmentDirectional.bottomStart,
                         child: Text(

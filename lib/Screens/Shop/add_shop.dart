@@ -1,6 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:stock_management/Functions/location.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/shop_model.dart';
@@ -57,6 +57,7 @@ class _AddShopState extends State<AddShop> {
                   setState(() {
                     lat=value.latitude;
                     lng=value.longitude;
+                    isLoading=true;
                   });
                 });
                 saveShop();
@@ -66,7 +67,9 @@ class _AddShopState extends State<AddShop> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: isLoading
+          ?Center(child: CircularProgressIndicator())
+          :SingleChildScrollView(
         child: Form(
           key: formKey,
             child: Padding(
@@ -89,18 +92,18 @@ class _AddShopState extends State<AddShop> {
   }
   saveShop()async{
     String shopId=DateTime.now().microsecondsSinceEpoch.toString();
-    await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).saveShop(ShopModel.toJson(
-        shopId: shopId,
-        areaId: widget.areaId,
-        isActive: true,
-        shopName: shopName.text.toUpperCase(),
-        contact: contact.text,
-        ownerName: ownerName.text,
-        nearBy: nearBy.text,
-        isDeleted: false,
-        wallet: 0,
-        location: LatLng(lat,lng)
-        )).then((value){
+    ShopModel shopModel=ShopModel();
+    shopModel.shopId=shopId;
+    shopModel.areaId=widget.areaId;
+    shopModel.isActive=true;
+    shopModel.shopName=shopName.text.toUpperCase();
+    shopModel.contact=contact.text;
+    shopModel.ownerName=ownerName.text;
+    shopModel.nearBy=nearBy.text;
+    shopModel.isDeleted=false;
+    shopModel.wallet=0;
+    shopModel.location=GeoPoint(lat, lng);
+    await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).saveShop(shopModel.toJson()).then((value){
           Navigator.pop(context);
           showSnackbar(context, Colors.green.shade300, "Saved");
     }).onError((error, stackTrace){

@@ -1,14 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Functions/create_transaction.dart';
 import 'package:stock_management/Services/DB/area_db.dart';
 
 import '../../Constants/narration.dart';
 import '../../Constants/rights.dart';
-import '../../Models/account_model.dart';
 import '../../Models/company_model.dart';
 import '../../Models/user_model.dart';
-import '../../Services/DB/account_db.dart';
 import '../../Services/DB/shop_db.dart';
 import '../../Widgets/num_field.dart';
 import '../../utils/enum.dart';
@@ -242,19 +241,7 @@ class _ShowAreaShopState extends State<ShowAreaShop> {
         });
   }
   createTransaction(String shopId,String shopName,String narration,num amount,String type) async{
-    String transactionId=DateTime.now().microsecondsSinceEpoch.toString();
-    await AccountDb(companyId: widget.companyModel.companyId, transactionId: transactionId).saveTransaction(
-        AccountModel.toJson(
-            transactionId: transactionId,
-            transactionBy: widget.userModel.userId,
-            desc: shopName,
-            narration: narration,
-            amount: amount,
-            type: type,
-            dateTime: DateTime.now().toString()
-        )
-    ).then((value)async{
-      if(value==true){
+    accountTransaction(narration, amount, type, shopName, widget.companyModel.companyId, widget.userModel.userId, context).then((value)async{
         await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).updateWallet(-amount).then((value){
           showSnackbar(context, Colors.green.shade300, "Saved");
           setState(() {
@@ -263,7 +250,6 @@ class _ShowAreaShopState extends State<ShowAreaShop> {
         }).onError((error, stackTrace){
           Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(), key: Key("errorScreen"))));
         });
-      }
     }).onError((error, stackTrace) {
       Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(), key: Key("errorScreen"))));
     });

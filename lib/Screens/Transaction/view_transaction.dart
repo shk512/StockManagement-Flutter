@@ -5,7 +5,6 @@ import 'package:stock_management/Constants/narration.dart';
 import 'package:stock_management/Models/account_model.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
-import 'package:stock_management/Screens/Transaction/transaction.dart';
 import 'package:stock_management/Services/DB/account_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
 import 'package:stock_management/Widgets/row_info_display.dart';
@@ -108,16 +107,15 @@ class _ViewTransactionState extends State<ViewTransaction> {
   }
   rollBackTransaction()async{
     String transactionId=DateTime.now().microsecondsSinceEpoch.toString();
-    await AccountDb(companyId: widget.companyModel.companyId, transactionId: transactionId).saveTransaction(
-        AccountModel.toJson(
-            transactionId: transactionId,
-            transactionBy: widget.userModel.userId,
-            desc: transactionSnapshot!["description"],
-            narration: transactionSnapshot!["narration"]==Narration.minus?Narration.plus:Narration.minus,
-            amount: transactionSnapshot!["amount"],
-            type: "ROLL BACK",
-            dateTime: DateTime.now().toString())
-    ).then((value)async{
+    AccountModel accountModel=AccountModel();
+    accountModel.transactionId=transactionId;
+    accountModel.transactionBy=widget.userModel.userId;
+    accountModel.description=transactionSnapshot!["description"];
+    accountModel.narration=transactionSnapshot!["narration"]==Narration.minus?Narration.plus:Narration.minus;
+    accountModel.amount=transactionSnapshot!["amount"];
+    accountModel.type="ROLL BACK";
+    accountModel.dateTime=DateTime.now().toString();
+    await AccountDb(companyId: widget.companyModel.companyId, transactionId: transactionId).saveTransaction(accountModel.toJson()).then((value)async{
       if(value==true){
         if(transactionSnapshot!["narration"]==Narration.minus){
           widget.companyModel.wallet+=transactionSnapshot!["amount"];

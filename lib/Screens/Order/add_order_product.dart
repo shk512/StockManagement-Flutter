@@ -159,18 +159,17 @@ class _OrderProductState extends State<OrderProduct> {
                   onPressed: ()async{
                     if(formKey.currentState!.validate()){
                       num totalPrice=quantity*price;
-                      widget.orderModel.products.add(ProductModel.toJson(
-                          imageUrl: snapshot["imageUrl"],
-                          productId: snapshot["productId"],
-                          productName: snapshot["productName"],
-                          description: snapshot["description"],
-                          isDeleted: false,
-                          totalPrice: totalPrice,
-                          minPrice: price,
-                          quantityPerPiece: snapshot["quantityPerPiece"],
-                          totalQuantity: int.parse(quantity.toString())
-                      )
-                      );
+                      ProductModel productModel=ProductModel();
+                      productModel.imageUrl=snapshot["imageUrl"];
+                      productModel.productId=snapshot["productId"];
+                      productModel.productName= snapshot["productName"];
+                      productModel.description= snapshot["description"];
+                      productModel.isDeleted= false;
+                      productModel.totalPrice= totalPrice;
+                      productModel.minPrice= price;
+                      productModel.quantityPerPiece= snapshot["quantityPerPiece"];
+                      productModel.totalQuantity= int.parse(quantity.toString());
+                      widget.orderModel.products.add(productModel.toJson());
                       await ProductDb(companyId: widget.companyModel.companyId, productId: snapshot["productId"]).decrement(quantity).then((value)async{
                         String formattedDate=DateFormat("yyyy-MM-dd").format(DateTime.now());
                         await ReportDb(companyId: widget.companyModel.companyId, productId: snapshot["productId"]).increment(quantity, formattedDate).then((value)async{

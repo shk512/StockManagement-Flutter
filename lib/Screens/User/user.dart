@@ -1,17 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Functions/create_transaction.dart';
 import 'package:stock_management/Functions/update_data.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
 import 'package:stock_management/Screens/User/view_user.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
-import 'package:stock_management/utils/snack_bar.dart';
 
 import '../../Constants/narration.dart';
-import '../../Models/account_model.dart';
-import '../../Services/DB/account_db.dart';
 import '../../Widgets/num_field.dart';
 import '../../utils/enum.dart';
 import '../RegisterLogin/signup.dart';
@@ -201,28 +199,13 @@ class _EmployeeState extends State<Employee> {
         });
   }
   createTransaction(String userId,String userName,String narration,num amount,String type) async{
-    String transactionId=DateTime.now().microsecondsSinceEpoch.toString();
-    await AccountDb(companyId: widget.companyModel.companyId, transactionId: transactionId).saveTransaction(
-        AccountModel.toJson(
-            transactionId: transactionId,
-            transactionBy: widget.userModel.userId,
-            desc: userName,
-            narration: narration,
-            amount: amount,
-            type: type,
-            dateTime: DateTime.now().toString()
-        )
-    ).then((value)async{
-      if(value==true){
+    accountTransaction(narration, amount, type, userName, widget.companyModel.companyId, widget.userModel.userId, context).then((value)async{
         await UserDb(id: userId).updateWalletBalance(-amount).then((value){
           widget.companyModel.wallet=widget.companyModel.wallet+amount;
           updateCompanyData(context, widget.companyModel);
         }).onError((error, stackTrace){
           Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
         });
-      }else{
-        showSnackbar(context, Colors.red.shade400, value.toString());
-      }
     }).onError((error, stackTrace) {
       Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });

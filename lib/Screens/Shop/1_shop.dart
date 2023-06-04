@@ -1,11 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:stock_management/Functions/create_transaction.dart';
 import 'package:stock_management/Functions/update_data.dart';
-import 'package:stock_management/Models/account_model.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Models/user_model.dart';
 import 'package:stock_management/Screens/Shop/edit_shop.dart';
-import 'package:stock_management/Services/DB/account_db.dart';
 import 'package:stock_management/Services/DB/shop_db.dart';
 import 'package:stock_management/Widgets/num_field.dart';
 import 'package:stock_management/utils/enum.dart';
@@ -126,6 +125,7 @@ class _ShopState extends State<Shop> {
       ),
     );
   }
+
   showWarningDialogue(DocumentSnapshot snapshot){
     return showDialog(
         context: context,
@@ -147,6 +147,7 @@ class _ShopState extends State<Shop> {
           );
         });
   }
+
   updateStatus(DocumentSnapshot snapshot)async{
     await ShopDB(companyId: widget.companyModel.companyId, shopId: snapshot["shopId"]).updateShop({
       "isActive":!snapshot["isActive"]
@@ -160,6 +161,7 @@ class _ShopState extends State<Shop> {
       Navigator.push(context, MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });
   }
+
   showTransactionDialogue(String shopId,String shopName){
     final formKey=GlobalKey<FormState>();
     TextEditingController amount=TextEditingController();
@@ -230,20 +232,9 @@ class _ShopState extends State<Shop> {
           );
         });
   }
+
   createTransaction(String shopId,String shopName,String narration,num amount,String type) async{
-    String transactionId=DateTime.now().microsecondsSinceEpoch.toString();
-    await AccountDb(companyId: widget.companyModel.companyId, transactionId: transactionId).saveTransaction(
-        AccountModel.toJson(
-            transactionId: transactionId,
-            transactionBy: widget.userModel.userId,
-            desc: shopName,
-            narration: narration,
-            amount: amount,
-            type: type,
-            dateTime: DateTime.now().toString()
-        )
-    ).then((value)async{
-      if(value==true){
+    accountTransaction(narration, amount, type, shopName, widget.companyModel.companyId, widget.userModel.userId, context).then((value)async{
         await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).updateWallet(-amount).then((value){
           showSnackbar(context, Colors.green.shade300, "Saved");
           setState(() {
@@ -253,7 +244,6 @@ class _ShopState extends State<Shop> {
         }).onError((error, stackTrace){
           Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
         });
-      }
     }).onError((error, stackTrace) {
       Navigator.push(context,MaterialPageRoute(builder: (context)=>ErrorScreen(error: error.toString(),key: Key("errorScreen"),)));
     });

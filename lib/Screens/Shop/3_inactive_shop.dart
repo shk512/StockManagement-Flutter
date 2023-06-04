@@ -7,9 +7,8 @@ import 'package:stock_management/Services/DB/shop_db.dart';
 
 import '../../Constants/narration.dart';
 import '../../Constants/rights.dart';
+import '../../Functions/create_transaction.dart';
 import '../../Functions/update_data.dart';
-import '../../Models/account_model.dart';
-import '../../Services/DB/account_db.dart';
 import '../../Widgets/num_field.dart';
 import '../../utils/enum.dart';
 import '../../utils/snack_bar.dart';
@@ -235,18 +234,7 @@ class _InActiveShopState extends State<InActiveShop> {
         });
   }
   createTransaction(String shopId,String shopName,String narration,num amount,String type) async{
-    String transactionId=DateTime.now().microsecondsSinceEpoch.toString();
-    await AccountDb(companyId: widget.companyModel.companyId, transactionId: transactionId).saveTransaction(
-        AccountModel.toJson(
-            transactionId: transactionId,
-            transactionBy: widget.userModel.userId,
-            desc: shopName,
-            narration: narration,
-            amount: amount,
-            type: type,
-            dateTime: DateTime.now().toString()
-        )
-    ).then((value)async{
+    accountTransaction(narration, amount, type, shopName, widget.companyModel.companyId, widget.userModel.userId, context).then((value)async{
       if(value==true){
         await ShopDB(companyId: widget.companyModel.companyId, shopId: shopId).updateWallet(-amount).then((value){
           showSnackbar(context, Colors.green.shade300, "Saved");

@@ -12,10 +12,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
-  late final AnimationController _controller=AnimationController(
-      duration: const Duration(seconds: 5),
-      vsync: this
-  )..repeat();
 
   @override
   void initState() {
@@ -27,13 +23,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
       }
     });
-
-
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
   @override
@@ -45,24 +38,12 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              AnimatedBuilder(
-                  animation: _controller,
-                  child: const SizedBox(
-                    height: 200,
-                    width: 200,
-                    child: Center(
-                      child: Image(image: AssetImage("image/stock.png"),),
-                    ),
-                  ),
-                  builder: (context,Widget? child){
-                    return Transform.rotate(
-                        angle: _controller.value * 2.0* math.pi,
-                        child:child
-                    );
-                  }),
-              SizedBox(height: MediaQuery.of(context).size.height*.03,),
-              const Image(image: AssetImage("image/pos.png")),
-              SizedBox(height: MediaQuery.of(context).size.height*.03,),
+              const SizedBox(
+                height: 150,
+                width: 150,
+                child: Image(image: AssetImage("logo/logo_2.png"),),
+              ),
+              SizedBox(height: MediaQuery.of(context).size.height*.30,),
               Text(
                 "Developed By",
                 textAlign:TextAlign.center,

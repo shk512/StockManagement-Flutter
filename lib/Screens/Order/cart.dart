@@ -3,11 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:stock_management/Functions/create_transaction.dart';
 import 'package:stock_management/Functions/location.dart';
-import 'package:stock_management/Models/account_model.dart';
 import 'package:stock_management/Models/company_model.dart';
 import 'package:stock_management/Screens/Splash_Error/error.dart';
-import 'package:stock_management/Services/DB/account_db.dart';
 import 'package:stock_management/Services/DB/order_db.dart';
 import 'package:stock_management/Services/DB/report_db.dart';
 import 'package:stock_management/Services/DB/user_db.dart';
@@ -172,22 +171,14 @@ class _CartState extends State<Cart> {
         await UserDb(id: widget.userModel.userId).updateWalletBalance(advanceAmount).then((value) async{
           await ShopDB(companyId: widget.companyModel.companyId, shopId: widget.shopId).updateWallet(widget.orderModel.totalAmount-advanceAmount).then((value)async{
             if(advanceAmount!=0){
-              String tId=DateTime.now().microsecondsSinceEpoch.toString();
-              await AccountDb(companyId: widget.companyModel.companyId, transactionId: tId).saveTransaction(
-                  AccountModel.toJson(
-                      transactionId: tId,
-                      transactionBy: widget.userModel.userId,
-                      desc: widget.shopDetails,
-                      narration: Narration.minus,
-                      amount: advanceAmount,
-                      type: "Cash",
-                      dateTime: DateTime.now().toString()));
+              accountTransaction(Narration.minus, advanceAmount, "Cash", widget.shopDetails, widget.companyModel.companyId, widget.userModel.userId, context).then((value){
+              });
             }
-              Navigator.pop(context);
-              Navigator.pop(context);
-              showSnackbar(context, Colors.green.shade300, "Order has been placed");
-            });
-            });
+            Navigator.pop(context);
+            Navigator.pop(context);
+            showSnackbar(context, Colors.green.shade300, "Order has been placed");
+          });
+        });
       } else {
         setState(() {
           isLoading=false;

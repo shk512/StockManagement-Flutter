@@ -105,16 +105,18 @@ class _AddProductState extends State<AddProduct> {
   }
   saveProduct()async{
     String productId=DateTime.now().microsecondsSinceEpoch.toString();
-    await ProductDb(companyId: widget.companyModel.companyId, productId: productId).saveProduct(ProductModel.toJson(
-        imageUrl: imageUrl,
-        productId: productId,
-        productName: productName.text,
-        description: description.text,
-        isDeleted: false,
-        totalPrice: int.parse(totalPrice.text),
-        minPrice: int.parse(minPrice.text),
-        quantityPerPiece: int.parse(quantityPerPiece.text),
-        totalQuantity: 0)
+    ProductModel productModel=ProductModel();
+    productModel.imageUrl=imageUrl;
+    productModel.productId=productId;
+    productModel.productName= productName.text;
+    productModel.description= description.text;
+    productModel.isDeleted= false;
+    productModel.totalPrice= int.parse(totalPrice.text);
+    productModel.minPrice= int.parse(minPrice.text);
+    productModel.quantityPerPiece= int.parse(quantityPerPiece.text);
+    productModel.totalQuantity= 0;
+
+    await ProductDb(companyId: widget.companyModel.companyId, productId: productId).saveProduct(productModel.toJson()
     ).then((value){
       if(value==true){
         Navigator.pop(context);
